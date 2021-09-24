@@ -1,0 +1,27 @@
+#pragma once
+
+#include <iostream>
+#include <fstream>
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <thread>
+#include <future>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
+#include <algorithm>
+#include <random>
+#include <chrono>
+#include <utility>
+#include <functional>
+#include <concepts>
+#include <memory>
+#include <iomanip>
+#include <cmath>
+#include <ctime>
+#include <cstdint>
+#include <cstddef>
+#include <cstdlib>
+#include <cstdarg>
