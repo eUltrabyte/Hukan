@@ -24,6 +24,8 @@ endif(glm_FOUND)
 
 set(Hukan_SOURCE
     Hukan/utils/Types.hpp
+    Hukan/utils/Clock.hpp
+    Hukan/utils/Clock.cpp
     Hukan/api/Build.hpp
     Hukan/api/Terminal.hpp
     Hukan/api/Posix/TerminalPosix.cpp

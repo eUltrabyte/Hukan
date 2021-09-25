@@ -11,13 +11,13 @@ namespace hk {
         Critical = Bit(4)
     };
 
-    class Logger {
+    class HK_API Logger {
     public:
         Logger(const LoggerSeriousness& seriousness, const std::string& format);
         virtual ~Logger();
 
-        static void Log(const LoggerSeriousness& seriousness, const std::string& format);
-        static void Endl();
+        static void HK_API Log(const LoggerSeriousness& seriousness, const std::string& format);
+        static void HK_API Endl();
 
     };
 };

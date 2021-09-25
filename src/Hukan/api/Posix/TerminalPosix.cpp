@@ -68,7 +68,7 @@ namespace hk {
         }
 
         std::string _format;
-        _format = "\x1B[" + std::to_string(_color) + "m";
+        _format = "\u001b[" + std::to_string(_color) + "m";
         printf("%s", _format.c_str());
     }
     

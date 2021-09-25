@@ -12,6 +12,7 @@
 
 #include "api/Build.hpp"
 #include "utils/Types.hpp"
+#include "utils/Clock.hpp"
 
 #include "api/Terminal.hpp"
 #include "api/Logger.hpp"
