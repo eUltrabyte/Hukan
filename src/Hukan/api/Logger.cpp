@@ -24,4 +24,8 @@ namespace hk {
         }
         printf("%s %s \n", _loggerFormat, format.c_str());
     }
+
+    void Logger::Endl() {
+        printf("\n");
+    }
 };

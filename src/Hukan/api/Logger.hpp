@@ -17,6 +17,7 @@ namespace hk {
         virtual ~Logger();
 
         static void Log(const LoggerSeriousness& seriousness, const std::string& format);
+        static void Endl();
 
     };
 };

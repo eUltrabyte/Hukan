@@ -5,23 +5,22 @@
 namespace hk {
     enum class Color : Int_t {
         Reset = Bit(0),
-        Black = Bit(1),
-        Red = Bit(2),
-        DarkRed = Bit(3),
-        Green = Bit(4),
-        DarkGreen = Bit(5),
-        Yellow = Bit(6),
-        DarkYellow = Bit(7),
-        Blue = Bit(8),
-        DarkBlue = Bit(9),
-        Magenta = Bit(10),
-        DarkMagenta = Bit(11),
-        Cyan = Bit(12),
-        DarkCyan = Bit(13),
-        Gray = Bit(14),
-        DarkGray = Bit(15),
-        White = Bit(16)
+        Red = Bit(1),
+        DarkRed = Bit(2),
+        Green = Bit(3),
+        DarkGreen = Bit(4),
+        Yellow = Bit(5),
+        DarkYellow = Bit(6),
+        Blue = Bit(7),
+        DarkBlue = Bit(8),
+        Magenta = Bit(9),
+        DarkMagenta = Bit(10),
+        Cyan = Bit(11),
+        DarkCyan = Bit(12),
+        Gray = Bit(13),
+        White = Bit(14)
     };
 
     extern void HK_API AsColor(Color color);
+    extern void HK_API AvailableColors();
 };

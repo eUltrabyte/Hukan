@@ -1,79 +1,95 @@
 #include "../Terminal.hpp"
 
 #if defined(HUKAN_SYSTEM_WIN32)
+#include <Windows.h>
+
 namespace hk {
+    static HANDLE s_console;
+
     void Win32AsColor(Color color) {
+        if(!s_console) {
+            s_console = GetStdHandle(STD_OUTPUT_HANDLE);
+        }
+
+        int _color;
+
         switch(color) {
             case Color::Reset:
-                std::cout << "Reset\n";
-                break;
-
-            case Color::Black:
-                std::cout << "Black\n";
+                _color = 7;
                 break;
 
             case Color::Red:
-                std::cout << "Red\n";
+                _color = 12;
                 break;
 
             case Color::DarkRed:
-                std::cout << "DarkRed\n";
+                _color = 4;
                 break;
 
             case Color::Green:
-                std::cout << "Green\n";
+                _color = 10;
                 break;
 
             case Color::DarkGreen:
-                std::cout << "DarkGreen\n";
+                _color = 2;
                 break;
 
             case Color::Yellow:
-                std::cout << "Yellow\n";
+                _color = 14;
                 break;
 
             case Color::DarkYellow:
-                std::cout << "DarkYellow\n";
+                _color = 6;
                 break;
 
             case Color::Blue:
-                std::cout << "Blue\n";
+                _color = 9;
                 break;
 
             case Color::DarkBlue:
-                std::cout << "DarkBlue\n";
+                _color = 1;
                 break;
 
             case Color::Magenta:
-                std::cout << "Magenta\n";
+                _color = 13;
                 break;
 
             case Color::DarkMagenta:
-                std::cout << "DarkMagenta\n";
+                _color = 5;
                 break;
 
             case Color::Cyan:
-                std::cout << "Cyan\n";
+                _color = 11;
                 break;
 
             case Color::DarkCyan:
-                std::cout << "DarkCyan\n";
+                _color = 3;
                 break;
 
             case Color::Gray:
-                std::cout << "Gray\n";
-                break;
-
-            case Color::DarkGray:
-                std::cout << "DarkGray\n";
+                _color = 8;
                 break;
 
             case Color::White:
-                std::cout << "White\n";
+                _color = 15;
                 break;
+        }
+
+        SetConsoleTextAttribute(s_console, _color);
+    }
+
+    void Win32AvailableColors() {
+        if(!s_console) {
+            s_console = GetStdHandle(STD_OUTPUT_HANDLE);
+        }
+
+        for(int i = 1; i < 255; ++i) {
+            SetConsoleTextAttribute(s_console, i);
+            std::cout << i << " - Test\n";
         }
     }
 
     void AsColor(Color color) { Win32AsColor(color); }
+    void AvailableColors() { Win32AvailableColors(); }
 };
 #endif

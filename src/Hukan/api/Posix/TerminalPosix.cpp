@@ -3,77 +3,84 @@
 #if defined(HUKAN_SYSTEM_POSIX)
 namespace hk {
     void PosixAsColor(Color color) {
+        int _color;
+
         switch(color) {
             case Color::Reset:
-                std::cout << "Reset\n";
-                break;
-
-            case Color::Black:
-                std::cout << "Black\n";
+                _color = 0;
                 break;
 
             case Color::Red:
-                std::cout << "Red\n";
+                _color = 91;
                 break;
 
             case Color::DarkRed:
-                std::cout << "DarkRed\n";
+                _color = 31;
                 break;
 
             case Color::Green:
-                std::cout << "Green\n";
+                _color = 92;
                 break;
 
             case Color::DarkGreen:
-                std::cout << "DarkGreen\n";
+                _color = 32;
                 break;
 
             case Color::Yellow:
-                std::cout << "Yellow\n";
+                _color = 93;
                 break;
 
             case Color::DarkYellow:
-                std::cout << "DarkYellow\n";
+                _color = 33;
                 break;
 
             case Color::Blue:
-                std::cout << "Blue\n";
+                _color = 94;
                 break;
 
             case Color::DarkBlue:
-                std::cout << "DarkBlue\n";
+                _color = 34;
                 break;
 
             case Color::Magenta:
-                std::cout << "Magenta\n";
+                _color = 95;
                 break;
 
             case Color::DarkMagenta:
-                std::cout << "DarkMagenta\n";
+                _color = 35;
                 break;
 
             case Color::Cyan:
-                std::cout << "Cyan\n";
+                _color = 96;
                 break;
 
             case Color::DarkCyan:
-                std::cout << "DarkCyan\n";
+                _color = 36;
                 break;
 
             case Color::Gray:
-                std::cout << "Gray\n";
-                break;
-
-            case Color::DarkGray:
-                std::cout << "DarkGray\n";
+                _color = 30;
                 break;
 
             case Color::White:
-                std::cout << "White\n";
+                _color = 37;
                 break;
+        }
+
+        std::string _format;
+        _format = "\x1B[" + std::to_string(_color) + "m";
+        printf("%s", _format.c_str());
+    }
+    
+    void PosixAvailableColors() {
+        for(int i = 1; i < 255; ++i) {
+            std::string _format;
+            _format = "\x1B[" + std::to_string(i) + "m";
+            printf("%i - %s", i, _format.c_str());
         }
     }
 
     void AsColor(Color color) { PosixAsColor(color); }
+    void AvailableColors() { PosixAvailableColors(); }
 };
 #endif
