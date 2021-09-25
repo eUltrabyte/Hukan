@@ -2,10 +2,12 @@
 #include <iostream>
 
 int main(int argc, char** argv) {
-    hk::Logger::Log(hk::LoggerSeriousness::None, hk::String_t("Test"));
-    
-    std::cout << hk::Terminal::AsColor(hk::Color::Red) << "\n";
-    std::cout << hk::AsColor(hk::Color::Red) << "\n";
+    for(int i = 0; i < 5; ++i) {
+        hk::Logger::Log(hk::LoggerSeriousness(hk::Bit(i)), "Test");
+    }
+
+    hk::AsColor(hk::Color::Reset);
+    hk::AsColor(hk::Color::Red);
 
     std::cin.get();
     return 0;

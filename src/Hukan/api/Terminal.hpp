@@ -23,16 +23,5 @@ namespace hk {
         White = Bit(16)
     };
 
-    extern Int_t AsColor(Color color);
-
-    class Terminal {
-    public:
-        static Int_t AsColor(Color color);
-    };
+    extern void HK_API AsColor(Color color);
 };
-
-#if defined(_WIN32)
-    #include "Win32/TerminalWin32.hpp"
-#elif defined(__unix__)
-    #include "Posix/TerminalPosix.hpp"
-#endif

@@ -1,124 +1,79 @@
-#include "TerminalWin32.hpp"
+#include "../Terminal.hpp"
 
-#if defined(_WIN32)
+#if defined(HUKAN_SYSTEM_WIN32)
 namespace hk {
-    Int_t Win32AsColor(Color color) {
-        if(color == Color::Reset) {
-            return Bit(0);
-        } else if(color == Color::Black) {
-            return Bit(1);
-        } else if(color == Color::Red) {
-            std::cout << Bit(2) << "\n";
-            return Bit(2);
-        } else if(color == Color::DarkRed) {
-            return Bit(3);
-        } else if(color == Color::Green) {
-            return Bit(4);
-        } else if(color == Color::DarkGreen) {
-            return Bit(5);
-        } else if(color == Color::Yellow) {
-            return Bit(6);
-        } else if(color == Color::DarkYellow) {
-            return Bit(7);
-        } else if(color == Color::Blue) {
-            return Bit(8);
-        } else if(color == Color::DarkBlue) {
-            return Bit(9);
-        } else if(color == Color::Magenta) {
-            return Bit(10);
-        } else if(color == Color::DarkMagenta) {
-            return Bit(11);
-        } else if(color == Color::Cyan) {
-            return Bit(12);
-        } else if(color == Color::DarkCyan) {
-            return Bit(13);
-        } else if(color == Color::Gray) {
-            return Bit(14);
-        } else if(color == Color::DarkGray) {
-            return Bit(15);
-        } else if(color == Color::White) {
-            return Bit(16);
-        } else {
-            return Bit(0);
-        }
-
-        /* switch(color) {
+    void Win32AsColor(Color color) {
+        switch(color) {
             case Color::Reset:
-                return Bit(0);
+                std::cout << "Reset\n";
                 break;
 
             case Color::Black:
-                return Bit(1);
+                std::cout << "Black\n";
                 break;
 
             case Color::Red:
-                return Bit(2);
+                std::cout << "Red\n";
                 break;
 
             case Color::DarkRed:
-                return Bit(3);
+                std::cout << "DarkRed\n";
                 break;
 
             case Color::Green:
-                return Bit(4);
+                std::cout << "Green\n";
                 break;
 
             case Color::DarkGreen:
-                return Bit(5);
+                std::cout << "DarkGreen\n";
                 break;
 
             case Color::Yellow:
-                return Bit(6);
+                std::cout << "Yellow\n";
                 break;
 
             case Color::DarkYellow:
-                return Bit(7);
+                std::cout << "DarkYellow\n";
                 break;
 
             case Color::Blue:
-                return Bit(8);
+                std::cout << "Blue\n";
                 break;
 
             case Color::DarkBlue:
-                return Bit(9);
+                std::cout << "DarkBlue\n";
                 break;
 
             case Color::Magenta:
-                return Bit(10);
+                std::cout << "Magenta\n";
                 break;
 
             case Color::DarkMagenta:
-                return Bit(11);
+                std::cout << "DarkMagenta\n";
                 break;
 
             case Color::Cyan:
-                return Bit(12);
+                std::cout << "Cyan\n";
                 break;
 
             case Color::DarkCyan:
-                return Bit(13);
+                std::cout << "DarkCyan\n";
                 break;
 
             case Color::Gray:
-                return Bit(14);
+                std::cout << "Gray\n";
                 break;
 
             case Color::DarkGray:
-                return Bit(15);
+                std::cout << "DarkGray\n";
                 break;
 
             case Color::White:
-                return Bit(16);
+                std::cout << "White\n";
                 break;
-        } */
+        }
     }
 
-    Int_t AsColor(Color color) {
-        return Win32AsColor(color);
-    }
-
-    Int_t Terminal::AsColor(Color color) {
-        return Win32AsColor(color);
-    }
+    void AsColor(Color color) { Win32AsColor(color); }
 };
 #endif

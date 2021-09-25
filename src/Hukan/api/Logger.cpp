@@ -1,7 +1,7 @@
 #include "Logger.hpp"
 
 namespace hk {
-    Logger::Logger(const LoggerSeriousness& seriousness, const String_t& format) {
+    Logger::Logger(const LoggerSeriousness& seriousness, const std::string& format) {
         Log(seriousness, format);
     }
     
@@ -9,7 +9,7 @@ namespace hk {
         delete this;
     }
 
-    void Logger::Log(const LoggerSeriousness& seriousness, const String_t& format) {
+    void Logger::Log(const LoggerSeriousness& seriousness, const std::string& format) {
         const Char_t* _loggerFormat;
         if(seriousness == LoggerSeriousness::None) {
             _loggerFormat = "[Time: TODO] [Type: NONE]";
@@ -22,6 +22,6 @@ namespace hk {
         } else if(seriousness == LoggerSeriousness::Critical) {
             _loggerFormat = "[Time: TODO] [Type: CRITICAL]";
         }
-        printf("%s %s \n", _loggerFormat, format.pData);
+        printf("%s %s \n", _loggerFormat, format.c_str());
     }
 };

@@ -13,10 +13,10 @@ namespace hk {
 
     class Logger {
     public:
-        Logger(const LoggerSeriousness& seriousness, const String_t& format);
+        Logger(const LoggerSeriousness& seriousness, const std::string& format);
         virtual ~Logger();
 
-        static void Log(const LoggerSeriousness& seriousness, const String_t& format);
+        static void Log(const LoggerSeriousness& seriousness, const std::string& format);
 
     };
 };

@@ -10,6 +10,7 @@
 
 #include "hkpch.hpp"
 
+#include "api/Build.hpp"
 #include "utils/Types.hpp"
 
 #include "api/Terminal.hpp"

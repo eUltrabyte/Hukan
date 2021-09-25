@@ -24,10 +24,9 @@ endif(glm_FOUND)
 
 set(Hukan_SOURCE
     Hukan/utils/Types.hpp
+    Hukan/api/Build.hpp
     Hukan/api/Terminal.hpp
-    Hukan/api/Posix/TerminalPosix.hpp
     Hukan/api/Posix/TerminalPosix.cpp
-    Hukan/api/Win32/TerminalWin32.hpp
     Hukan/api/Win32/TerminalWin32.cpp
     Hukan/api/Logger.hpp
     Hukan/api/Logger.cpp

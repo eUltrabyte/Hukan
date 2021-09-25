@@ -1,81 +1,79 @@
-#include "TerminalPosix.hpp"
+#include "../Terminal.hpp"
 
-#if defined(__unix__)
+#if defined(HUKAN_SYSTEM_POSIX)
 namespace hk {
-    Int_t PosixAsColor(Color color) {
+    void PosixAsColor(Color color) {
         switch(color) {
             case Color::Reset:
-                return Bit(0);
+                std::cout << "Reset\n";
                 break;
 
             case Color::Black:
-                return Bit(1);
+                std::cout << "Black\n";
                 break;
 
             case Color::Red:
-                return Bit(2);
+                std::cout << "Red\n";
                 break;
 
             case Color::DarkRed:
-                return Bit(3);
+                std::cout << "DarkRed\n";
                 break;
 
             case Color::Green:
-                return Bit(4);
+                std::cout << "Green\n";
                 break;
 
             case Color::DarkGreen:
-                return Bit(5);
+                std::cout << "DarkGreen\n";
                 break;
 
             case Color::Yellow:
-                return Bit(6);
+                std::cout << "Yellow\n";
                 break;
 
             case Color::DarkYellow:
-                return Bit(7);
+                std::cout << "DarkYellow\n";
                 break;
 
             case Color::Blue:
-                return Bit(8);
+                std::cout << "Blue\n";
                 break;
 
             case Color::DarkBlue:
-                return Bit(9);
+                std::cout << "DarkBlue\n";
                 break;
 
             case Color::Magenta:
-                return Bit(10);
+                std::cout << "Magenta\n";
                 break;
 
             case Color::DarkMagenta:
-                return Bit(11);
+                std::cout << "DarkMagenta\n";
                 break;
 
             case Color::Cyan:
-                return Bit(12);
+                std::cout << "Cyan\n";
                 break;
 
             case Color::DarkCyan:
-                return Bit(13);
+                std::cout << "DarkCyan\n";
                 break;
 
             case Color::Gray:
-                return Bit(14);
+                std::cout << "Gray\n";
                 break;
 
             case Color::DarkGray:
-                return Bit(15);
+                std::cout << "DarkGray\n";
                 break;
 
             case Color::White:
-                return Bit(16);
+                std::cout << "White\n";
                 break;
         }
     }
 
-    Int_t AsColor(Color color) {
-        return PosixAsColor(color);
-    }
+    void AsColor(Color color) { PosixAsColor(color); }
 };
 #endif
