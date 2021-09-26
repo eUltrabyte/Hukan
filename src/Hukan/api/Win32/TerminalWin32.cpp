@@ -92,4 +92,5 @@ namespace hk {
     void AsColor(Color color) { Win32AsColor(color); }
     void AvailableColors() { Win32AvailableColors(); }
 };
+
 #endif

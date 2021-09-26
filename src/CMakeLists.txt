@@ -27,6 +27,9 @@ set(Hukan_SOURCE
     Hukan/utils/Clock.hpp
     Hukan/utils/Clock.cpp
     Hukan/api/Build.hpp
+    Hukan/api/Platform.hpp
+    Hukan/api/Posix/PlatformPosix.cpp
+    Hukan/api/Win32/PlatformWin32.cpp
     Hukan/api/Terminal.hpp
     Hukan/api/Posix/TerminalPosix.cpp
     Hukan/api/Win32/TerminalWin32.cpp

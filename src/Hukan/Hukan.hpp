@@ -14,5 +14,6 @@
 #include "utils/Types.hpp"
 #include "utils/Clock.hpp"
 
+#include "api/Platform.hpp"
 #include "api/Terminal.hpp"
 #include "api/Logger.hpp"
