@@ -14,10 +14,10 @@ namespace hk {
 
     class HK_API Logger {
     public:
-        Logger(const LoggerSeriousness& seriousness, const std::string& format, Int_t color = Bit(14));
+        Logger(const LoggerSeriousness& seriousness, const std::string& format, Int_t color = Bit(0));
         virtual ~Logger();
 
-        static void HK_API Log(const LoggerSeriousness& seriousness, const std::string& format, Int_t color = Bit(14));
+        static void HK_API Log(const LoggerSeriousness& seriousness, const std::string& format, Int_t color = Bit(0));
         static void HK_API Endl();
 
     };

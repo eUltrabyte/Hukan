@@ -10,6 +10,8 @@
 
 #include "hkpch.hpp"
 
+#include <vulkan/vulkan.h>
+
 #include "core/Build.hpp"
 
 #include "utils/Types.hpp"
@@ -20,3 +22,4 @@
 #include "api/Logger.hpp"
 
 #include "core/Assert.hpp"
+#include "core/Instance.hpp"
