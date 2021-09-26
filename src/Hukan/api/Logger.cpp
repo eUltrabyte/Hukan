@@ -1,15 +1,15 @@
 #include "Logger.hpp"
 
 namespace hk {
-    Logger::Logger(const LoggerSeriousness& seriousness, const std::string& format) {
-        Log(seriousness, format);
+    Logger::Logger(const LoggerSeriousness& seriousness, const std::string& format, Int_t color) {
+        Log(seriousness, format, color);
     }
     
     Logger::~Logger() {
         delete this;
     }
 
-    void Logger::Log(const LoggerSeriousness& seriousness, const std::string& format) {
+    void Logger::Log(const LoggerSeriousness& seriousness, const std::string& format, Int_t color) {
         std::tm* _now = Clock::GetActualTime();
 
         std::string _seconds;
@@ -24,19 +24,38 @@ namespace hk {
         std::string _loggerFormat;
         if(seriousness == LoggerSeriousness::None) {
             _loggerFormat = "[ Time: " + std::to_string(_now->tm_hour) + ":" + std::to_string(_now->tm_min) + ":" + _seconds + " ] [ Type: NONE ]";
-            printf("%s %s \n", _loggerFormat.c_str(), format.c_str());
+            printf("%s ", _loggerFormat.c_str());
+            AsColor(Color(color));
+            printf("%s \n", format.c_str());
+            AsColor(Color::Reset);
         } else if(seriousness == LoggerSeriousness::Info) {
             _loggerFormat = "[ Time: " + std::to_string(_now->tm_hour) + ":" + std::to_string(_now->tm_min) + ":" + _seconds + " ] [ Type: INFO ]";
-            printf("%s %s \n", _loggerFormat.c_str(), format.c_str());
+            AsColor(Color::Cyan);
+            printf("%s ", _loggerFormat.c_str());
+            AsColor(Color(color));
+            printf("%s \n", format.c_str());
+            AsColor(Color::Reset);
         } else if(seriousness == LoggerSeriousness::Warning) {
             _loggerFormat = "[ Time: " + std::to_string(_now->tm_hour) + ":" + std::to_string(_now->tm_min) + ":" + _seconds + " ] [ Type: WARNING ]";
-            printf("%s %s \n", _loggerFormat.c_str(), format.c_str());
+            AsColor(Color::DarkMagenta);
+            printf("%s ", _loggerFormat.c_str());
+            AsColor(Color(color));
+            printf("%s \n", format.c_str());
+            AsColor(Color::Reset);
         } else if(seriousness == LoggerSeriousness::Error) {
             _loggerFormat = "[ Time: " + std::to_string(_now->tm_hour) + ":" + std::to_string(_now->tm_min) + ":" + _seconds + " ] [ Type: ERROR ]";
-            printf("%s %s \n", _loggerFormat.c_str(), format.c_str());
+            AsColor(Color::Red);
+            printf("%s ", _loggerFormat.c_str());
+            AsColor(Color(color));
+            printf("%s \n", format.c_str());
+            AsColor(Color::Reset);
         } else if(seriousness == LoggerSeriousness::Critical) {
             _loggerFormat = "[ Time: " + std::to_string(_now->tm_hour) + ":" + std::to_string(_now->tm_min) + ":" + _seconds + " ] [ Type: CRITICAL ]";
-            printf("%s %s \n", _loggerFormat.c_str(), format.c_str());
+            AsColor(Color::DarkRed);
+            printf("%s ", _loggerFormat.c_str());
+            AsColor(Color(color));
+            printf("%s \n", format.c_str());
+            AsColor(Color::Reset);
         }
     }
 

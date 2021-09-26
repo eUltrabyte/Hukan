@@ -10,10 +10,13 @@
 
 #include "hkpch.hpp"
 
-#include "api/Build.hpp"
+#include "core/Build.hpp"
+
 #include "utils/Types.hpp"
 #include "utils/Clock.hpp"
 
 #include "api/Platform.hpp"
 #include "api/Terminal.hpp"
 #include "api/Logger.hpp"
+
+#include "core/Assert.hpp"

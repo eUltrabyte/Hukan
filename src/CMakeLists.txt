@@ -4,6 +4,10 @@ project(Hukan)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_BUILD_TYPE Debug)
 
+if(CMAKE_BUILD_TYPE EQUAL "Debug")
+    add_definitions(-DHUKAN_DEBUG)
+endif(CMAKE_BUILD_TYPE EQUAL "Debug")
+
 include_directories(${PROJECT_NAME} PRIVATE ../..)
 include_directories(${PROJECT_NAME} PRIVATE Hukan)
 
@@ -23,10 +27,10 @@ if(glm_FOUND)
 endif(glm_FOUND)
 
 set(Hukan_SOURCE
+    Hukan/core/Build.hpp
     Hukan/utils/Types.hpp
     Hukan/utils/Clock.hpp
     Hukan/utils/Clock.cpp
-    Hukan/api/Build.hpp
     Hukan/api/Platform.hpp
     Hukan/api/Posix/PlatformPosix.cpp
     Hukan/api/Win32/PlatformWin32.cpp
@@ -35,6 +39,8 @@ set(Hukan_SOURCE
     Hukan/api/Win32/TerminalWin32.cpp
     Hukan/api/Logger.hpp
     Hukan/api/Logger.cpp
+    Hukan/core/Assert.hpp
+    Hukan/core/Assert.cpp
     Hukan/Hukan.hpp
     Hukan/Hukan.cpp
 )

@@ -14,8 +14,7 @@ int main(int argc, char** argv) {
     hk::Logger::Endl();
 
     for(int i = 0; i <= 14; ++i) {
-        hk::AsColor(hk::Color(hk::Bit(i)));
-        hk::Logger::Log(hk::LoggerSeriousness::None, "Test");
+        hk::Logger::Log(hk::LoggerSeriousness::None, "Test", hk::Bit(i));
     }
 
     hk::Logger::Endl();
