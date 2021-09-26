@@ -23,3 +23,13 @@
 
 #include "core/Assert.hpp"
 #include "core/Instance.hpp"
+
+#if defined(HUKAN_DEBUG)
+    #define HK_ENABLE_VALIDATION_LAYERS false
+#else
+    #define HK_ENABLE_VALIDATION_LAYERS  true
+#endif
+
+namespace hk {
+    extern const std::vector<const char*> g_validationLayers;
+};

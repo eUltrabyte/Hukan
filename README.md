@@ -1,5 +1,5 @@
 # Hukan
-Hukan is open source game engine developed by [Ultrabyte](https://github.com/eUltrabyte/)
+[Hukan](https://github.com/eUltrabyte/Hukan) is open source game engine developed by [Ultrabyte](https://github.com/eUltrabyte/)
 
 ## Installation
 Use the [git](https://git-scm.com/downloads/) to clone the Hukan repository.

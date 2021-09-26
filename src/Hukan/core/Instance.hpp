@@ -5,6 +5,7 @@
 namespace hk {
     struct HK_API InstanceCreateInfo {
         VkApplicationInfo* pAppInfo;
+        const void * pNext;
         Uint_t enabledLayersCount;
         const Char_t* const* ppEnabledLayers;
         Uint_t enabledExtensionsCount;
@@ -21,7 +22,7 @@ namespace hk {
         VkInstanceCreateInfo* GetVkInstanceCreateInfo() {
             VkInstanceCreateInfo _instanceCreateInfo;
             _instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-            _instanceCreateInfo.pNext = nullptr;
+            _instanceCreateInfo.pNext = pNext;
             _instanceCreateInfo.flags = 0;
             _instanceCreateInfo.pApplicationInfo = pAppInfo;
             _instanceCreateInfo.enabledLayerCount = enabledLayersCount;
