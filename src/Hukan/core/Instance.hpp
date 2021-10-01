@@ -4,14 +4,20 @@
 
 namespace hk {
     struct HK_API InstanceCreateInfo {
+    public:
+        const void* pNext;
         VkApplicationInfo* pAppInfo;
-        const void * pNext;
         Uint_t enabledLayersCount;
         const Char_t* const* ppEnabledLayers;
         Uint_t enabledExtensionsCount;
         const Char_t* const* ppEnabledExtensions;
 
+    private:
+        VkInstanceCreateInfo pInstanceCreateInfo;
+
+    public:
         InstanceCreateInfo() {
+            pNext = nullptr;
             pAppInfo = nullptr;
             enabledLayersCount = 0;
             ppEnabledLayers = nullptr;
@@ -20,22 +26,21 @@ namespace hk {
         }
 
         VkInstanceCreateInfo* GetVkInstanceCreateInfo() {
-            VkInstanceCreateInfo _instanceCreateInfo;
-            _instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-            _instanceCreateInfo.pNext = pNext;
-            _instanceCreateInfo.flags = 0;
-            _instanceCreateInfo.pApplicationInfo = pAppInfo;
-            _instanceCreateInfo.enabledLayerCount = enabledLayersCount;
-            _instanceCreateInfo.ppEnabledLayerNames = ppEnabledLayers;
-            _instanceCreateInfo.enabledExtensionCount = enabledExtensionsCount;
-            _instanceCreateInfo.ppEnabledExtensionNames = ppEnabledExtensions;
-            return &_instanceCreateInfo;
+            pInstanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+            pInstanceCreateInfo.pNext = pNext;
+            pInstanceCreateInfo.flags = 0;
+            pInstanceCreateInfo.pApplicationInfo = pAppInfo;
+            pInstanceCreateInfo.enabledLayerCount = enabledLayersCount;
+            pInstanceCreateInfo.ppEnabledLayerNames = ppEnabledLayers;
+            pInstanceCreateInfo.enabledExtensionCount = enabledExtensionsCount;
+            pInstanceCreateInfo.ppEnabledExtensionNames = ppEnabledExtensions;
+            return &pInstanceCreateInfo;
         }
     };
 
     class HK_API Instance {
     public:
-        Instance(InstanceCreateInfo* instanceCreateInfo);
+        Instance(InstanceCreateInfo* instanceCreateInfo = nullptr);
         virtual ~Instance();
 
         void CreateVkInstance();
@@ -46,7 +51,7 @@ namespace hk {
         VkInstance* GetVkInstance();
 
     private:
-        InstanceCreateInfo m_instanceCreateInfo;
+        InstanceCreateInfo* m_instanceCreateInfo;
         VkInstance m_instance;
 
     };

@@ -103,6 +103,7 @@ namespace hk {
         if(_func != nullptr) {
             return _func(instance, pCreateInfo, pAllocator, pDebugMessenger);
         }
+        return VkResult(0);
     }
 
     void Logger::DestroyMessenger(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
