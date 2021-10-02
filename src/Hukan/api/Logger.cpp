@@ -97,29 +97,4 @@ namespace hk {
         printf("\n");
         AsColor(hk::Color::Reset);
     }
-
-    VkResult Logger::CreateMessenger(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
-        auto _func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-        if(_func != nullptr) {
-            return _func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-        }
-        return VkResult(0);
-    }
-
-    void Logger::DestroyMessenger(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
-        auto _func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-        if(_func != nullptr) {
-            _func(instance, debugMessenger, pAllocator);
-        }
-    }
-
-    VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
-        std::string _format = "validation layer: " + std::string(pCallbackData->pMessage);
-        if(messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-            Logger::Log(LoggerSeriousness::Warning, _format);
-        } else if(messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-            Logger::Log(LoggerSeriousness::Error, _format);
-        }
-        return VK_FALSE;
-    }
 };

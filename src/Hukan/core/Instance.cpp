@@ -1,9 +1,9 @@
 #include "Instance.hpp"
 
 namespace hk {
-    Instance::Instance(InstanceCreateInfo* instanceCreateInfo) {
-        if(instanceCreateInfo != nullptr) {
-            SetVkInstanceCreateInfo(instanceCreateInfo);
+    Instance::Instance(InstanceCreateInfo* pInstanceCreateInfo) {
+        if(pInstanceCreateInfo != nullptr) {
+            SetVkInstanceCreateInfo(pInstanceCreateInfo);
             CreateVkInstance();
         }
     }
@@ -14,19 +14,19 @@ namespace hk {
     }
 
     void Instance::CreateVkInstance() {
-        VkResult _result = vkCreateInstance(m_instanceCreateInfo->GetVkInstanceCreateInfo(), nullptr, &m_instance);
+        VkResult _result = vkCreateInstance(mpInstanceCreateInfo->GetVkInstanceCreateInfo(), nullptr, &mInstance);
         HK_ASSERT(_result);
     }
     
     void Instance::DestroyVkInstance() {
-        vkDestroyInstance(m_instance, nullptr);
+        vkDestroyInstance(mInstance, nullptr);
     }
 
-    void Instance::SetVkInstanceCreateInfo(InstanceCreateInfo* instanceCreateInfo) {
-        m_instanceCreateInfo = instanceCreateInfo;
+    void Instance::SetVkInstanceCreateInfo(InstanceCreateInfo* pInstanceCreateInfo) {
+        mpInstanceCreateInfo = pInstanceCreateInfo;
     }
 
     VkInstance* Instance::GetVkInstance() {
-        return &m_instance;
+        return &mInstance;
     }
 };

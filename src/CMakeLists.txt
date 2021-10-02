@@ -45,6 +45,10 @@ set(Hukan_SOURCE
     Hukan/core/Assert.cpp
     Hukan/core/Instance.hpp
     Hukan/core/Instance.cpp
+    Hukan/core/Messenger.hpp
+    Hukan/core/Messenger.cpp
+    Hukan/core/Layer.hpp
+    Hukan/core/Layer.cpp
     Hukan/Hukan.hpp
     Hukan/Hukan.cpp
 )

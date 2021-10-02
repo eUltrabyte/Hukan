@@ -12,15 +12,14 @@ int main(int argc, char** argv) {
 
     hk::Uint_t layerCount = 0;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-    std::vector<VkLayerProperties> layers(layerCount);
-    vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
+    std::vector<VkLayerProperties> vkLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, vkLayers.data());
 
+    std::vector<hk::Layer> layers(layerCount);
     for(int i = 0; i < layers.size(); ++i) {
-        std::string _format = "instance layers: " + std::string(layers.at(i).layerName);
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format, (hk::Int_t)hk::Color::Blue);
+        layers.at(i).SetVkLayerProperties(&vkLayers.at(i));
+        layers.at(i).PrintVkLayerProperties();
     }
-
-    hk::Logger::Endl();
 
     hk::Uint_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -43,17 +42,15 @@ int main(int argc, char** argv) {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
 
-    VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo;
-    messengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    hk::MessengerCreateInfo messengerCreateInfo;
     messengerCreateInfo.pNext = nullptr;
-    messengerCreateInfo.flags = 0;
     messengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     messengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    messengerCreateInfo.pfnUserCallback = (PFN_vkDebugUtilsMessengerCallbackEXT)hk::DebugCallback;
+    messengerCreateInfo.pfnUserCallback = (PFN_vkDebugUtilsMessengerCallbackEXT)hk::DebugMessengerCallback;
     messengerCreateInfo.pUserData = nullptr;
 
     hk::InstanceCreateInfo instanceCreateInfo;
-    instanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&messengerCreateInfo;
+    instanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)messengerCreateInfo.GetVkMessengerCreateInfo();
     instanceCreateInfo.pAppInfo = &appInfo;
     instanceCreateInfo.enabledLayersCount = hk::g_validationLayers.size();
     instanceCreateInfo.ppEnabledLayers = hk::g_validationLayers.data();
@@ -61,12 +58,8 @@ int main(int argc, char** argv) {
     instanceCreateInfo.ppEnabledExtensions = extensions.data();
 
     hk::Instance instance(&instanceCreateInfo);
-
-    VkDebugUtilsMessengerEXT debugMessenger;
-    hk::Logger::CreateMessenger(*instance.GetVkInstance(), &messengerCreateInfo, nullptr, &debugMessenger);
+    hk::Messenger debugMessenger(instance.GetVkInstance(), &messengerCreateInfo);
 
     std::cin.get();
-
-    hk::Logger::DestroyMessenger(*instance.GetVkInstance(), debugMessenger, nullptr);
     return 0;
 }
