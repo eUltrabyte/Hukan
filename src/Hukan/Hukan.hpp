@@ -25,6 +25,7 @@
 #include "core/Instance.hpp"
 #include "core/Messenger.hpp"
 #include "core/Layer.hpp"
+#include "core/Extension.hpp"
 
 #if defined(HUKAN_DEBUG)
     #define HK_ENABLE_VALIDATION_LAYERS false

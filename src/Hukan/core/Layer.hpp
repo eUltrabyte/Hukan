@@ -21,10 +21,6 @@ namespace hk {
 
     private:
         VkLayerProperties* mpVkLayerProperties;
-        const Char_t* mName;
-        const Char_t* mDescription;
-        Uint_t mSpecificationVersion;
-        Uint_t mImplementationVersion;
 
     };
 };

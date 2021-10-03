@@ -49,6 +49,8 @@ set(Hukan_SOURCE
     Hukan/core/Messenger.cpp
     Hukan/core/Layer.hpp
     Hukan/core/Layer.cpp
+    Hukan/core/Extension.hpp
+    Hukan/core/Extension.cpp
     Hukan/Hukan.hpp
     Hukan/Hukan.cpp
 )

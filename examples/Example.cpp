@@ -20,26 +20,30 @@ int main(int argc, char** argv) {
         layers.at(i).SetVkLayerProperties(&vkLayers.at(i));
         layers.at(i).PrintVkLayerProperties();
     }
+    vkLayers.clear();
+
+    hk::Logger::Endl();
+    hk::Logger::Endl();
 
     hk::Uint_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-    std::vector<VkExtensionProperties> extensionsProperties(extensionCount);
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensionsProperties.data());
+    std::vector<VkExtensionProperties> vkExtensionsProperties(extensionCount);
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, vkExtensionsProperties.data());
 
-    for(int i = 0; i < extensionsProperties.size(); ++i) {
-        std::string _format = "instance extension: " + std::string(extensionsProperties.at(i).extensionName);
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format, (hk::Int_t)hk::Color::Blue);
+    std::vector<hk::Extension> extensions(extensionCount);
+    for(int i = 0; i < vkExtensionsProperties.size(); ++i) {
+        extensions.at(i).SetVkExtensionProperties(&vkExtensionsProperties.at(i));
+        extensions.at(i).PrintVkExtensionProperties();
     }
+    vkExtensionsProperties.clear();
 
-    hk::Logger::Endl();
-
-    std::vector<const hk::Char_t*> extensions;
-    for(auto& extension : extensionsProperties) {
-        extensions.push_back(extension.extensionName);
+    std::vector<const hk::Char_t*> extensionsNames;
+    for(auto& extension : extensions) {
+        extensionsNames.push_back(extension.GetName());
     }
 
     if(HK_ENABLE_VALIDATION_LAYERS) {
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        extensionsNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
 
     hk::MessengerCreateInfo messengerCreateInfo;
@@ -54,8 +58,8 @@ int main(int argc, char** argv) {
     instanceCreateInfo.pAppInfo = &appInfo;
     instanceCreateInfo.enabledLayersCount = hk::g_validationLayers.size();
     instanceCreateInfo.ppEnabledLayers = hk::g_validationLayers.data();
-    instanceCreateInfo.enabledExtensionsCount = extensions.size();
-    instanceCreateInfo.ppEnabledExtensions = extensions.data();
+    instanceCreateInfo.enabledExtensionsCount = extensionsNames.size();
+    instanceCreateInfo.ppEnabledExtensions = extensionsNames.data();
 
     hk::Instance instance(&instanceCreateInfo);
     hk::Messenger debugMessenger(instance.GetVkInstance(), &messengerCreateInfo);
