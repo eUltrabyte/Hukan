@@ -10,6 +10,9 @@
 
 #include "hkpch.hpp"
 
+#if defined(HUKAN_SYSTEM_WIN32)
+    #define VK_USE_PLATFORM_WIN32_KHR
+#endif
 #include <vulkan/vulkan.h>
 
 #include "core/Build.hpp"

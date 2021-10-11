@@ -5,8 +5,10 @@ namespace hk {
         std::string _format = "validation layer: " + std::string(pCallbackData->pMessage);
         if(messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
             Logger::Log(LoggerSeriousness::Warning, _format);
+            Logger::Endl();
         } else if(messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
             Logger::Log(LoggerSeriousness::Error, _format);
+            Logger::Endl();
         }
         return VK_FALSE;
     }
