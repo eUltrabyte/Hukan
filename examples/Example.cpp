@@ -70,12 +70,14 @@ int main(int argc, char** argv) {
     hk::Instance instance(&instanceCreateInfo);
     hk::Messenger debugMessenger(instance.GetVkInstance(), &messengerCreateInfo);
 
+    hk::WindowImpl window;
+
     VkWin32SurfaceCreateInfoKHR surfaceCreateInfo;
     surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
     surfaceCreateInfo.pNext = nullptr;
     surfaceCreateInfo.flags = 0;
-    surfaceCreateInfo.hinstance = nullptr;
-    surfaceCreateInfo.hwnd = nullptr;
+    surfaceCreateInfo.hinstance = *window.GetHINSTANCE();
+    surfaceCreateInfo.hwnd = *window.GetHWND();
 
     VkSurfaceKHR surface;
     result = vkCreateWin32SurfaceKHR(*instance.GetVkInstance(), &surfaceCreateInfo, nullptr, &surface);

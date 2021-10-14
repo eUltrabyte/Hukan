@@ -30,6 +30,8 @@
 #include "core/Layer.hpp"
 #include "core/Extension.hpp"
 
+#include "graphics/Window/Win32/WindowWin32.hpp"
+
 #if defined(HUKAN_DEBUG)
     #define HK_ENABLE_VALIDATION_LAYERS false
 #else

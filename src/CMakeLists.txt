@@ -17,16 +17,6 @@ if(Vulkan_FOUND)
     include_directories(${Vulkan_INCLUDE_DIRS})
 endif(Vulkan_FOUND)
 
-find_package(GLFW3 REQUIRED FATAL_ERROR)
-if(GLFW3_FOUND)
-    include_directories(${GLFW3_INCLUDE_DIRS})
-endif(GLFW3_FOUND)
-
-find_package(glm REQUIRED FATAL_ERROR)
-if(glm_FOUND)
-    include_directories(${glm_INCLUDE_DIRS})
-endif(glm_FOUND)
-
 set(Hukan_SOURCE
     Hukan/core/Build.hpp
     Hukan/utils/Types.hpp
@@ -50,6 +40,8 @@ set(Hukan_SOURCE
     Hukan/core/Layer.cpp
     Hukan/core/Extension.hpp
     Hukan/core/Extension.cpp
+    Hukan/graphics/Window/Win32/WindowWin32.hpp
+    Hukan/graphics/Window/Win32/WindowWin32.cpp
     Hukan/Hukan.hpp
     Hukan/Hukan.cpp
 )
@@ -58,6 +50,6 @@ add_library(${PROJECT_NAME} STATIC ${Hukan_SOURCE})
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE Hukan/hkpch.hpp Hukan/hkpch.cpp)
 
-if(Vulkan_FOUND AND GLFW3_FOUND AND glm_FOUND)
-    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan ${Vulkan_LIBRARIES} ${GLFW3_LIBRARIES} ${glm_LIBRARIES})
-endif(Vulkan_FOUND AND GLFW3_FOUND AND glm_FOUND)
+if(Vulkan_FOUND)
+    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan ${Vulkan_LIBRARIES})
+endif(Vulkan_FOUND)
