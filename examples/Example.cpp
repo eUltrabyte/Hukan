@@ -70,18 +70,19 @@ int main(int argc, char** argv) {
     hk::Instance instance(&instanceCreateInfo);
     hk::Messenger debugMessenger(instance.GetVkInstance(), &messengerCreateInfo);
 
-    hk::WindowImpl window;
+    hk::WindowCreateInfo windowCreateInfo;
+    windowCreateInfo.title = "Hukan Window Impl Win32";
+    windowCreateInfo.width = 1280;
+    windowCreateInfo.height = 720;
 
-    VkWin32SurfaceCreateInfoKHR surfaceCreateInfo;
-    surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    hk::WindowImplWin32 window(&windowCreateInfo);
+
+    hk::SurfaceWin32CreateInfo surfaceCreateInfo;
     surfaceCreateInfo.pNext = nullptr;
-    surfaceCreateInfo.flags = 0;
-    surfaceCreateInfo.hinstance = *window.GetHINSTANCE();
-    surfaceCreateInfo.hwnd = *window.GetHWND();
+    surfaceCreateInfo.pHinstance = window.GetHINSTANCE();
+    surfaceCreateInfo.pHwnd = window.GetHWND();
 
-    VkSurfaceKHR surface;
-    result = vkCreateWin32SurfaceKHR(*instance.GetVkInstance(), &surfaceCreateInfo, nullptr, &surface);
-    HK_ASSERT(result);
+    hk::SurfaceWin32 surface(instance.GetVkInstance(), &surfaceCreateInfo);
 
     hk::Uint_t deviceCount = 0;
     vkEnumeratePhysicalDevices(*instance.GetVkInstance(), &deviceCount, nullptr);
@@ -168,10 +169,13 @@ int main(int argc, char** argv) {
     VkQueue queue;
     vkGetDeviceQueue(device, 0, 0, &queue);
 
+    window.Update();
+
     vkDeviceWaitIdle(device);
 
     vkDestroyDevice(device, nullptr);
-    vkDestroySurfaceKHR(*instance.GetVkInstance(), surface, nullptr);
+    surface.Destroy();
+    window.Destroy();
 
     debugMessenger.DestroyVkMessenger();
     instance.DestroyVkInstance();

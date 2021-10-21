@@ -1,6 +1,5 @@
 #include "WindowWin32.hpp"
 
-#define HUKAN_SYSTEM_WIN32
 #if defined(HUKAN_SYSTEM_WIN32)
 #include <Windows.h>
 
@@ -8,10 +7,12 @@ namespace hk {
     LRESULT CALLBACK HK_API WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         switch(msg) {
             case WM_CLOSE:
+                PostQuitMessage(0);
                 DestroyWindow(hwnd);
                 break;
 
             case WM_DESTROY:
+                PostQuitMessage(0);
                 DestroyWindow(hwnd);
                 break;
 
@@ -21,19 +22,19 @@ namespace hk {
         return 0;
     }
 
-    WindowImpl::WindowImpl() {
+    WindowImplWin32::WindowImplWin32(WindowCreateInfo* pWindowCreateInfo) {
+        SetWindowCreateInfo(pWindowCreateInfo);
         mHinstance = GetModuleHandle(0);
         Create();
     }
     
-    WindowImpl::~WindowImpl() {
+    WindowImplWin32::~WindowImplWin32() {
         Destroy();
         delete this;
     }
 
-    void WindowImpl::Create() {
+    void WindowImplWin32::Create() {
         WNDCLASSEX windowClassEx;
-        MSG message;
 
         windowClassEx.cbSize = sizeof(WNDCLASSEX);
         windowClassEx.style = 0;
@@ -52,29 +53,40 @@ namespace hk {
             Logger::Log(LoggerSeriousness::Error, "Win32 Window Registration Failed!");
         }
 
-        mHwnd = CreateWindowEx(WS_EX_CLIENTEDGE, "Hukan Win32 Window Class", "Hukan Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, 0, 0, mHinstance, 0);
+        mHwnd = CreateWindowEx(WS_EX_CLIENTEDGE, "Hukan Win32 Window Class", mpWindowCreateInfo->title, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, mpWindowCreateInfo->width, mpWindowCreateInfo->height, 0, 0, mHinstance, 0);
         if(!mHwnd) {
             Logger::Log(LoggerSeriousness::Error, "Win32 Window Creation Failed!");
         }
 
         ShowWindow(mHwnd, SW_SHOW);
+    }
+
+    void WindowImplWin32::Update() {
         UpdateWindow(mHwnd);
 
-        while(GetMessage(&message, 0, 0, 0) > 0) {
-            TranslateMessage(&message);
-            DispatchMessage(&message);
+        while(GetMessage(&mMessage, 0, 0, 0) > 0) {
+            TranslateMessage(&mMessage);
+            DispatchMessage(&mMessage);
         }
     }
     
-    void WindowImpl::Destroy() {
+    void WindowImplWin32::Destroy() {
         DestroyWindow(mHwnd);
     }
 
-    HINSTANCE* WindowImpl::GetHINSTANCE() {
+    void WindowImplWin32::SetWindowCreateInfo(WindowCreateInfo* pWindowCreateInfo) {
+        mpWindowCreateInfo = pWindowCreateInfo;
+    }
+
+    WindowCreateInfo* WindowImplWin32::GetWindowCreateInfo() {
+        return mpWindowCreateInfo;
+    }
+
+    HINSTANCE* WindowImplWin32::GetHINSTANCE() {
         return &mHinstance;
     }
     
-    HWND* WindowImpl::GetHWND() {
+    HWND* WindowImplWin32::GetHWND() {
         return &mHwnd;
     }
 };

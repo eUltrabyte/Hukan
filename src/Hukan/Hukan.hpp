@@ -8,11 +8,16 @@
     #error "Hukan Not Supported"
 #endif
 
+#define HUKAN_NODISCARD [[nodiscard]]
+
 #include "hkpch.hpp"
 
 #if defined(HUKAN_SYSTEM_WIN32)
     #define VK_USE_PLATFORM_WIN32_KHR
+#elif defined(HUKAN_SYSTEM_POSIX)
+    #define VK_USE_PLATFORM_XLIB_KHR
 #endif
+
 #include <vulkan/vulkan.h>
 
 #include "core/Build.hpp"
@@ -30,7 +35,8 @@
 #include "core/Layer.hpp"
 #include "core/Extension.hpp"
 
-#include "graphics/Window/Win32/WindowWin32.hpp"
+#include "graphics/Window/Window.hpp"
+#include "graphics/Surface/Surface.hpp"
 
 #if defined(HUKAN_DEBUG)
     #define HK_ENABLE_VALIDATION_LAYERS false

@@ -42,6 +42,12 @@ set(Hukan_SOURCE
     Hukan/core/Extension.cpp
     Hukan/graphics/Window/Win32/WindowWin32.hpp
     Hukan/graphics/Window/Win32/WindowWin32.cpp
+    Hukan/graphics/Window/Window.hpp
+    Hukan/graphics/Window/Window.cpp
+    Hukan/graphics/Surface/Win32/SurfaceWin32.hpp
+    Hukan/graphics/Surface/Win32/SurfaceWin32.cpp
+    Hukan/graphics/Surface/Surface.hpp
+    Hukan/graphics/Surface/Surface.cpp
     Hukan/Hukan.hpp
     Hukan/Hukan.cpp
 )

@@ -43,12 +43,12 @@ namespace hk {
         Instance(InstanceCreateInfo* pInstanceCreateInfo = nullptr);
         virtual ~Instance();
 
-        void CreateVkInstance();
-        void DestroyVkInstance();
+        virtual void CreateVkInstance();
+        virtual void DestroyVkInstance();
 
-        void SetVkInstanceCreateInfo(InstanceCreateInfo* pInstanceCreateInfo = nullptr);
+        virtual void SetVkInstanceCreateInfo(InstanceCreateInfo* pInstanceCreateInfo = nullptr);
 
-        VkInstance* GetVkInstance();
+        virtual VkInstance* GetVkInstance();
 
     private:
         InstanceCreateInfo* mpInstanceCreateInfo;

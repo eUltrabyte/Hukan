@@ -1,6 +1,9 @@
 .idea/
 .vscode/
 .vs/
+.clion/
 
 build/
 bin/
+out/
+output/

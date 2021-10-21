@@ -8,16 +8,16 @@ namespace hk {
         Layer(VkLayerProperties* pVkLayerProperties = nullptr);
         virtual ~Layer();
 
-        void PrintVkLayerProperties();
+        virtual void PrintVkLayerProperties();
 
-        void SetVkLayerProperties(VkLayerProperties* pVkLayerProperties = nullptr);
+        virtual void SetVkLayerProperties(VkLayerProperties* pVkLayerProperties = nullptr);
 
-        const Char_t* GetName();
-        const Char_t* GetDescription();
-        Uint_t GetSpecificationVersion();
-        Uint_t GetImplementationVersion();
+        virtual const Char_t* GetName();
+        virtual const Char_t* GetDescription();
+        virtual Uint_t GetSpecificationVersion();
+        virtual Uint_t GetImplementationVersion();
 
-        VkLayerProperties* GetVkLayerProperties();
+        virtual VkLayerProperties* GetVkLayerProperties();
 
     private:
         VkLayerProperties* mpVkLayerProperties;

@@ -8,14 +8,14 @@ namespace hk {
         Extension(VkExtensionProperties* pVkExtensionProperties = nullptr);
         virtual ~Extension();
 
-        void PrintVkExtensionProperties();
+        virtual void PrintVkExtensionProperties();
 
-        void SetVkExtensionProperties(VkExtensionProperties* pVkExtensionProperties = nullptr);
+        virtual void SetVkExtensionProperties(VkExtensionProperties* pVkExtensionProperties = nullptr);
 
-        const Char_t* GetName();
-        Uint_t GetSpecificationVersion();
+        virtual const Char_t* GetName();
+        virtual Uint_t GetSpecificationVersion();
 
-        VkExtensionProperties* GetVkExtensionProperties();
+        virtual VkExtensionProperties* GetVkExtensionProperties();
 
     private:
         VkExtensionProperties* mpVkExtensionProperties;

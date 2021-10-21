@@ -43,13 +43,13 @@ namespace hk {
         Messenger(VkInstance* pVkInstance = nullptr, MessengerCreateInfo* pMessengerCreateInfo = nullptr);
         virtual ~Messenger();
 
-        void CreateVkMessenger();
-        void DestroyVkMessenger();
+        virtual void CreateVkMessenger();
+        virtual void DestroyVkMessenger();
 
-        void SetMessengerCreateInfo(MessengerCreateInfo* pMessengerCreateInfo = nullptr);
-        void SetInstance(VkInstance* pVkInstance = nullptr);
+        virtual void SetMessengerCreateInfo(MessengerCreateInfo* pMessengerCreateInfo = nullptr);
+        virtual void SetInstance(VkInstance* pVkInstance = nullptr);
 
-        VkDebugUtilsMessengerEXT* GetVkMessenger();
+        virtual VkDebugUtilsMessengerEXT* GetVkMessenger();
 
     private:
         VkInstance* mpVkInstance;

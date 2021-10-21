@@ -2,25 +2,30 @@
 
 #include "../Window.hpp"
 
-#define HUKAN_SYSTEM_WIN32
 #if defined(HUKAN_SYSTEM_WIN32)
 #include <Windows.h>
 
 namespace hk {
-    class WindowImpl {
+    class HK_API WindowImplWin32 : public Window {
     public:
-        WindowImpl();
-        virtual ~WindowImpl();
+        WindowImplWin32(WindowCreateInfo* pWindowCreateInfo = nullptr);
+        virtual ~WindowImplWin32();
 
         virtual void Create();
+        virtual void Update();
         virtual void Destroy();
 
-        HINSTANCE* GetHINSTANCE();
-        HWND* GetHWND();
+        virtual void SetWindowCreateInfo(WindowCreateInfo* pWindowCreateInfo = nullptr);
+
+        virtual WindowCreateInfo* GetWindowCreateInfo();
+        virtual HINSTANCE* GetHINSTANCE();
+        virtual HWND* GetHWND();
 
     private:
+        WindowCreateInfo* mpWindowCreateInfo;
         HINSTANCE mHinstance;
         HWND mHwnd;
+        MSG mMessage;
 
     };
 };
