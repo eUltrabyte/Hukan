@@ -2,6 +2,24 @@
 
 VkResult result;
 
+namespace hk {
+    std::vector<Char_t> ReadFile(const std::string& filename) {
+        std::ifstream _file(filename, std::ios::binary | std::ios::ate);
+
+        if(_file) {
+            size_t _fileSize = (size_t)_file.tellg();
+            std::vector<Char_t> _buffer(_fileSize);
+            _file.seekg(0);
+            _file.read(_buffer.data(), _fileSize);
+            _file.close();
+            return _buffer;
+        } else {
+            HK_ASSERT(-1);
+            return std::vector<Char_t>(0);
+        }
+    }
+};
+
 int main(int argc, char** argv) {
     VkApplicationInfo appInfo;
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -285,6 +303,32 @@ int main(int argc, char** argv) {
 
     swapchainImages.clear();
 
+    std::vector<hk::Char_t> vertexShaderCode = hk::ReadFile("vert.spv");
+
+    VkShaderModuleCreateInfo vertexShaderCreateInfo;
+    vertexShaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    vertexShaderCreateInfo.pNext = nullptr;
+    vertexShaderCreateInfo.flags = 0;
+    vertexShaderCreateInfo.codeSize = vertexShaderCode.size();
+    vertexShaderCreateInfo.pCode = (hk::Uint_t*)vertexShaderCode.data();
+
+    VkShaderModule vertexShaderModule;
+    result = vkCreateShaderModule(device, &vertexShaderCreateInfo, nullptr, &vertexShaderModule);
+    HK_ASSERT_VK(result);
+
+    std::vector<hk::Char_t> fragmentShaderCode = hk::ReadFile("frag.spv");
+
+    VkShaderModuleCreateInfo fragmentShaderCreateInfo;
+    fragmentShaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    fragmentShaderCreateInfo.pNext = nullptr;
+    fragmentShaderCreateInfo.flags = 0;
+    fragmentShaderCreateInfo.codeSize = fragmentShaderCode.size();
+    fragmentShaderCreateInfo.pCode = (hk::Uint_t*)fragmentShaderCode.data();
+
+    VkShaderModule fragmentShaderModule;
+    result = vkCreateShaderModule(device, &fragmentShaderCreateInfo, nullptr, &fragmentShaderModule);
+    HK_ASSERT_VK(result);
+
     window.Update();
 
     vkDeviceWaitIdle(device);
@@ -293,6 +337,9 @@ int main(int argc, char** argv) {
         vkDestroyImageView(device, imageViews.at(i), nullptr);
     }
     imageViews.clear();
+
+    vkDestroyShaderModule(device, vertexShaderModule, nullptr);
+    vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
 
     vkDestroySwapchainKHR(device, swapchain, nullptr);
 
