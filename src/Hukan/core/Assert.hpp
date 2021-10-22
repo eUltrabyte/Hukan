@@ -26,3 +26,9 @@ namespace hk {
     } \
 }
 
+#define HK_ASSERT_VK(value) { \
+    if(value != VK_SUCCESS) { \
+        HK_ASSERT_MESSAGE(); \
+        HK_DEBUG_BREAK(__LINE__, __FILE__); \
+    } \
+}

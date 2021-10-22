@@ -150,6 +150,10 @@ int main(int argc, char** argv) {
 
     VkPhysicalDeviceFeatures usedFeatures = {  };
 
+    const std::vector<const char*> deviceExtensions = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
+
     VkDeviceCreateInfo deviceCreateInfo;
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     deviceCreateInfo.pNext = nullptr;
@@ -158,13 +162,13 @@ int main(int argc, char** argv) {
     deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
     deviceCreateInfo.enabledLayerCount = 0;
     deviceCreateInfo.ppEnabledLayerNames = nullptr;
-    deviceCreateInfo.enabledExtensionCount = 0;
-    deviceCreateInfo.ppEnabledExtensionNames = nullptr;
+    deviceCreateInfo.enabledExtensionCount = deviceExtensions.size();
+    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
     deviceCreateInfo.pEnabledFeatures = &usedFeatures;
 
     VkDevice device;
     result = vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
-    HK_ASSERT(result);
+    HK_ASSERT_VK(result);
 
     VkQueue queue;
     vkGetDeviceQueue(device, 0, 0, &queue);
@@ -217,9 +221,80 @@ int main(int argc, char** argv) {
     hk::Logger::Endl();
     presentationModes.clear();
 
+    VkBool32 surfaceSupport = false;
+    result = vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, 0, *surface.GetVkSurfaceKHR(), &surfaceSupport);
+    HK_ASSERT_VK(result);
+
+    if(!surfaceSupport) {
+        hk::Logger::Log(hk::LoggerSeriousness::Critical, "Surface Is Not Supported!");
+    } else {
+        hk::Logger::Log(hk::LoggerSeriousness::Info, "Surface Is Supported");
+    }
+
+    VkSwapchainCreateInfoKHR swapchainCreateInfo;
+    swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    swapchainCreateInfo.pNext = nullptr;
+    swapchainCreateInfo.flags = 0;
+    swapchainCreateInfo.surface = *surface.GetVkSurfaceKHR();
+    swapchainCreateInfo.minImageCount = 3; // TODO
+    swapchainCreateInfo.imageFormat = VK_FORMAT_B8G8R8A8_SRGB; // TODO
+    swapchainCreateInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+    swapchainCreateInfo.imageExtent = VkExtent2D { window.GetWindowCreateInfo()->width, window.GetWindowCreateInfo()->height };
+    swapchainCreateInfo.imageArrayLayers = 1;
+    swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    swapchainCreateInfo.queueFamilyIndexCount = 0;
+    swapchainCreateInfo.pQueueFamilyIndices = nullptr;
+    swapchainCreateInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+    swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    swapchainCreateInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR; // TODO
+    swapchainCreateInfo.clipped = VK_TRUE;
+    swapchainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
+
+    VkSwapchainKHR swapchain;
+    result = vkCreateSwapchainKHR(device, &swapchainCreateInfo, nullptr, &swapchain);
+    HK_ASSERT_VK(result);
+
+    hk::Uint_t imagesInSwapchainCount = 0;
+    vkGetSwapchainImagesKHR(device, swapchain, &imagesInSwapchainCount, nullptr);
+    std::vector<VkImage> swapchainImages(imagesInSwapchainCount);
+    vkGetSwapchainImagesKHR(device, swapchain, &imagesInSwapchainCount, swapchainImages.data());
+
+    std::vector<VkImageView> imageViews(imagesInSwapchainCount);
+    for(int i = 0; i < imageViews.size(); ++i) {
+        VkImageViewCreateInfo imageViewCreateInfo;
+        imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        imageViewCreateInfo.pNext = nullptr;
+        imageViewCreateInfo.flags = 0;
+        imageViewCreateInfo.image = swapchainImages.at(i);
+        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        imageViewCreateInfo.format = VK_FORMAT_B8G8R8A8_SRGB;
+        imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+        imageViewCreateInfo.subresourceRange.levelCount = 1;
+        imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+        imageViewCreateInfo.subresourceRange.layerCount = 1;
+
+        result = vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageViews.at(i));
+        HK_ASSERT_VK(result);
+    }
+
+    swapchainImages.clear();
+
     window.Update();
 
     vkDeviceWaitIdle(device);
+
+    for(int i = 0; i < imageViews.size(); ++i) {
+        vkDestroyImageView(device, imageViews.at(i), nullptr);
+    }
+    imageViews.clear();
+
+    vkDestroySwapchainKHR(device, swapchain, nullptr);
 
     vkDestroyDevice(device, nullptr);
     surface.Destroy();
