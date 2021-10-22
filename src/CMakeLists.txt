@@ -17,6 +17,12 @@ if(Vulkan_FOUND)
     include_directories(${Vulkan_INCLUDE_DIRS})
 endif(Vulkan_FOUND)
 
+if(UNIX)
+    find_package(X11 REQUIRED)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+endif(UNIX)
+
 set(Hukan_SOURCE
     Hukan/core/Build.hpp
     Hukan/utils/Types.hpp
@@ -57,5 +63,9 @@ add_library(${PROJECT_NAME} STATIC ${Hukan_SOURCE})
 target_precompile_headers(${PROJECT_NAME} PRIVATE Hukan/hkpch.hpp Hukan/hkpch.cpp)
 
 if(Vulkan_FOUND)
-    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
+    if(UNIX)
+        target_link_libraries(UBVSR Vulkan::Vulkan X11 Threads::Threads)
+    else(UNIX)
+        target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
+    endif(UNIX)
 endif(Vulkan_FOUND)
