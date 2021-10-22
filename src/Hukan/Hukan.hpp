@@ -8,7 +8,8 @@
     #error "Hukan Not Supported"
 #endif
 
-#define HUKAN_NODISCARD [[nodiscard]]
+#define HK_NODISCARD [[nodiscard]]
+#define HK_NOEXCEPT noexcept
 
 #include "hkpch.hpp"
 

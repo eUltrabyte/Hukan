@@ -53,7 +53,17 @@ namespace hk {
             Logger::Log(LoggerSeriousness::Error, "Win32 Window Registration Failed!");
         }
 
-        mHwnd = CreateWindowEx(WS_EX_CLIENTEDGE, "Hukan Win32 Window Class", mpWindowCreateInfo->title, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, mpWindowCreateInfo->width, mpWindowCreateInfo->height, 0, 0, mHinstance, 0);
+        RECT windowRect;
+        windowRect.left = 50;
+        windowRect.top = 50;
+        windowRect.right = windowRect.left + mpWindowCreateInfo->width + 4;
+        windowRect.bottom = windowRect.top + mpWindowCreateInfo->height + 4;
+
+        UINT windowStyles = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
+
+        AdjustWindowRectEx(&windowRect, windowStyles, 0, 0);
+
+        mHwnd = CreateWindowEx(WS_EX_CLIENTEDGE, "Hukan Win32 Window Class", mpWindowCreateInfo->title, windowStyles, windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, 0, 0, mHinstance, 0);
         if(!mHwnd) {
             Logger::Log(LoggerSeriousness::Error, "Win32 Window Creation Failed!");
         }

@@ -8,7 +8,7 @@ int main(int argc, char** argv) {
     appInfo.pNext = nullptr;
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pApplicationName = "Hukan-Example";
-    appInfo.engineVersion = VK_MAKE_VERSION(0, 1, 2);
+    appInfo.engineVersion = VK_MAKE_VERSION(0, 1, 3);
     appInfo.pEngineName = "Hukan";
     appInfo.apiVersion = VK_API_VERSION_1_2;
 
@@ -23,9 +23,6 @@ int main(int argc, char** argv) {
         layers.at(i).PrintVkLayerProperties();
     }
     vkLayers.clear();
-
-    hk::Logger::Endl();
-    hk::Logger::Endl();
 
     hk::Uint_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -108,6 +105,9 @@ int main(int argc, char** argv) {
     VkPhysicalDevice physicalDevice = physicalDevices.at(0);
     physicalDevices.clear();
 
+    physicalDevicesProperties.clear();
+    physicalDevicesFeatures.clear();
+
     hk::Uint_t queueFamiliesCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamiliesCount, nullptr);
     std::vector<VkQueueFamilyProperties> vkFamilyProperties(queueFamiliesCount);
@@ -168,6 +168,54 @@ int main(int argc, char** argv) {
 
     VkQueue queue;
     vkGetDeviceQueue(device, 0, 0, &queue);
+
+    VkSurfaceCapabilitiesKHR surfaceCapabilities;
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, *surface.GetVkSurfaceKHR(), &surfaceCapabilities);
+    std::vector<std::string> formatSurfaceCapabilities(10);
+    formatSurfaceCapabilities.at(0) = "Surface minImageCount: " + std::to_string(surfaceCapabilities.minImageCount);
+    formatSurfaceCapabilities.at(1) = "Surface maxImageCount: " + std::to_string(surfaceCapabilities.maxImageCount);
+    formatSurfaceCapabilities.at(2) = "Surface currentExtent: " + std::to_string(surfaceCapabilities.currentExtent.width) + "/" + std::to_string(surfaceCapabilities.currentExtent.height);
+    formatSurfaceCapabilities.at(3) = "Surface minImageExtent: " + std::to_string(surfaceCapabilities.minImageExtent.width) + "/" + std::to_string(surfaceCapabilities.minImageExtent.height);
+    formatSurfaceCapabilities.at(4) = "Surface maxImageExtent: " + std::to_string(surfaceCapabilities.maxImageExtent.width) + "/" + std::to_string(surfaceCapabilities.maxImageExtent.height);
+    formatSurfaceCapabilities.at(5) = "Surface maxImageArrayLayers: " + std::to_string(surfaceCapabilities.maxImageArrayLayers);
+    formatSurfaceCapabilities.at(6) = "Surface supportedTransforms: " + std::to_string(surfaceCapabilities.supportedTransforms);
+    formatSurfaceCapabilities.at(7) = "Surface currentTransform: " + std::to_string(surfaceCapabilities.currentTransform);
+    formatSurfaceCapabilities.at(8) = "Surface supportedCompositeAlpha: " + std::to_string(surfaceCapabilities.supportedCompositeAlpha);
+    formatSurfaceCapabilities.at(9) = "Surface supportedUsageFlags: " + std::to_string(surfaceCapabilities.supportedUsageFlags);
+
+    for(int i = 0; i < 10; ++i) {
+        hk::Logger::Log(hk::LoggerSeriousness::Info, formatSurfaceCapabilities.at(i));
+    }
+    hk::Logger::Endl();
+    formatSurfaceCapabilities.clear();
+
+    hk::Uint_t formatsCount = 0;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, *surface.GetVkSurfaceKHR(), &formatsCount, nullptr);
+    std::vector<VkSurfaceFormatKHR> surfaceFormats(formatsCount);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, *surface.GetVkSurfaceKHR(), &formatsCount, surfaceFormats.data());
+
+    std::string formatSurfaceFormats = "Surface Format Count: " + std::to_string(formatsCount);
+    hk::Logger::Log(hk::LoggerSeriousness::Info, formatSurfaceFormats);
+    for(int i = 0; i < formatsCount; ++i) {
+        formatSurfaceFormats = "Surface Format: " + std::to_string(surfaceFormats.at(i).format);
+        hk::Logger::Log(hk::LoggerSeriousness::Info, formatSurfaceFormats);
+    }
+    hk::Logger::Endl();
+    surfaceFormats.clear();
+
+    hk::Uint_t presentationModesCount = 0;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, *surface.GetVkSurfaceKHR(), &presentationModesCount, nullptr);
+    std::vector<VkPresentModeKHR> presentationModes(presentationModesCount);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, *surface.GetVkSurfaceKHR(), &presentationModesCount, presentationModes.data());
+
+    std::string formatPresentationModes = "Surface Present Modes Count: " + std::to_string(presentationModesCount);
+    hk::Logger::Log(hk::LoggerSeriousness::Info, formatPresentationModes);
+    for(int i = 0; i < presentationModesCount; ++i) {
+        formatPresentationModes = "Surface Present Mode: " + std::to_string(presentationModes.at(i));
+        hk::Logger::Log(hk::LoggerSeriousness::Info, formatPresentationModes);
+    }
+    hk::Logger::Endl();
+    presentationModes.clear();
 
     window.Update();
 

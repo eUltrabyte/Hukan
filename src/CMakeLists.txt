@@ -57,5 +57,5 @@ add_library(${PROJECT_NAME} STATIC ${Hukan_SOURCE})
 target_precompile_headers(${PROJECT_NAME} PRIVATE Hukan/hkpch.hpp Hukan/hkpch.cpp)
 
 if(Vulkan_FOUND)
-    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan ${Vulkan_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
 endif(Vulkan_FOUND)

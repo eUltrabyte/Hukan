@@ -12,10 +12,10 @@ namespace hk {
 
         virtual void SetVkExtensionProperties(VkExtensionProperties* pVkExtensionProperties = nullptr);
 
-        virtual const Char_t* GetName();
-        virtual Uint_t GetSpecificationVersion();
+        HK_NODISCARD virtual const Char_t* GetName();
+        HK_NODISCARD virtual Uint_t GetSpecificationVersion();
 
-        virtual VkExtensionProperties* GetVkExtensionProperties();
+        HK_NODISCARD virtual VkExtensionProperties* GetVkExtensionProperties();
 
     private:
         VkExtensionProperties* mpVkExtensionProperties;

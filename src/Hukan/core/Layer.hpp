@@ -12,12 +12,12 @@ namespace hk {
 
         virtual void SetVkLayerProperties(VkLayerProperties* pVkLayerProperties = nullptr);
 
-        virtual const Char_t* GetName();
-        virtual const Char_t* GetDescription();
-        virtual Uint_t GetSpecificationVersion();
-        virtual Uint_t GetImplementationVersion();
+        HK_NODISCARD virtual const Char_t* GetName();
+        HK_NODISCARD virtual const Char_t* GetDescription();
+        HK_NODISCARD virtual Uint_t GetSpecificationVersion();
+        HK_NODISCARD virtual Uint_t GetImplementationVersion();
 
-        virtual VkLayerProperties* GetVkLayerProperties();
+        HK_NODISCARD virtual VkLayerProperties* GetVkLayerProperties();
 
     private:
         VkLayerProperties* mpVkLayerProperties;

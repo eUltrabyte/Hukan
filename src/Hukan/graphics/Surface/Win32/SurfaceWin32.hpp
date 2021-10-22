@@ -22,7 +22,7 @@ namespace hk {
             pHwnd = nullptr;
         }
 
-        VkWin32SurfaceCreateInfoKHR* GetVkWin32SurfaceCreateInfoKHR() {
+        HK_NODISCARD VkWin32SurfaceCreateInfoKHR* GetVkWin32SurfaceCreateInfoKHR() {
             pSurfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
             pSurfaceCreateInfo.pNext = pNext;
             pSurfaceCreateInfo.flags = 0;
@@ -44,9 +44,9 @@ namespace hk {
         virtual void SetVkInstance(VkInstance* pVkInstance = nullptr);
         virtual void SetSurfaceCreateInfo(SurfaceWin32CreateInfo* pSurfaceCreateInfo = nullptr);
 
-        HUKAN_NODISCARD virtual VkInstance* GetVkInstance();
-        HUKAN_NODISCARD virtual SurfaceWin32CreateInfo* GetSurfaceCreateInfo();
-        HUKAN_NODISCARD virtual VkSurfaceKHR* GetVkSurfaceKHR();
+        HK_NODISCARD virtual VkInstance* GetVkInstance();
+        HK_NODISCARD virtual SurfaceWin32CreateInfo* GetSurfaceCreateInfo();
+        HK_NODISCARD virtual VkSurfaceKHR* GetVkSurfaceKHR();
 
     private:
         VkInstance* mpVkInstance;
