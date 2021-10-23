@@ -5,10 +5,27 @@ include_directories(../..)
 include_directories(src)
 include_directories(src/Hukan)
 
+set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/Bin/glslangValidator.exe")
+file(GLOB_RECURSE GLSL_SOURCE_FILES
+    "res/*.frag"
+    "res/*.vert"
+)
+
+foreach(GLSL ${GLSL_SOURCE_FILES})
+    get_filename_component(FILE_NAME ${GLSL} NAME)
+    set(SPIRV "${PROJECT_BINARY_DIR}/${FILE_NAME}.spv")
+    add_custom_command(OUTPUT ${SPIRV} COMMAND ${GLSL_VALIDATOR} -V ${GLSL} -o ${SPIRV} DEPENDS ${GLSL})
+    list(APPEND SPIRV_BINARY_FILES ${SPIRV})
+endforeach(GLSL)
+
+add_custom_target(Shaders DEPENDS ${SPIRV_BINARY_FILES})
+
 add_subdirectory(src)
 
 add_executable(Hukan-Example
     examples/Example.cpp
 )
+
+add_dependencies(Hukan-Example Shaders)
 
 target_link_libraries(Hukan-Example Hukan)

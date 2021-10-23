@@ -288,7 +288,7 @@ int main(int argc, char** argv) {
 
     swapchainImages.clear();
 
-    std::vector<hk::Char_t> vertexShaderCode = hk::ReadFile("vert.spv");
+    std::vector<hk::Char_t> vertexShaderCode = hk::ReadFile("shader.vert.spv");
 
     VkShaderModuleCreateInfo vertexShaderCreateInfo;
     vertexShaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -301,7 +301,7 @@ int main(int argc, char** argv) {
     result = vkCreateShaderModule(device, &vertexShaderCreateInfo, nullptr, &vertexShaderModule);
     HK_ASSERT_VK(result);
 
-    std::vector<hk::Char_t> fragmentShaderCode = hk::ReadFile("frag.spv");
+    std::vector<hk::Char_t> fragmentShaderCode = hk::ReadFile("shader.frag.spv");
 
     VkShaderModuleCreateInfo fragmentShaderCreateInfo;
     fragmentShaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
