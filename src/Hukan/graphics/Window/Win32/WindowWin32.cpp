@@ -7,13 +7,13 @@ namespace hk {
     LRESULT CALLBACK HK_API WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         switch(msg) {
             case WM_CLOSE:
-                PostQuitMessage(0);
                 DestroyWindow(hwnd);
                 break;
 
             case WM_DESTROY:
-                PostQuitMessage(0);
                 DestroyWindow(hwnd);
+                PostQuitMessage(0);
+                std::quick_exit(0);
                 break;
 
             default:
@@ -69,12 +69,11 @@ namespace hk {
         }
 
         ShowWindow(mHwnd, SW_SHOW);
+        UpdateWindow(mHwnd);
     }
 
     void WindowImplWin32::Update() {
-        UpdateWindow(mHwnd);
-
-        while(GetMessage(&mMessage, 0, 0, 0) > 0) {
+        if(PeekMessage(&mMessage, 0, 0, 0, PM_REMOVE)) {
             TranslateMessage(&mMessage);
             DispatchMessage(&mMessage);
         }

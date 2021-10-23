@@ -21,6 +21,9 @@ namespace hk {
 };
 
 int main(int argc, char** argv) {
+    hk::Clock clock;
+    int fps = 0;
+
     VkApplicationInfo appInfo;
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pNext = nullptr;
@@ -99,37 +102,19 @@ int main(int argc, char** argv) {
 
     hk::SurfaceWin32 surface(instance.GetVkInstance(), &surfaceCreateInfo);
 
-    hk::Uint_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(*instance.GetVkInstance(), &deviceCount, nullptr);
-    std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
-    vkEnumeratePhysicalDevices(*instance.GetVkInstance(), &deviceCount, physicalDevices.data());
+    hk::Uint_t physicalDevicesCount = 0;
+    vkEnumeratePhysicalDevices(*instance.GetVkInstance(), &physicalDevicesCount, nullptr);
+    std::vector<VkPhysicalDevice> physicalDevices(physicalDevicesCount);
+    vkEnumeratePhysicalDevices(*instance.GetVkInstance(), &physicalDevicesCount, physicalDevices.data());
 
-    std::vector<VkPhysicalDeviceProperties> physicalDevicesProperties(deviceCount);
-    std::vector<VkPhysicalDeviceFeatures> physicalDevicesFeatures(deviceCount);
-    for(int i = 0; i < deviceCount; ++i) {
-        vkGetPhysicalDeviceProperties(physicalDevices.at(i), &physicalDevicesProperties.at(i));
-        vkGetPhysicalDeviceFeatures(physicalDevices.at(i), &physicalDevicesFeatures.at(i));
-    }
-
-    for(int i = 0; i < deviceCount; ++i) {
-        std::string _format = "Device Name: " + std::string(physicalDevicesProperties.at(i).deviceName);
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
-        _format = "Device Geometry Shader: " + std::to_string(physicalDevicesFeatures.at(i).geometryShader);
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
-    }
-
-    hk::Logger::Endl();
-
-    VkPhysicalDevice physicalDevice = physicalDevices.at(0);
+    hk::PhysicalDevice physicalDevice(&physicalDevices.at(0));
+    physicalDevice.PrintPhysicalDeviceProps();
     physicalDevices.clear();
 
-    physicalDevicesProperties.clear();
-    physicalDevicesFeatures.clear();
-
     hk::Uint_t queueFamiliesCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamiliesCount, nullptr);
+    vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevice.GetVkPhysicalDevice(), &queueFamiliesCount, nullptr);
     std::vector<VkQueueFamilyProperties> vkFamilyProperties(queueFamiliesCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamiliesCount, vkFamilyProperties.data());
+    vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevice.GetVkPhysicalDevice(), &queueFamiliesCount, vkFamilyProperties.data());
 
     std::string _format = "Queue Families Count: " + std::to_string(queueFamiliesCount);
     hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
@@ -185,14 +170,14 @@ int main(int argc, char** argv) {
     deviceCreateInfo.pEnabledFeatures = &usedFeatures;
 
     VkDevice device;
-    result = vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
+    result = vkCreateDevice(*physicalDevice.GetVkPhysicalDevice(), &deviceCreateInfo, nullptr, &device);
     HK_ASSERT_VK(result);
 
     VkQueue queue;
     vkGetDeviceQueue(device, 0, 0, &queue);
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, *surface.GetVkSurfaceKHR(), &surfaceCapabilities);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(*physicalDevice.GetVkPhysicalDevice(), *surface.GetVkSurfaceKHR(), &surfaceCapabilities);
     std::vector<std::string> formatSurfaceCapabilities(10);
     formatSurfaceCapabilities.at(0) = "Surface minImageCount: " + std::to_string(surfaceCapabilities.minImageCount);
     formatSurfaceCapabilities.at(1) = "Surface maxImageCount: " + std::to_string(surfaceCapabilities.maxImageCount);
@@ -212,9 +197,9 @@ int main(int argc, char** argv) {
     formatSurfaceCapabilities.clear();
 
     hk::Uint_t formatsCount = 0;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, *surface.GetVkSurfaceKHR(), &formatsCount, nullptr);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(*physicalDevice.GetVkPhysicalDevice(), *surface.GetVkSurfaceKHR(), &formatsCount, nullptr);
     std::vector<VkSurfaceFormatKHR> surfaceFormats(formatsCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, *surface.GetVkSurfaceKHR(), &formatsCount, surfaceFormats.data());
+    vkGetPhysicalDeviceSurfaceFormatsKHR(*physicalDevice.GetVkPhysicalDevice(), *surface.GetVkSurfaceKHR(), &formatsCount, surfaceFormats.data());
 
     std::string formatSurfaceFormats = "Surface Format Count: " + std::to_string(formatsCount);
     hk::Logger::Log(hk::LoggerSeriousness::Info, formatSurfaceFormats);
@@ -226,9 +211,9 @@ int main(int argc, char** argv) {
     surfaceFormats.clear();
 
     hk::Uint_t presentationModesCount = 0;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, *surface.GetVkSurfaceKHR(), &presentationModesCount, nullptr);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(*physicalDevice.GetVkPhysicalDevice(), *surface.GetVkSurfaceKHR(), &presentationModesCount, nullptr);
     std::vector<VkPresentModeKHR> presentationModes(presentationModesCount);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, *surface.GetVkSurfaceKHR(), &presentationModesCount, presentationModes.data());
+    vkGetPhysicalDeviceSurfacePresentModesKHR(*physicalDevice.GetVkPhysicalDevice(), *surface.GetVkSurfaceKHR(), &presentationModesCount, presentationModes.data());
 
     std::string formatPresentationModes = "Surface Present Modes Count: " + std::to_string(presentationModesCount);
     hk::Logger::Log(hk::LoggerSeriousness::Info, formatPresentationModes);
@@ -240,7 +225,7 @@ int main(int argc, char** argv) {
     presentationModes.clear();
 
     VkBool32 surfaceSupport = false;
-    result = vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, 0, *surface.GetVkSurfaceKHR(), &surfaceSupport);
+    result = vkGetPhysicalDeviceSurfaceSupportKHR(*physicalDevice.GetVkPhysicalDevice(), 0, *surface.GetVkSurfaceKHR(), &surfaceSupport);
     HK_ASSERT_VK(result);
 
     if(!surfaceSupport) {
@@ -265,7 +250,7 @@ int main(int argc, char** argv) {
     swapchainCreateInfo.pQueueFamilyIndices = nullptr;
     swapchainCreateInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
     swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    swapchainCreateInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR; // TODO
+    swapchainCreateInfo.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR; // TODO // VK_PRESENT_MODE_FIFO_KHR // VK_PRESENT_MODE_IMMEDIATE_KHR
     swapchainCreateInfo.clipped = VK_TRUE;
     swapchainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
@@ -639,6 +624,14 @@ int main(int argc, char** argv) {
 
         result = vkQueuePresentKHR(queue, &presentInfo);
         HK_ASSERT_VK(result);
+
+        ++fps;
+        if(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - *clock.GetStartPoint()) >= std::chrono::seconds(1)) {
+            clock.Restart();
+            std::string formatFps = "FPS: " + std::to_string(fps);
+            hk::Logger::Log(hk::LoggerSeriousness::Info, formatFps);
+            fps = 0;
+        }
 
         window.Update();
     }

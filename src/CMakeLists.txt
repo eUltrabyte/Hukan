@@ -46,6 +46,8 @@ set(Hukan_SOURCE
     Hukan/core/Layer.cpp
     Hukan/core/Extension.hpp
     Hukan/core/Extension.cpp
+    Hukan/core/PhysicalDevice.hpp
+    Hukan/core/PhysicalDevice.cpp
     Hukan/graphics/Window/Win32/WindowWin32.hpp
     Hukan/graphics/Window/Win32/WindowWin32.cpp
     Hukan/graphics/Window/Window.hpp

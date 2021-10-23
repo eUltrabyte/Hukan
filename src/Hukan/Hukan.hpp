@@ -35,6 +35,7 @@
 #include "core/Messenger.hpp"
 #include "core/Layer.hpp"
 #include "core/Extension.hpp"
+#include "core/PhysicalDevice.hpp"
 
 #include "graphics/Window/Window.hpp"
 #include "graphics/Surface/Surface.hpp"
