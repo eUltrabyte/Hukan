@@ -26,7 +26,7 @@ namespace hk {
         mpInstanceCreateInfo = pInstanceCreateInfo;
     }
 
-    VkInstance* Instance::GetVkInstance() {
+    VkInstance* Instance::GetVkInstance() HK_NOEXCEPT {
         return &mInstance;
     }
 };

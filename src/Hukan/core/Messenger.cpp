@@ -48,7 +48,7 @@ namespace hk {
         mpVkInstance = pVkInstance;
     }
 
-    VkDebugUtilsMessengerEXT* Messenger::GetVkMessenger() {
+    VkDebugUtilsMessengerEXT* Messenger::GetVkMessenger() HK_NOEXCEPT {
         return &mVkDebugMessenger;
     }
 };

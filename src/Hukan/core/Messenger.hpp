@@ -25,7 +25,7 @@ namespace hk {
             pUserData = nullptr;
         }
 
-        HK_NODISCARD VkDebugUtilsMessengerCreateInfoEXT* GetVkMessengerCreateInfo() {
+        HK_NODISCARD VkDebugUtilsMessengerCreateInfoEXT* GetVkMessengerCreateInfo() HK_NOEXCEPT {
             mpMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
             mpMessengerCreateInfo.pNext = pNext;
             mpMessengerCreateInfo.flags = 0;
@@ -49,7 +49,7 @@ namespace hk {
         virtual void SetMessengerCreateInfo(MessengerCreateInfo* pMessengerCreateInfo = nullptr);
         virtual void SetInstance(VkInstance* pVkInstance = nullptr);
 
-        HK_NODISCARD virtual VkDebugUtilsMessengerEXT* GetVkMessenger();
+        HK_NODISCARD virtual VkDebugUtilsMessengerEXT* GetVkMessenger() HK_NOEXCEPT;
 
     private:
         VkInstance* mpVkInstance;

@@ -5,7 +5,7 @@
 #elif defined(__unix__)
     #define HUKAN_SYSTEM_POSIX
 #else
-    #error "Hukan Not Supported"
+    #error "Hukan: Operating System Not Supported"
 #endif
 
 #define HK_NODISCARD [[nodiscard]]
@@ -26,6 +26,16 @@
 #include "utils/Types.hpp"
 #include "utils/Clock.hpp"
 
+#if defined(HUKAN_DEBUG)
+    #define HK_ENABLE_VALIDATION_LAYERS false
+#else
+    #define HK_ENABLE_VALIDATION_LAYERS  true
+#endif
+
+namespace hk {
+    extern const std::vector<const Char_t*> g_validationLayers;
+};
+
 #include "api/Platform.hpp"
 #include "api/Terminal.hpp"
 #include "api/Logger.hpp"
@@ -39,13 +49,3 @@
 
 #include "graphics/Window/Window.hpp"
 #include "graphics/Surface/Surface.hpp"
-
-#if defined(HUKAN_DEBUG)
-    #define HK_ENABLE_VALIDATION_LAYERS false
-#else
-    #define HK_ENABLE_VALIDATION_LAYERS  true
-#endif
-
-namespace hk {
-    extern const std::vector<const char*> g_validationLayers;
-};

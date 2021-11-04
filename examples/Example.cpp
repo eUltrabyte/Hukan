@@ -595,7 +595,7 @@ int main(int argc, char** argv) {
 
     while(true) {
         hk::Uint_t imageIndex = 0;
-        vkAcquireNextImageKHR(device, swapchain, uint64_t(18446744073709551615), semaphoreImageAvailable, VK_NULL_HANDLE, &imageIndex);
+        vkAcquireNextImageKHR(device, swapchain, std::numeric_limits<uint64_t>::infinity(), semaphoreImageAvailable, VK_NULL_HANDLE, &imageIndex);
 
         VkSubmitInfo submitInfo;
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

@@ -1,7 +1,7 @@
 #include "Logger.hpp"
 
 namespace hk {
-    Logger::Logger(const LoggerSeriousness& seriousness, const std::string& format, Int_t color) {
+    Logger::Logger(const LoggerSeriousness& seriousness, const std::string& format, Terminal::ColorList color) {
         Log(seriousness, format, color);
     }
     
@@ -9,7 +9,7 @@ namespace hk {
         delete this;
     }
 
-    void Logger::Log(const LoggerSeriousness& seriousness, const std::string& format, Int_t color) {
+    void Logger::Log(const LoggerSeriousness& seriousness, const std::string& format, Terminal::ColorList color) {
         std::tm* _now = Clock::GetActualTime();
 
         std::string _hours;
@@ -43,58 +43,58 @@ namespace hk {
         if(seriousness == LoggerSeriousness::None) {
             _timeFormat = "[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ]";
             _loggerFormat = "[ Type: None ]";
-            AsColor(Color::Green);
+            Terminal::Color::UseColor(Terminal::ColorList::Green);
             printf("%s ", _timeFormat.c_str());
-            AsColor(Color::Reset);
+            Terminal::Color::UseColor(Terminal::ColorList::Reset);
             printf("%s ", _loggerFormat.c_str());
-            AsColor(Color(color));
+            Terminal::Color::UseColor(color);
             printf("%s \n", format.c_str());
-            AsColor(Color::Reset);
+            Terminal::Color::UseColor(Terminal::ColorList::Reset);
         } else if(seriousness == LoggerSeriousness::Info) {
             _timeFormat = "[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ]";
             _loggerFormat = "[ Type: Info ]";
-            AsColor(Color::Green);
+            Terminal::Color::UseColor(Terminal::ColorList::Green);
             printf("%s ", _timeFormat.c_str());
-            AsColor(Color::Cyan);
+            Terminal::Color::UseColor(Terminal::ColorList::Cyan);
             printf("%s ", _loggerFormat.c_str());
-            AsColor(Color(color));
+            Terminal::Color::UseColor(color);
             printf("%s \n", format.c_str());
-            AsColor(Color::Reset);
+            Terminal::Color::UseColor(Terminal::ColorList::Reset);
         } else if(seriousness == LoggerSeriousness::Warning) {
             _timeFormat = "[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ]";
             _loggerFormat = "[ Type: Warning ]";
-            AsColor(Color::Green);
+            Terminal::Color::UseColor(Terminal::ColorList::Green);
             printf("%s ", _timeFormat.c_str());
-            AsColor(Color::DarkMagenta);
+            Terminal::Color::UseColor(Terminal::ColorList::DarkMagenta);
             printf("%s ", _loggerFormat.c_str());
-            AsColor(Color(color));
+            Terminal::Color::UseColor(color);
             printf("%s \n", format.c_str());
-            AsColor(Color::Reset);
+            Terminal::Color::UseColor(Terminal::ColorList::Reset);
         } else if(seriousness == LoggerSeriousness::Error) {
             _timeFormat = "[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ]";
             _loggerFormat = "[ Type: Error ]";
-            AsColor(Color::Green);
+            Terminal::Color::UseColor(Terminal::ColorList::Green);
             printf("%s ", _timeFormat.c_str());
-            AsColor(Color::Red);
+            Terminal::Color::UseColor(Terminal::ColorList::Red);
             printf("%s ", _loggerFormat.c_str());
-            AsColor(Color(color));
+            Terminal::Color::UseColor(color);
             printf("%s \n", format.c_str());
-            AsColor(Color::Reset);
+            Terminal::Color::UseColor(Terminal::ColorList::Reset);
         } else if(seriousness == LoggerSeriousness::Critical) {
             _timeFormat = "[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ]";
             _loggerFormat = "[ Type: Critical ]";
-            AsColor(Color::Green);
+            Terminal::Color::UseColor(Terminal::ColorList::Green);
             printf("%s ", _timeFormat.c_str());
-            AsColor(Color::DarkRed);
+            Terminal::Color::UseColor(Terminal::ColorList::DarkRed);
             printf("%s ", _loggerFormat.c_str());
-            AsColor(Color(color));
+            Terminal::Color::UseColor(color);
             printf("%s \n", format.c_str());
-            AsColor(Color::Reset);
+            Terminal::Color::UseColor(Terminal::ColorList::Reset);
         }
     }
 
     void Logger::Endl() {
         printf("\n");
-        AsColor(hk::Color::Reset);
+        Terminal::Color::UseColor(Terminal::ColorList::Reset);
     }
 };

@@ -18,7 +18,7 @@ namespace hk {
             geometryShader = false;
         }
 
-        virtual void GetPhysicalDeviceProps(VkPhysicalDevice* pPhysicalDevice = nullptr) {
+        virtual void GetPhysicalDeviceProps(VkPhysicalDevice* pPhysicalDevice = nullptr) HK_NOEXCEPT {
             vkGetPhysicalDeviceProperties(*pPhysicalDevice, &pPhysicalDeviceProperties);
             vkGetPhysicalDeviceFeatures(*pPhysicalDevice, &pPhysicalDeviceFeatures);
 
@@ -26,11 +26,11 @@ namespace hk {
             geometryShader = pPhysicalDeviceFeatures.geometryShader;
         }
 
-        HK_NODISCARD virtual VkPhysicalDeviceProperties* GetVkPhysicalDeviceProperties() {
+        HK_NODISCARD virtual VkPhysicalDeviceProperties* GetVkPhysicalDeviceProperties() HK_NOEXCEPT {
             return &pPhysicalDeviceProperties;
         }
 
-        HK_NODISCARD virtual VkPhysicalDeviceFeatures* GetVkPhysicalDeviceFeatures() {
+        HK_NODISCARD virtual VkPhysicalDeviceFeatures* GetVkPhysicalDeviceFeatures() HK_NOEXCEPT {
             return &pPhysicalDeviceFeatures;
         }
     
@@ -45,8 +45,8 @@ namespace hk {
 
         virtual void SetVkPhysicalDevice(VkPhysicalDevice* pPhysicalDevice = nullptr);
 
-        HK_NODISCARD virtual VkPhysicalDevice* GetVkPhysicalDevice();
-        HK_NODISCARD virtual PhysicalDeviceProps* GetPhysicalDeviceProps();
+        HK_NODISCARD virtual VkPhysicalDevice* GetVkPhysicalDevice() HK_NOEXCEPT;
+        HK_NODISCARD virtual PhysicalDeviceProps* GetPhysicalDeviceProps() HK_NOEXCEPT;
 
     private:
         VkPhysicalDevice mPhysicalDevice;

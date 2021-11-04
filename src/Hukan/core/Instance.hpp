@@ -25,7 +25,7 @@ namespace hk {
             ppEnabledExtensions = nullptr;
         }
 
-        HK_NODISCARD VkInstanceCreateInfo* GetVkInstanceCreateInfo() {
+        HK_NODISCARD VkInstanceCreateInfo* GetVkInstanceCreateInfo() HK_NOEXCEPT {
             pInstanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
             pInstanceCreateInfo.pNext = pNext;
             pInstanceCreateInfo.flags = 0;
@@ -48,7 +48,7 @@ namespace hk {
 
         virtual void SetVkInstanceCreateInfo(InstanceCreateInfo* pInstanceCreateInfo = nullptr);
 
-        HK_NODISCARD virtual VkInstance* GetVkInstance();
+        HK_NODISCARD virtual VkInstance* GetVkInstance() HK_NOEXCEPT;
 
     private:
         InstanceCreateInfo* mpInstanceCreateInfo;

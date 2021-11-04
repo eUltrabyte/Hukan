@@ -11,25 +11,25 @@ namespace hk {
 
     void Extension::PrintVkExtensionProperties() {
         std::string _format = "instance extension name: " + std::string(GetName());
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format, (hk::Int_t)hk::Color::Yellow);
+        Logger::Log(LoggerSeriousness::Info, _format, Terminal::ColorList::Yellow);
         _format = "instance extension specification version: " + std::to_string(GetSpecificationVersion());
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format, (hk::Int_t)hk::Color::Yellow);
-        hk::Logger::Endl();
+        Logger::Log(LoggerSeriousness::Info, _format, Terminal::ColorList::Yellow);
+        Logger::Endl();
     }
 
     void Extension::SetVkExtensionProperties(VkExtensionProperties* pVkExtensionProperties) {
         mpVkExtensionProperties = pVkExtensionProperties;
     }
 
-    const Char_t* Extension::GetName() {
+    const Char_t* Extension::GetName() HK_NOEXCEPT {
         return mpVkExtensionProperties->extensionName;
     }
     
-    Uint_t Extension::GetSpecificationVersion() {
+    Uint_t Extension::GetSpecificationVersion() HK_NOEXCEPT {
         return mpVkExtensionProperties->specVersion;
     }
 
-    VkExtensionProperties* Extension::GetVkExtensionProperties() {
+    VkExtensionProperties* Extension::GetVkExtensionProperties() HK_NOEXCEPT {
         return mpVkExtensionProperties;
     }
 };

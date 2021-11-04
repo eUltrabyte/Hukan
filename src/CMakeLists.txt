@@ -3,6 +3,7 @@ project(Hukan)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(CMAKE_BUILD_TYPE Debug)
 
 if(CMAKE_BUILD_TYPE EQUAL "Debug")
@@ -32,8 +33,6 @@ set(Hukan_SOURCE
     Hukan/api/Posix/PlatformPosix.cpp
     Hukan/api/Win32/PlatformWin32.cpp
     Hukan/api/Terminal.hpp
-    Hukan/api/Posix/TerminalPosix.cpp
-    Hukan/api/Win32/TerminalWin32.cpp
     Hukan/api/Logger.hpp
     Hukan/api/Logger.cpp
     Hukan/core/Assert.hpp

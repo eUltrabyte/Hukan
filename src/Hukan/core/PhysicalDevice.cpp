@@ -22,11 +22,11 @@ namespace hk {
         mPhysicalDevice = *pPhysicalDevice;
     }
 
-    VkPhysicalDevice* PhysicalDevice::GetVkPhysicalDevice() {
+    VkPhysicalDevice* PhysicalDevice::GetVkPhysicalDevice() HK_NOEXCEPT {
         return &mPhysicalDevice;
     }
 
-    PhysicalDeviceProps* PhysicalDevice::GetPhysicalDeviceProps() {
+    PhysicalDeviceProps* PhysicalDevice::GetPhysicalDeviceProps() HK_NOEXCEPT {
         return &mPhysicalDeviceProps;
     }
 };
