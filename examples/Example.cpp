@@ -637,6 +637,8 @@ auto main(int argc, char** argv) -> int {
         }
 
         window.Update();
+
+        vkQueueWaitIdle(queue);
     }
 
     vkDeviceWaitIdle(device);

@@ -11,9 +11,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Debug)
 
 if(WIN32)
-set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/Bin/glslangValidator.exe")
+    set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/Bin/glslangValidator.exe")
 else(WIN32)
-set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/bin/glslangValidator")
+    set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/bin/glslangValidator")
 endif(WIN32)
 
 file(GLOB_RECURSE GLSL_SOURCE_FILES
