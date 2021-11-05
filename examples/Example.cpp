@@ -24,10 +24,10 @@ auto main(int argc, char** argv) -> int {
     hk::Clock clock;
     int fps = 0;
 
-    uint32_t instanceVersion = VK_API_VERSION_1_0;
-    auto FN_vkEnumerateInstanceVersion = PFN_vkEnumerateInstanceVersion(vkGetInstanceProcAddr(nullptr, "vkEnumerateInstanceVersion"));
-    vkEnumerateInstanceVersion(&instanceVersion);
+    std::string concurrencyFormat = "Hardware Thread Concurrency: " + std::to_string(hk::Platform::GetHardwareConcurrency());
+    hk::Logger::Log(hk::LoggerSeriousness::Info, concurrencyFormat, hk::Terminal::ColorList::Yellow);
 
+    hk::Uint_t instanceVersion = hk::Platform::GetSupportedVulkanVersion();
     std::string versionFormat = "Vulkan Version: " + std::to_string(VK_VERSION_MAJOR(instanceVersion)) + "." + std::to_string(VK_VERSION_MINOR(instanceVersion)) + "." + std::to_string(VK_VERSION_PATCH(instanceVersion));
     hk::Logger::Log(hk::LoggerSeriousness::Info, versionFormat, hk::Terminal::ColorList::Yellow);
     hk::Logger::Endl();

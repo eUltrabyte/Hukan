@@ -1,12 +1,17 @@
 #include "Logger.hpp"
 
 namespace hk {
-    Logger::Logger(const LoggerSeriousness& seriousness, const std::string& format, Terminal::ColorList color) {
-        Log(seriousness, format, color);
+    Logger::Logger(const std::string& filename) {
+        // TODO: writing to file
     }
     
     Logger::~Logger() {
         delete this;
+    }
+
+    void Logger::Log(const std::string& format, Terminal::ColorList color) {
+        Terminal::Color::UseColor(color);
+        printf("%s", format.c_str());
     }
 
     void Logger::Log(const LoggerSeriousness& seriousness, const std::string& format, Terminal::ColorList color) {
@@ -39,62 +44,40 @@ namespace hk {
             _seconds = std::to_string(_now->tm_sec);
         }
 
-        std::string _loggerFormat, _timeFormat;
         if(seriousness == LoggerSeriousness::Undefined) {
-            _timeFormat = "[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ]";
-            _loggerFormat = "[ Type: None ]";
-            Terminal::Color::UseColor(Terminal::ColorList::Green);
-            printf("%s ", _timeFormat.c_str());
-            Terminal::Color::UseColor(Terminal::ColorList::Reset);
-            printf("%s ", _loggerFormat.c_str());
-            Terminal::Color::UseColor(color);
-            printf("%s \n", format.c_str());
-            Terminal::Color::UseColor(Terminal::ColorList::Reset);
+            Log(std::string("[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ] "), Terminal::ColorList::Green);
+            Log(std::string("[ Type: Undefined ] "), Terminal::ColorList::Reset);
+            Log(format, color);
+            Endl();
         } else if(seriousness == LoggerSeriousness::Info) {
-            _timeFormat = "[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ]";
-            _loggerFormat = "[ Type: Info ]";
-            Terminal::Color::UseColor(Terminal::ColorList::Green);
-            printf("%s ", _timeFormat.c_str());
-            Terminal::Color::UseColor(Terminal::ColorList::Cyan);
-            printf("%s ", _loggerFormat.c_str());
-            Terminal::Color::UseColor(color);
-            printf("%s \n", format.c_str());
-            Terminal::Color::UseColor(Terminal::ColorList::Reset);
+            Log(std::string("[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ] "), Terminal::ColorList::Green);
+            Log(std::string("[ Type: Info ] "), Terminal::ColorList::Cyan);
+            Log(format, color);
+            Endl();
         } else if(seriousness == LoggerSeriousness::Warning) {
-            _timeFormat = "[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ]";
-            _loggerFormat = "[ Type: Warning ]";
-            Terminal::Color::UseColor(Terminal::ColorList::Green);
-            printf("%s ", _timeFormat.c_str());
-            Terminal::Color::UseColor(Terminal::ColorList::DarkMagenta);
-            printf("%s ", _loggerFormat.c_str());
-            Terminal::Color::UseColor(color);
-            printf("%s \n", format.c_str());
-            Terminal::Color::UseColor(Terminal::ColorList::Reset);
+            Log(std::string("[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ] "), Terminal::ColorList::Green);
+            Log(std::string("[ Type: Warning ] "), Terminal::ColorList::DarkMagenta);
+            Log(format, color);
+            Endl();
         } else if(seriousness == LoggerSeriousness::Error) {
-            _timeFormat = "[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ]";
-            _loggerFormat = "[ Type: Error ]";
-            Terminal::Color::UseColor(Terminal::ColorList::Green);
-            printf("%s ", _timeFormat.c_str());
-            Terminal::Color::UseColor(Terminal::ColorList::Red);
-            printf("%s ", _loggerFormat.c_str());
-            Terminal::Color::UseColor(color);
-            printf("%s \n", format.c_str());
-            Terminal::Color::UseColor(Terminal::ColorList::Reset);
+            Log(std::string("[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ] "), Terminal::ColorList::Green);
+            Log(std::string("[ Type: Error ] "), Terminal::ColorList::Red);
+            Log(format, color);
+            Endl();
         } else if(seriousness == LoggerSeriousness::Critical) {
-            _timeFormat = "[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ]";
-            _loggerFormat = "[ Type: Critical ]";
-            Terminal::Color::UseColor(Terminal::ColorList::Green);
-            printf("%s ", _timeFormat.c_str());
-            Terminal::Color::UseColor(Terminal::ColorList::DarkRed);
-            printf("%s ", _loggerFormat.c_str());
-            Terminal::Color::UseColor(color);
-            printf("%s \n", format.c_str());
-            Terminal::Color::UseColor(Terminal::ColorList::Reset);
+            Log(std::string("[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ] "), Terminal::ColorList::Green);
+            Log(std::string("[ Type: Critical ] "), Terminal::ColorList::DarkRed);
+            Log(format, color);
+            Endl();
+        } else {
+            Log(std::string("[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ] "), Terminal::ColorList::Green);
+            Log(std::string("[ Type: Undefined ] "), Terminal::ColorList::Reset);
+            Log(format, color);
+            Endl();
         }
     }
 
     void Logger::Endl() {
-        printf("\n");
-        Terminal::Color::UseColor(Terminal::ColorList::Reset);
+        Log("\n", Terminal::ColorList::Reset);
     }
 };
