@@ -4,25 +4,8 @@
 
 namespace hk {
     namespace Platform {
-        inline void HK_API Wait(const Uint_t& microseconds) {
-            std::this_thread::sleep_for(std::chrono::microseconds(microseconds));
-        }
-
-        inline Uint_t HK_API GetHardwareConcurrency() {
-            Uint_t _hardwareConcurrency = std::thread::hardware_concurrency();
-            if(!_hardwareConcurrency) {
-                _hardwareConcurrency = 1;
-            }
-            return _hardwareConcurrency;
-        }
-
-        inline Uint_t HK_API GetSupportedVulkanVersion() {
-            Uint_t _instanceVersion = VK_API_VERSION_1_0;
-            auto _func = PFN_vkEnumerateInstanceVersion(vkGetInstanceProcAddr(nullptr, "vkEnumerateInstanceVersion"));
-            if(_func != nullptr) {
-                _func(&_instanceVersion);
-            }
-            return _instanceVersion;
-        }
+        HK_NODISCARD extern void HK_API Wait(const Uint_t& microseconds) HK_NOEXCEPT;
+        HK_NODISCARD extern Uint_t HK_API GetHardwareConcurrency() HK_NOEXCEPT;
+        HK_NODISCARD extern Uint_t HK_API GetSupportedVulkanVersion() HK_NOEXCEPT;
     };
 };

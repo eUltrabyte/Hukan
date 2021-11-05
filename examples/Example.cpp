@@ -22,8 +22,8 @@ namespace hk {
 
 auto main(int argc, char** argv) -> int {
     hk::Clock clock;
-    int fps = 0;
-
+    hk::Int_t fps = 0;
+    
     std::string concurrencyFormat = "Hardware Thread Concurrency: " + std::to_string(hk::Platform::GetHardwareConcurrency());
     hk::Logger::Log(hk::LoggerSeriousness::Info, concurrencyFormat, hk::Terminal::ColorList::Yellow);
 

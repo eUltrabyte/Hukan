@@ -26,6 +26,11 @@
 #include "utils/Types.hpp"
 #include "utils/Clock.hpp"
 
+#define HK_MAKE_VERSION(major, minor, patch) ((((hk::Uint_t)(major)) << 22) | (((hk::Uint_t)(minor)) << 12) | ((hk::Uint_t)(patch)))
+#define HK_VERSION_MAJOR(version) ((hk::Uint_t)(version) >> 22)
+#define HK_VERSION_MINOR(version) (((hk::Uint_t)(version) >> 12) & 0x3ff)
+#define HK_VERSION_PATCH(version) ((hk::Uint_t)(version) & 0xfff)
+
 #if defined(HUKAN_DEBUG)
     #define HK_ENABLE_VALIDATION_LAYERS false
 #else

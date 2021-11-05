@@ -181,11 +181,9 @@ namespace hk {
 
             HK_NODISCARD static std::vector<Uint_t> GetAvailableColors() HK_NOEXCEPT {
                 std::vector<Uint_t> _colors;
-
                 for(auto i = 0; i < 16; ++i) {
                     _colors.push_back(i);
                 }
-
                 return _colors;
             }
 
