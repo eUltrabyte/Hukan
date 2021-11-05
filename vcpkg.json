@@ -4,6 +4,7 @@
     "description": "Hukan is open source game engine developed by Ultrabyte",
     "dependencies": [
         "vulkan",
-        "vulkan-headers"
+        "vulkan-headers",
+        "glm"
     ]
 }

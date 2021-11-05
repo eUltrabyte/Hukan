@@ -18,12 +18,55 @@ namespace hk {
             return std::vector<Char_t>(0);
         }
     }
+
+    struct Vertex {
+        Vec3f position;
+        Vec4f color;
+
+        static VkVertexInputBindingDescription GetVkVertexInputBindingDescription() {
+            VkVertexInputBindingDescription _vertexInputBindingDescription;
+            _vertexInputBindingDescription.binding = 0;
+            _vertexInputBindingDescription.stride = sizeof(Vertex);
+            _vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+            return _vertexInputBindingDescription;
+        }
+
+        static std::array<VkVertexInputAttributeDescription, 2> GetVkVertexInputAttributeDescriptions() {
+            std::array<VkVertexInputAttributeDescription, 2> _vertexInputAttributeDescription;
+            _vertexInputAttributeDescription.at(0).binding = 0;
+            _vertexInputAttributeDescription.at(0).location = 0;
+            _vertexInputAttributeDescription.at(0).format = VK_FORMAT_R32G32B32_SFLOAT;
+            _vertexInputAttributeDescription.at(0).offset = offsetof(Vertex, position);
+            _vertexInputAttributeDescription.at(1).binding = 0;
+            _vertexInputAttributeDescription.at(1).location = 1;
+            _vertexInputAttributeDescription.at(1).format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            _vertexInputAttributeDescription.at(1).offset = offsetof(Vertex, color);
+            return _vertexInputAttributeDescription;
+        }
+    };
+
+    const std::vector<Vertex> vertices = {
+        {{  0.0f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }},
+        {{  0.5f,  0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }},
+        {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }}
+    };
+
+    Uint_t FindMemoryType(VkPhysicalDevice physicalDevice, Uint_t typeFilter, VkMemoryPropertyFlags properties) {
+        VkPhysicalDeviceMemoryProperties memoryProperties;
+        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+
+        for(Uint_t i = 0; i < memoryProperties.memoryTypeCount; ++i) {
+            if((typeFilter & (1 << i)) && (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+                return i;
+            }
+        }
+    }
 };
 
 auto main(int argc, char** argv) -> int {
     hk::Clock clock;
     hk::Int_t fps = 0;
-    
+
     std::string concurrencyFormat = "Hardware Thread Concurrency: " + std::to_string(hk::Platform::GetHardwareConcurrency());
     hk::Logger::Log(hk::LoggerSeriousness::Info, concurrencyFormat, hk::Terminal::ColorList::Yellow);
 
@@ -337,14 +380,17 @@ auto main(int argc, char** argv) -> int {
 
     VkPipelineShaderStageCreateInfo shaderStagesCreateInfos[2] = { vertexShaderStageCreateInfo, fragmentShaderStageCreateInfo };
 
+    auto bindingDescription = hk::Vertex::GetVkVertexInputBindingDescription();
+    auto attributeDescriptions = hk::Vertex::GetVkVertexInputAttributeDescriptions();
+
     VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo;
     vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputStateCreateInfo.pNext = nullptr;
     vertexInputStateCreateInfo.flags = 0;
-    vertexInputStateCreateInfo.vertexBindingDescriptionCount = 0;
-    vertexInputStateCreateInfo.pVertexBindingDescriptions = nullptr;
-    vertexInputStateCreateInfo.vertexAttributeDescriptionCount = 0;
-    vertexInputStateCreateInfo.pVertexAttributeDescriptions = nullptr;
+    vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
+    vertexInputStateCreateInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputStateCreateInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
+    vertexInputStateCreateInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo;
     inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -539,6 +585,38 @@ auto main(int argc, char** argv) -> int {
     result = vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &commandPool);
     HK_ASSERT_VK(result);
 
+    VkBufferCreateInfo vertexBufferCreateInfo;
+    vertexBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    vertexBufferCreateInfo.pNext = nullptr;
+    vertexBufferCreateInfo.flags = 0;
+    vertexBufferCreateInfo.size = sizeof(hk::vertices.at(0)) * hk::vertices.size();
+    vertexBufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    vertexBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VkBuffer vertexBuffer;
+    result = vkCreateBuffer(device, &vertexBufferCreateInfo, nullptr, &vertexBuffer);
+    HK_ASSERT_VK(result);
+
+    VkMemoryRequirements memoryRequirements;
+    vkGetBufferMemoryRequirements(device, vertexBuffer, &memoryRequirements);
+
+    VkMemoryAllocateInfo memoryAllocateInfo;
+    memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    memoryAllocateInfo.pNext = nullptr;
+    memoryAllocateInfo.allocationSize = memoryRequirements.size;
+    memoryAllocateInfo.memoryTypeIndex = hk::FindMemoryType(*physicalDevice.GetVkPhysicalDevice(), memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    VkDeviceMemory vertexBufferMemory;
+    result = vkAllocateMemory(device, &memoryAllocateInfo, nullptr, &vertexBufferMemory);
+    HK_ASSERT_VK(result);
+
+    vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
+
+    void* rawData;
+    vkMapMemory(device, vertexBufferMemory, 0, vertexBufferCreateInfo.size, 0, &rawData);
+    std::memcpy(rawData, hk::vertices.data(), (size_t)vertexBufferCreateInfo.size);
+    vkUnmapMemory(device, vertexBufferMemory);
+
     VkCommandBufferAllocateInfo commandBufferAllocateInfo;
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     commandBufferAllocateInfo.pNext = nullptr;
@@ -575,7 +653,12 @@ auto main(int argc, char** argv) -> int {
 
         vkCmdBindPipeline(commandBuffers.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-        vkCmdDraw(commandBuffers.at(i), 3, 1, 0, 0);
+        VkBuffer vertexBuffers[] = { vertexBuffer };
+        VkDeviceSize offsets[] = { 0 };
+
+        vkCmdBindVertexBuffers(commandBuffers.at(i), 0, 1, vertexBuffers, offsets);
+
+        vkCmdDraw(commandBuffers.at(i), (hk::Uint_t)hk::vertices.size(), 1, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers.at(i));
 
@@ -670,6 +753,9 @@ auto main(int argc, char** argv) -> int {
     vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
 
     vkDestroySwapchainKHR(device, swapchain, nullptr);
+
+    vkDestroyBuffer(device, vertexBuffer, nullptr);
+    vkFreeMemory(device, vertexBufferMemory, nullptr);
 
     vkDestroyDevice(device, nullptr);
     surface.Destroy();

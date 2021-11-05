@@ -19,9 +19,9 @@ if(Vulkan_FOUND)
 endif(Vulkan_FOUND)
 
 if(UNIX)
-    find_package(X11 REQUIRED)
+    find_package(X11 REQUIRED FATAL_ERROR)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package(Threads REQUIRED)
+    find_package(Threads REQUIRED FATAL_ERROR)
 endif(UNIX)
 
 set(Hukan_SOURCE
@@ -29,6 +29,9 @@ set(Hukan_SOURCE
     Hukan/utils/Types.hpp
     Hukan/utils/Clock.hpp
     Hukan/utils/Clock.cpp
+    Hukan/utils/Vec2.hpp
+    Hukan/utils/Vec3.hpp
+    Hukan/utils/Vec4.hpp
     Hukan/api/Platform.hpp
     Hukan/api/Platform.cpp
     Hukan/api/Terminal.hpp

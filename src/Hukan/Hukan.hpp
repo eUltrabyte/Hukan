@@ -25,6 +25,9 @@
 
 #include "utils/Types.hpp"
 #include "utils/Clock.hpp"
+#include "utils/Vec2.hpp"
+#include "utils/Vec3.hpp"
+#include "utils/Vec4.hpp"
 
 #define HK_MAKE_VERSION(major, minor, patch) ((((hk::Uint_t)(major)) << 22) | (((hk::Uint_t)(minor)) << 12) | ((hk::Uint_t)(patch)))
 #define HK_VERSION_MAJOR(version) ((hk::Uint_t)(version) >> 22)
