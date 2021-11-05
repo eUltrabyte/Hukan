@@ -4,7 +4,7 @@
 
 namespace hk {
     enum HK_API LoggerSeriousness {
-        None,
+        Undefined = Bit(0),
         Info,
         Warning,
         Error,

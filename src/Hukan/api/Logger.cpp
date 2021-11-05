@@ -40,7 +40,7 @@ namespace hk {
         }
 
         std::string _loggerFormat, _timeFormat;
-        if(seriousness == LoggerSeriousness::None) {
+        if(seriousness == LoggerSeriousness::Undefined) {
             _timeFormat = "[ Time: " + _hours + ":" + _minutes + ":" + _seconds + " ]";
             _loggerFormat = "[ Type: None ]";
             Terminal::Color::UseColor(Terminal::ColorList::Green);

@@ -63,7 +63,7 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE Hukan/hkpch.hpp Hukan/hkpch.cp
 
 if(Vulkan_FOUND)
     if(UNIX)
-        target_link_libraries(UBVSR Vulkan::Vulkan X11 Threads::Threads)
+        target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan X11 Threads::Threads)
     else(UNIX)
         target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
     endif(UNIX)

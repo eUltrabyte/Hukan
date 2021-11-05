@@ -5,7 +5,7 @@
 namespace hk {
     namespace Terminal {
         enum HK_API ColorList {
-            Reset,
+            Reset = Bit(0),
             Red,
             DarkRed,
             Green,
@@ -98,79 +98,80 @@ namespace hk {
                         
                     }
                 #elif defined(HUKAN_SYSTEM_POSIX)
+                    std::string _format = "";
                     switch(color) {
                         case ColorList::Reset:
-                            std::string _format = "\x1B[" + std::to_string(0) + "m";
+                            _format = "\x1B[" + std::to_string(0) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::Red:
-                            std::string _format = "\x1B[" + std::to_string(91) + "m";
+                            _format = "\x1B[" + std::to_string(91) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::DarkRed:
-                            std::string _format = "\x1B[" + std::to_string(31) + "m";
+                            _format = "\x1B[" + std::to_string(31) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::Green:
-                            std::string _format = "\x1B[" + std::to_string(92) + "m";
+                            _format = "\x1B[" + std::to_string(92) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::DarkGreen:
-                            std::string _format = "\x1B[" + std::to_string(32) + "m";
+                            _format = "\x1B[" + std::to_string(32) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::Yellow:
-                            std::string _format = "\x1B[" + std::to_string(93) + "m";
+                            _format = "\x1B[" + std::to_string(93) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::DarkYellow:
-                            std::string _format = "\x1B[" + std::to_string(33) + "m";
+                            _format = "\x1B[" + std::to_string(33) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::Blue:
-                            std::string _format = "\x1B[" + std::to_string(94) + "m";
+                            _format = "\x1B[" + std::to_string(94) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::DarkBlue:
-                            std::string _format = "\x1B[" + std::to_string(34) + "m";
+                            _format = "\x1B[" + std::to_string(34) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::Magenta:
-                            std::string _format = "\x1B[" + std::to_string(95) + "m";
+                            _format = "\x1B[" + std::to_string(95) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::DarkMagenta:
-                            std::string _format = "\x1B[" + std::to_string(35) + "m";
+                            _format = "\x1B[" + std::to_string(35) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::Cyan:
-                            std::string _format = "\x1B[" + std::to_string(96) + "m";
+                            _format = "\x1B[" + std::to_string(96) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::DarkCyan:
-                            std::string _format = "\x1B[" + std::to_string(36) + "m";
+                            _format = "\x1B[" + std::to_string(36) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::Gray:
-                            std::string _format = "\x1B[" + std::to_string(30) + "m";
+                            _format = "\x1B[" + std::to_string(30) + "m";
                             printf("%s", _format.c_str());
                             break;
 
                         case ColorList::White:
-                            std::string _format = "\x1B[" + std::to_string(37) + "m";
+                            _format = "\x1B[" + std::to_string(37) + "m";
                             printf("%s", _format.c_str());
                             break;
                         
