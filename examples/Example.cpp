@@ -24,6 +24,14 @@ auto main(int argc, char** argv) -> int {
     hk::Clock clock;
     int fps = 0;
 
+    uint32_t instanceVersion = VK_API_VERSION_1_0;
+    auto FN_vkEnumerateInstanceVersion = PFN_vkEnumerateInstanceVersion(vkGetInstanceProcAddr(nullptr, "vkEnumerateInstanceVersion"));
+    vkEnumerateInstanceVersion(&instanceVersion);
+
+    std::string versionFormat = "Vulkan Version: " + std::to_string(VK_VERSION_MAJOR(instanceVersion)) + "." + std::to_string(VK_VERSION_MINOR(instanceVersion)) + "." + std::to_string(VK_VERSION_PATCH(instanceVersion));
+    hk::Logger::Log(hk::LoggerSeriousness::Info, versionFormat, hk::Terminal::ColorList::Yellow);
+    hk::Logger::Endl();
+
     VkApplicationInfo appInfo;
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pNext = nullptr;
@@ -31,7 +39,7 @@ auto main(int argc, char** argv) -> int {
     appInfo.pApplicationName = "Hukan-Example";
     appInfo.engineVersion = VK_MAKE_VERSION(0, 1, 3);
     appInfo.pEngineName = "Hukan";
-    appInfo.apiVersion = VK_API_VERSION_1_2;
+    appInfo.apiVersion = instanceVersion;
 
     hk::Uint_t layerCount = 0;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);

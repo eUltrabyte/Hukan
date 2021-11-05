@@ -10,7 +10,7 @@ namespace hk {
     using Long_Long_t = int64_t;
     using Char_t = char;
 
-    extern constexpr Int_t Bit(Int_t value) {
+    extern constexpr Uint_t Bit(Uint_t value) {
         value = 1 << value;
         return value;
     }

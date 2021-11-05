@@ -23,7 +23,7 @@ foreach(GLSL ${GLSL_SOURCE_FILES})
     list(APPEND SPIRV_BINARY_FILES ${SPIRV})
 endforeach(GLSL)
 
-add_custom_target(Shaders DEPENDS ${SPIRV_BINARY_FILES})
+add_custom_target(Hukan-Shaders DEPENDS ${SPIRV_BINARY_FILES})
 
 add_subdirectory(src)
 
@@ -31,6 +31,6 @@ add_executable(Hukan-Example
     examples/Example.cpp
 )
 
-add_dependencies(Hukan-Example Shaders)
+add_dependencies(Hukan-Example Hukan-Shaders)
 
 target_link_libraries(Hukan-Example Hukan)
