@@ -20,7 +20,7 @@ namespace hk {
     }
 };
 
-int main(int argc, char** argv) {
+auto main(int argc, char** argv) -> int {
     hk::Clock clock;
     int fps = 0;
 
@@ -56,11 +56,6 @@ int main(int argc, char** argv) {
         extensions.at(i).PrintVkExtensionProperties();
     }
     vkExtensionsProperties.clear();
-
-    // std::vector<const hk::Char_t*> extensionsNames;
-    // for(auto& extension : extensions) {
-    //     extensionsNames.push_back(extension.GetName());
-    // }
 
     std::vector<const hk::Char_t*> usedExtensions;
 

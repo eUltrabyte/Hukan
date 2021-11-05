@@ -27,6 +27,10 @@ namespace hk {
             Color() = default;
             Color(Uint_t color) : mColor(color) { }
 
+            virtual ~Color() {
+                delete this;
+            }
+
             static void UseColor(ColorList color) HK_NOEXCEPT {
                 #if defined(HUKAN_SYSTEM_WIN32)
                     static HANDLE sConsole = GetStdHandle(STD_OUTPUT_HANDLE);

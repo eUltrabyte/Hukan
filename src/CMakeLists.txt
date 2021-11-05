@@ -30,8 +30,6 @@ set(Hukan_SOURCE
     Hukan/utils/Clock.hpp
     Hukan/utils/Clock.cpp
     Hukan/api/Platform.hpp
-    Hukan/api/Posix/PlatformPosix.cpp
-    Hukan/api/Win32/PlatformWin32.cpp
     Hukan/api/Terminal.hpp
     Hukan/api/Logger.hpp
     Hukan/api/Logger.cpp
