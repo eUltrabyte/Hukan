@@ -163,10 +163,8 @@ auto main(int argc, char** argv) -> int {
         surfacePosixCreateInfo.pNext = nullptr;
         surfacePosixCreateInfo.pDisplay = window.GetDisplay();
         surfacePosixCreateInfo.pWindow = window.GetWindow();
-        printf("test\n");
 
         hk::SurfacePosix surface(instance.GetVkInstance(), &surfacePosixCreateInfo);
-        printf("test2\n");
     #endif
 
     hk::Uint_t physicalDevicesCount = 0;

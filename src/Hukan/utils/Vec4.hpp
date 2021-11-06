@@ -86,6 +86,38 @@ namespace hk {
             return mW;
         }
 
+        Vec4<T> operator+=(const T& value) HK_NOEXCEPT {
+            return Vec4<T>(mX += value, mY += value, mZ += value, mW += value);
+        }
+
+        Vec4<T> operator-=(const T& value) HK_NOEXCEPT {
+            return Vec4<T>(mX -= value, mY -= value, mZ -= value, mW -= value);
+        }
+
+        Vec4<T> operator*=(const T& value) HK_NOEXCEPT {
+            return Vec4<T>(mX *= value, mY *= value, mZ *= value, mW *= value);
+        }
+
+        Vec4<T> operator/=(const T& value) HK_NOEXCEPT {
+            return Vec4<T>(mX /= value, mY /= value, mZ /= value, mW /= value);
+        }
+
+        Vec4<T> operator+=(const Vec4<T>& vec) HK_NOEXCEPT {
+            return Vec4<T>(mX += vec.mX, mY += vec.mY, mZ += vec.mZ, mW += vec.mW);
+        }
+
+        Vec4<T> operator-=(const Vec4<T>& vec) HK_NOEXCEPT {
+            return Vec4<T>(mX -= vec.mX, mY -= vec.mY, mZ -= vec.mZ, mW -= vec.mW);
+        }
+
+        Vec4<T> operator*=(const Vec4<T>& vec) HK_NOEXCEPT {
+            return Vec4<T>(mX *= vec.mX, mY *= vec.mY, mZ *= vec.mZ, mW *= vec.mW);
+        }
+
+        Vec4<T> operator/=(const Vec4<T>& vec) HK_NOEXCEPT {
+            return Vec4<T>(mX /= vec.mX, mY /= vec.mY, mZ /= vec.mZ, mW /= vec.mW);
+        }
+
     private:
         T mX;
         T mY;
@@ -97,4 +129,6 @@ namespace hk {
     using Vec4f = Vec4<Float_t>;
     using Vec4i = Vec4<Int_t>;
     using Vec4u = Vec4<Uint_t>;
+    using Vec4l = Vec4<Long_t>;
+    using Vec4d = Vec4<Double_t>;
 };

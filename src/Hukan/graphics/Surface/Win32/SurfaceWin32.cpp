@@ -5,6 +5,7 @@
 namespace hk {
     SurfaceWin32::SurfaceWin32(VkInstance* pVkInstance, SurfaceWin32CreateInfo* pSurfaceCreateInfo) {
         SetVkInstance(pVkInstance);
+        SetVkSurface(new VkSurfaceKHR());
         SetSurfaceCreateInfo(pSurfaceCreateInfo);
         Create();
     }
@@ -15,32 +16,20 @@ namespace hk {
     }
 
     void SurfaceWin32::Create() {
-        VkResult _result = vkCreateWin32SurfaceKHR(*mpVkInstance, mpSurfaceCreateInfo->GetVkWin32SurfaceCreateInfoKHR(), nullptr, &mSurface);
+        VkResult _result = vkCreateWin32SurfaceKHR(*GetVkInstance(), mpSurfaceCreateInfo->GetVkWin32SurfaceCreateInfoKHR(), nullptr, GetVkSurfaceKHR());
         HK_ASSERT_VK(_result);
     }
 
     void SurfaceWin32::Destroy() {
-        vkDestroySurfaceKHR(*mpVkInstance, mSurface, nullptr);
-    }
-
-    void SurfaceWin32::SetVkInstance(VkInstance* pVkInstance) {
-        mpVkInstance = pVkInstance;
+        vkDestroySurfaceKHR(*GetVkInstance(), *GetVkSurfaceKHR(), nullptr);
     }
 
     void SurfaceWin32::SetSurfaceCreateInfo(SurfaceWin32CreateInfo* pSurfaceCreateInfo) {
         mpSurfaceCreateInfo = pSurfaceCreateInfo;
     }
 
-    VkInstance* SurfaceWin32::GetVkInstance() {
-        return mpVkInstance;
-    }
-
-    SurfaceWin32CreateInfo* SurfaceWin32::GetSurfaceCreateInfo() {
+    SurfaceWin32CreateInfo* SurfaceWin32::GetSurfaceCreateInfo() HK_NOEXCEPT {
         return mpSurfaceCreateInfo;
-    }
-
-    VkSurfaceKHR* SurfaceWin32::GetVkSurfaceKHR() {
-        return &mSurface;
     }
 };
 

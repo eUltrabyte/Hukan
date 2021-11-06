@@ -5,6 +5,7 @@
 namespace hk {
     SurfacePosix::SurfacePosix(VkInstance* pVkInstance, SurfacePosixCreateInfo* pSurfaceCreateInfo) {
         SetVkInstance(pVkInstance);
+        SetVkSurface(new VkSurfaceKHR());
         SetSurfaceCreateInfo(pSurfaceCreateInfo);
         Create();
     }
@@ -15,32 +16,20 @@ namespace hk {
     }
 
     void SurfacePosix::Create() {
-        VkResult _result = vkCreateXlibSurfaceKHR(*mpVkInstance, mpSurfaceCreateInfo->GetVkXlibSurfaceCreateInfoKHR(), nullptr, &mSurface);
+        VkResult _result = vkCreateXlibSurfaceKHR(*GetVkInstance(), mpSurfaceCreateInfo->GetVkXlibSurfaceCreateInfoKHR(), nullptr, GetVkSurfaceKHR());
         HK_ASSERT_VK(_result);
     }
 
     void SurfacePosix::Destroy() {
-        vkDestroySurfaceKHR(*mpVkInstance, mSurface, nullptr);
-    }
-
-    void SurfacePosix::SetVkInstance(VkInstance* pVkInstance) {
-        mpVkInstance = pVkInstance;
+        vkDestroySurfaceKHR(*GetVkInstance(), *GetVkSurfaceKHR(), nullptr);
     }
 
     void SurfacePosix::SetSurfaceCreateInfo(SurfacePosixCreateInfo* pSurfaceCreateInfo) {
         mpSurfaceCreateInfo = pSurfaceCreateInfo;
     }
 
-    VkInstance* SurfacePosix::GetVkInstance() {
-        return mpVkInstance;
-    }
-
-    SurfacePosixCreateInfo* SurfacePosix::GetSurfaceCreateInfo() {
+    SurfacePosixCreateInfo* SurfacePosix::GetSurfaceCreateInfo() HK_NOEXCEPT {
         return mpSurfaceCreateInfo;
-    }
-
-    VkSurfaceKHR* SurfacePosix::GetVkSurfaceKHR() {
-        return &mSurface;
     }
 };
 

@@ -34,7 +34,7 @@ namespace hk {
 
     };
 
-    class HK_API SurfacePosix {
+    class HK_API SurfacePosix : public Surface {
     public:
         SurfacePosix(VkInstance* pVkInstance = nullptr, SurfacePosixCreateInfo* pSurfaceCreateInfo = nullptr);
         virtual ~SurfacePosix();
@@ -42,17 +42,12 @@ namespace hk {
         virtual void Create();
         virtual void Destroy();
 
-        virtual void SetVkInstance(VkInstance* pVkInstance = nullptr);
         virtual void SetSurfaceCreateInfo(SurfacePosixCreateInfo* pSurfaceCreateInfo = nullptr);
 
-        HK_NODISCARD virtual VkInstance* GetVkInstance();
-        HK_NODISCARD virtual SurfacePosixCreateInfo* GetSurfaceCreateInfo();
-        HK_NODISCARD virtual VkSurfaceKHR* GetVkSurfaceKHR();
+        HK_NODISCARD virtual SurfacePosixCreateInfo* GetSurfaceCreateInfo() HK_NOEXCEPT;
 
     private:
-        VkInstance* mpVkInstance;
         SurfacePosixCreateInfo* mpSurfaceCreateInfo;
-        VkSurfaceKHR mSurface;
 
     };
 };

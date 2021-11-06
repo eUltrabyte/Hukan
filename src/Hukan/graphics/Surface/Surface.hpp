@@ -12,11 +12,14 @@ namespace hk {
         virtual void Destroy();
 
         virtual void SetVkInstance(VkInstance* pVkInstance = nullptr);
+        virtual void SetVkSurface(VkSurfaceKHR* pVkSurface = nullptr);
 
         HK_NODISCARD virtual VkInstance* GetVkInstance() HK_NOEXCEPT;
+        HK_NODISCARD virtual VkSurfaceKHR* GetVkSurfaceKHR() HK_NOEXCEPT;
     
     private:
         VkInstance* mpVkInstance;
+        VkSurfaceKHR* mpVkSurface;
 
     };
 };

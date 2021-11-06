@@ -46,6 +46,38 @@ namespace hk {
             return mZ;
         }
 
+        Vec3<T> operator+=(const T& value) HK_NOEXCEPT {
+            return Vec3<T>(mX += value, mY += value, mZ += value);
+        }
+
+        Vec3<T> operator-=(const T& value) HK_NOEXCEPT {
+            return Vec3<T>(mX -= value, mY -= value, mZ -= value);
+        }
+
+        Vec3<T> operator*=(const T& value) HK_NOEXCEPT {
+            return Vec3<T>(mX *= value, mY *= value, mZ *= value);
+        }
+
+        Vec3<T> operator/=(const T& value) HK_NOEXCEPT {
+            return Vec3<T>(mX /= value, mY /= value, mZ /= value);
+        }
+
+        Vec3<T> operator+=(const Vec3<T>& vec) HK_NOEXCEPT {
+            return Vec3<T>(mX += vec.mX, mY += vec.mY, mZ += vec.mZ);
+        }
+
+        Vec3<T> operator-=(const Vec3<T>& vec) HK_NOEXCEPT {
+            return Vec3<T>(mX -= vec.mX, mY -= vec.mY, mZ -= vec.mZ);
+        }
+
+        Vec3<T> operator*=(const Vec3<T>& vec) HK_NOEXCEPT {
+            return Vec3<T>(mX *= vec.mX, mY *= vec.mY, mZ *= vec.mZ);
+        }
+
+        Vec3<T> operator/=(const Vec3<T>& vec) HK_NOEXCEPT {
+            return Vec3<T>(mX /= vec.mX, mY /= vec.mY, mZ /= vec.mZ);
+        }
+
     private:
         T mX;
         T mY;
@@ -56,4 +88,6 @@ namespace hk {
     using Vec3f = Vec3<Float_t>;
     using Vec3i = Vec3<Int_t>;
     using Vec3u = Vec3<Uint_t>;
+    using Vec3l = Vec3<Long_t>;
+    using Vec3d = Vec3<Double_t>;
 };

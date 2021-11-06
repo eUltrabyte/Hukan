@@ -33,7 +33,7 @@ namespace hk {
 
     };
 
-    class HK_API SurfaceWin32 {
+    class HK_API SurfaceWin32 : public Surface {
     public:
         SurfaceWin32(VkInstance* pVkInstance = nullptr, SurfaceWin32CreateInfo* pSurfaceCreateInfo = nullptr);
         virtual ~SurfaceWin32();
@@ -41,17 +41,12 @@ namespace hk {
         virtual void Create();
         virtual void Destroy();
 
-        virtual void SetVkInstance(VkInstance* pVkInstance = nullptr);
         virtual void SetSurfaceCreateInfo(SurfaceWin32CreateInfo* pSurfaceCreateInfo = nullptr);
 
-        HK_NODISCARD virtual VkInstance* GetVkInstance();
-        HK_NODISCARD virtual SurfaceWin32CreateInfo* GetSurfaceCreateInfo();
-        HK_NODISCARD virtual VkSurfaceKHR* GetVkSurfaceKHR();
+        HK_NODISCARD virtual SurfaceWin32CreateInfo* GetSurfaceCreateInfo() HK_NOEXCEPT;
 
     private:
-        VkInstance* mpVkInstance;
         SurfaceWin32CreateInfo* mpSurfaceCreateInfo;
-        VkSurfaceKHR mSurface;
 
     };
 };
