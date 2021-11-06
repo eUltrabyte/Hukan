@@ -50,17 +50,6 @@ namespace hk {
         {{  0.5f,  0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }},
         {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }}
     };
-
-    Uint_t FindMemoryType(VkPhysicalDevice physicalDevice, Uint_t typeFilter, VkMemoryPropertyFlags properties) {
-        VkPhysicalDeviceMemoryProperties memoryProperties;
-        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
-
-        for(Uint_t i = 0; i < memoryProperties.memoryTypeCount; ++i) {
-            if((typeFilter & (1 << i)) && (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties) {
-                return i;
-            }
-        }
-    }
 };
 
 auto main(int argc, char** argv) -> int {
@@ -600,37 +589,18 @@ auto main(int argc, char** argv) -> int {
     result = vkCreateCommandPool(*device.GetVkDevice(), &commandPoolCreateInfo, nullptr, &commandPool);
     HK_ASSERT_VK(result);
 
-    VkBufferCreateInfo vertexBufferCreateInfo;
-    vertexBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    hk::BufferCreateInfo vertexBufferCreateInfo;
     vertexBufferCreateInfo.pNext = nullptr;
-    vertexBufferCreateInfo.flags = 0;
     vertexBufferCreateInfo.size = sizeof(hk::vertices.at(0)) * hk::vertices.size();
     vertexBufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    vertexBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    vertexBufferCreateInfo.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
-    VkBuffer vertexBuffer;
-    result = vkCreateBuffer(*device.GetVkDevice(), &vertexBufferCreateInfo, nullptr, &vertexBuffer);
-    HK_ASSERT_VK(result);
-
-    VkMemoryRequirements memoryRequirements;
-    vkGetBufferMemoryRequirements(*device.GetVkDevice(), vertexBuffer, &memoryRequirements);
-
-    VkMemoryAllocateInfo memoryAllocateInfo;
-    memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    memoryAllocateInfo.pNext = nullptr;
-    memoryAllocateInfo.allocationSize = memoryRequirements.size;
-    memoryAllocateInfo.memoryTypeIndex = hk::FindMemoryType(*physicalDevice.GetVkPhysicalDevice(), memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-    VkDeviceMemory vertexBufferMemory;
-    result = vkAllocateMemory(*device.GetVkDevice(), &memoryAllocateInfo, nullptr, &vertexBufferMemory);
-    HK_ASSERT_VK(result);
-
-    vkBindBufferMemory(*device.GetVkDevice(), vertexBuffer, vertexBufferMemory, 0);
+    hk::Buffer vertexBuffer(physicalDevice.GetVkPhysicalDevice(), device.GetVkDevice(), &vertexBufferCreateInfo);
 
     void* rawData;
-    vkMapMemory(*device.GetVkDevice(), vertexBufferMemory, 0, vertexBufferCreateInfo.size, 0, &rawData);
+    vkMapMemory(*device.GetVkDevice(), *vertexBuffer.GetBufferMemory(), 0, vertexBufferCreateInfo.size, 0, &rawData);
     std::memcpy(rawData, hk::vertices.data(), (size_t)vertexBufferCreateInfo.size);
-    vkUnmapMemory(*device.GetVkDevice(), vertexBufferMemory);
+    vkUnmapMemory(*device.GetVkDevice(), *vertexBuffer.GetBufferMemory());
 
     VkCommandBufferAllocateInfo commandBufferAllocateInfo;
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -668,7 +638,8 @@ auto main(int argc, char** argv) -> int {
 
         vkCmdBindPipeline(commandBuffers.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-        VkBuffer vertexBuffers[] = { vertexBuffer };
+        // VkBuffer vertexBuffers[] = { vertexBuffer };
+        VkBuffer vertexBuffers[] = { *vertexBuffer.GetBuffer() };
         VkDeviceSize offsets[] = { 0 };
 
         vkCmdBindVertexBuffers(commandBuffers.at(i), 0, 1, vertexBuffers, offsets);
@@ -769,8 +740,7 @@ auto main(int argc, char** argv) -> int {
 
     vkDestroySwapchainKHR(*device.GetVkDevice(), swapchain, nullptr);
 
-    vkDestroyBuffer(*device.GetVkDevice(), vertexBuffer, nullptr);
-    vkFreeMemory(*device.GetVkDevice(), vertexBufferMemory, nullptr);
+    vertexBuffer.Destroy();
 
     device.Destroy();
     surface.Destroy();
