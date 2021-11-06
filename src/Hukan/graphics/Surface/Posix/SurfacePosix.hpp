@@ -11,7 +11,7 @@ namespace hk {
     public:
         const void* pNext;
         Display* pDisplay;
-        ::Window window;
+        ::Window* pWindow;
 
     private:
         VkXlibSurfaceCreateInfoKHR pSurfaceCreateInfo;
@@ -20,7 +20,7 @@ namespace hk {
         SurfacePosixCreateInfo() {
             pNext = nullptr;
             pDisplay = nullptr;
-            window = 0;
+            pWindow = nullptr;
         }
 
         HK_NODISCARD VkXlibSurfaceCreateInfoKHR* GetVkXlibSurfaceCreateInfoKHR() {
@@ -28,7 +28,7 @@ namespace hk {
             pSurfaceCreateInfo.pNext = pNext;
             pSurfaceCreateInfo.flags = 0;
             pSurfaceCreateInfo.dpy = pDisplay;
-            pSurfaceCreateInfo.window = window;
+            pSurfaceCreateInfo.window = *pWindow;
             return &pSurfaceCreateInfo;
         }
 

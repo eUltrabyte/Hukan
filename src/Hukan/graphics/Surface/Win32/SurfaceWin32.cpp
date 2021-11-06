@@ -16,7 +16,7 @@ namespace hk {
 
     void SurfaceWin32::Create() {
         VkResult _result = vkCreateWin32SurfaceKHR(*mpVkInstance, mpSurfaceCreateInfo->GetVkWin32SurfaceCreateInfoKHR(), nullptr, &mSurface);
-        HK_ASSERT(_result);
+        HK_ASSERT_VK(_result);
     }
 
     void SurfaceWin32::Destroy() {

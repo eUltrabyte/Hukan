@@ -116,6 +116,7 @@ auto main(int argc, char** argv) -> int {
             usedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
         #elif defined(HUKAN_SYSTEM_POSIX)
             usedExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+            usedExtensions.push_back(VK_KHR_DISPLAY_EXTENSION_NAME);
         #endif
         usedExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
@@ -139,29 +140,32 @@ auto main(int argc, char** argv) -> int {
     hk::Messenger debugMessenger(instance.GetVkInstance(), &messengerCreateInfo);
 
     hk::WindowCreateInfo windowCreateInfo;
-    windowCreateInfo.title = "Hukan Window Impl";
     windowCreateInfo.width = 1280;
     windowCreateInfo.height = 720;
 
     #if defined(HUKAN_SYSTEM_WIN32)
+        windowCreateInfo.title = "Hukan Window Impl Win32";
+
         hk::WindowImplWin32 window(&windowCreateInfo);
 
-        hk::SurfaceWin32CreateInfo surfaceCreateInfo;
-        surfaceCreateInfo.pNext = nullptr;
-        surfaceCreateInfo.pHinstance = window.GetHINSTANCE();
-        surfaceCreateInfo.pHwnd = window.GetHWND();
+        hk::SurfaceWin32CreateInfo surfaceWin32CreateInfo;
+        surfaceWin32CreateInfo.pNext = nullptr;
+        surfaceWin32CreateInfo.pHinstance = window.GetHINSTANCE();
+        surfaceWin32CreateInfo.pHwnd = window.GetHWND();
 
-        hk::SurfaceWin32 surface(instance.GetVkInstance(), &surfaceCreateInfo);
+        hk::SurfaceWin32 surface(instance.GetVkInstance(), &surfaceWin32CreateInfo);
     #elif defined(HUKAN_SYSTEM_POSIX)
+        windowCreateInfo.title = "Hukan Window Impl Posix";
+
         hk::WindowImplPosix window(&windowCreateInfo);
 
-        hk::SurfacePosixCreateInfo surfaceCreateInfo;
-        surfaceCreateInfo.pNext = nullptr;
-        surfaceCreateInfo.pDisplay = window.GetDisplay();
-        surfaceCreateInfo.window = *window.GetWindow();
+        hk::SurfacePosixCreateInfo surfacePosixCreateInfo;
+        surfacePosixCreateInfo.pNext = nullptr;
+        surfacePosixCreateInfo.pDisplay = window.GetDisplay();
+        surfacePosixCreateInfo.pWindow = window.GetWindow();
         printf("test\n");
 
-        hk::SurfacePosix surface(instance.GetVkInstance(), &surfaceCreateInfo);
+        hk::SurfacePosix surface(instance.GetVkInstance(), &surfacePosixCreateInfo);
         printf("test2\n");
     #endif
 

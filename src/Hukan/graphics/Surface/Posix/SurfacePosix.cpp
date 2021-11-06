@@ -16,7 +16,7 @@ namespace hk {
 
     void SurfacePosix::Create() {
         VkResult _result = vkCreateXlibSurfaceKHR(*mpVkInstance, mpSurfaceCreateInfo->GetVkXlibSurfaceCreateInfoKHR(), nullptr, &mSurface);
-        HK_ASSERT(_result);
+        HK_ASSERT_VK(_result);
     }
 
     void SurfacePosix::Destroy() {
