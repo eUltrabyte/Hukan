@@ -665,9 +665,20 @@ auto main(int argc, char** argv) -> int {
     result = vkCreateSemaphore(*device.GetVkDevice(), &semaphoreCreateInfo, nullptr, &semaphoreRenderingDone);
     HK_ASSERT_VK(result);
 
+    VkFenceCreateInfo fenceCreateInfo;
+    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceCreateInfo.pNext = nullptr;
+    fenceCreateInfo.flags = 0;
+
+    VkFence fence;
+    result = vkCreateFence(*device.GetVkDevice(), &fenceCreateInfo, nullptr, &fence);
+    HK_ASSERT_VK(result);
+
     while(true) {
         hk::Uint_t imageIndex = 0;
-        vkAcquireNextImageKHR(*device.GetVkDevice(), swapchain, std::numeric_limits<uint64_t>::infinity(), semaphoreImageAvailable, VK_NULL_HANDLE, &imageIndex);
+        vkAcquireNextImageKHR(*device.GetVkDevice(), swapchain, std::numeric_limits<hk::Uint64_t>::infinity(), semaphoreImageAvailable, VK_NULL_HANDLE, &imageIndex);
+
+        vkWaitForFences(*device.GetVkDevice(), 1, &fence, VK_TRUE, std::numeric_limits<hk::Uint64_t>::infinity());
 
         VkSubmitInfo submitInfo;
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -681,7 +692,9 @@ auto main(int argc, char** argv) -> int {
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = &semaphoreRenderingDone;
 
-        result = vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkResetFences(*device.GetVkDevice(), 1, &fence);
+
+        result = vkQueueSubmit(queue, 1, &submitInfo, fence);
         HK_ASSERT_VK(result);
 
         VkPresentInfoKHR presentInfo;
@@ -711,6 +724,8 @@ auto main(int argc, char** argv) -> int {
     }
 
     vkDeviceWaitIdle(*device.GetVkDevice());
+
+    vkDestroyFence(*device.GetVkDevice(), fence, nullptr);
 
     vkDestroySemaphore(*device.GetVkDevice(), semaphoreImageAvailable, nullptr);
     vkDestroySemaphore(*device.GetVkDevice(), semaphoreRenderingDone, nullptr);
