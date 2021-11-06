@@ -49,6 +49,8 @@ set(Hukan_SOURCE
     Hukan/core/Extension.cpp
     Hukan/core/PhysicalDevice.hpp
     Hukan/core/PhysicalDevice.cpp
+    Hukan/core/Device.hpp
+    Hukan/core/Device.cpp
     Hukan/graphics/Window/Window.hpp
     Hukan/graphics/Window/Window.cpp
     Hukan/graphics/Window/Posix/WindowPosix.hpp

@@ -206,7 +206,7 @@ auto main(int argc, char** argv) -> int {
     }
     vkFamilyProperties.clear();
 
-    float priorities[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    hk::Float_t priorities[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     VkDeviceQueueCreateInfo deviceQueueCreateInfo;
     deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -218,28 +218,24 @@ auto main(int argc, char** argv) -> int {
 
     VkPhysicalDeviceFeatures usedFeatures = {  };
 
-    const std::vector<const char*> deviceExtensions = {
+    const hk::Char_t* deviceExtensions[] = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
-    VkDeviceCreateInfo deviceCreateInfo;
-    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    hk::DeviceCreateInfo deviceCreateInfo;
     deviceCreateInfo.pNext = nullptr;
-    deviceCreateInfo.flags = 0;
     deviceCreateInfo.queueCreateInfoCount = 1;
     deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
     deviceCreateInfo.enabledLayerCount = 0;
     deviceCreateInfo.ppEnabledLayerNames = nullptr;
-    deviceCreateInfo.enabledExtensionCount = deviceExtensions.size();
-    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
+    deviceCreateInfo.enabledExtensionCount = 1;
+    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
     deviceCreateInfo.pEnabledFeatures = &usedFeatures;
 
-    VkDevice device;
-    result = vkCreateDevice(*physicalDevice.GetVkPhysicalDevice(), &deviceCreateInfo, nullptr, &device);
-    HK_ASSERT_VK(result);
+    hk::Device device(physicalDevice.GetVkPhysicalDevice(), &deviceCreateInfo);
 
     VkQueue queue;
-    vkGetDeviceQueue(device, 0, 0, &queue);
+    vkGetDeviceQueue(*device.GetVkDevice(), 0, 0, &queue);
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(*physicalDevice.GetVkPhysicalDevice(), *surface.GetVkSurfaceKHR(), &surfaceCapabilities);
@@ -320,13 +316,13 @@ auto main(int argc, char** argv) -> int {
     swapchainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
     VkSwapchainKHR swapchain;
-    result = vkCreateSwapchainKHR(device, &swapchainCreateInfo, nullptr, &swapchain);
+    result = vkCreateSwapchainKHR(*device.GetVkDevice(), &swapchainCreateInfo, nullptr, &swapchain);
     HK_ASSERT_VK(result);
 
     hk::Uint_t imagesInSwapchainCount = 0;
-    vkGetSwapchainImagesKHR(device, swapchain, &imagesInSwapchainCount, nullptr);
+    vkGetSwapchainImagesKHR(*device.GetVkDevice(), swapchain, &imagesInSwapchainCount, nullptr);
     std::vector<VkImage> swapchainImages(imagesInSwapchainCount);
-    vkGetSwapchainImagesKHR(device, swapchain, &imagesInSwapchainCount, swapchainImages.data());
+    vkGetSwapchainImagesKHR(*device.GetVkDevice(), swapchain, &imagesInSwapchainCount, swapchainImages.data());
 
     std::vector<VkImageView> imageViews(imagesInSwapchainCount);
     for(int i = 0; i < imageViews.size(); ++i) {
@@ -347,7 +343,7 @@ auto main(int argc, char** argv) -> int {
         imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
         imageViewCreateInfo.subresourceRange.layerCount = 1;
 
-        result = vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageViews.at(i));
+        result = vkCreateImageView(*device.GetVkDevice(), &imageViewCreateInfo, nullptr, &imageViews.at(i));
         HK_ASSERT_VK(result);
     }
 
@@ -363,7 +359,7 @@ auto main(int argc, char** argv) -> int {
     vertexShaderCreateInfo.pCode = (hk::Uint_t*)vertexShaderCode.data();
 
     VkShaderModule vertexShaderModule;
-    result = vkCreateShaderModule(device, &vertexShaderCreateInfo, nullptr, &vertexShaderModule);
+    result = vkCreateShaderModule(*device.GetVkDevice(), &vertexShaderCreateInfo, nullptr, &vertexShaderModule);
     HK_ASSERT_VK(result);
 
     std::vector<hk::Char_t> fragmentShaderCode = hk::ReadFile("shader.frag.spv");
@@ -376,7 +372,7 @@ auto main(int argc, char** argv) -> int {
     fragmentShaderCreateInfo.pCode = (hk::Uint_t*)fragmentShaderCode.data();
 
     VkShaderModule fragmentShaderModule;
-    result = vkCreateShaderModule(device, &fragmentShaderCreateInfo, nullptr, &fragmentShaderModule);
+    result = vkCreateShaderModule(*device.GetVkDevice(), &fragmentShaderCreateInfo, nullptr, &fragmentShaderModule);
     HK_ASSERT_VK(result);
 
     VkPipelineShaderStageCreateInfo vertexShaderStageCreateInfo;
@@ -498,7 +494,7 @@ auto main(int argc, char** argv) -> int {
     layoutCreateInfo.pPushConstantRanges = nullptr;
 
     VkPipelineLayout layout;
-    result = vkCreatePipelineLayout(device, &layoutCreateInfo, nullptr, &layout);
+    result = vkCreatePipelineLayout(*device.GetVkDevice(), &layoutCreateInfo, nullptr, &layout);
     HK_ASSERT_VK(result);
 
     VkAttachmentDescription attachmentDescription;
@@ -549,7 +545,7 @@ auto main(int argc, char** argv) -> int {
     renderPassCreateInfo.pDependencies = &subpassDependency;
 
     VkRenderPass renderPass;
-    result = vkCreateRenderPass(device, &renderPassCreateInfo, nullptr, &renderPass);
+    result = vkCreateRenderPass(*device.GetVkDevice(), &renderPassCreateInfo, nullptr, &renderPass);
     HK_ASSERT_VK(result);
 
     VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo;
@@ -574,7 +570,7 @@ auto main(int argc, char** argv) -> int {
     graphicsPipelineCreateInfo.basePipelineIndex = -1;
 
     VkPipeline pipeline;
-    result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &pipeline);
+    result = vkCreateGraphicsPipelines(*device.GetVkDevice(), VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &pipeline);
     HK_ASSERT_VK(result);
 
     std::vector<VkFramebuffer> framebuffers(imagesInSwapchainCount);
@@ -590,7 +586,7 @@ auto main(int argc, char** argv) -> int {
         framebufferCreateInfo.height = window.GetWindowCreateInfo()->height;
         framebufferCreateInfo.layers = 1;
 
-        result = vkCreateFramebuffer(device, &framebufferCreateInfo, nullptr, &framebuffers.at(i));
+        result = vkCreateFramebuffer(*device.GetVkDevice(), &framebufferCreateInfo, nullptr, &framebuffers.at(i));
         HK_ASSERT_VK(result);
     }
 
@@ -601,7 +597,7 @@ auto main(int argc, char** argv) -> int {
     commandPoolCreateInfo.queueFamilyIndex = 0;
 
     VkCommandPool commandPool;
-    result = vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &commandPool);
+    result = vkCreateCommandPool(*device.GetVkDevice(), &commandPoolCreateInfo, nullptr, &commandPool);
     HK_ASSERT_VK(result);
 
     VkBufferCreateInfo vertexBufferCreateInfo;
@@ -613,11 +609,11 @@ auto main(int argc, char** argv) -> int {
     vertexBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     VkBuffer vertexBuffer;
-    result = vkCreateBuffer(device, &vertexBufferCreateInfo, nullptr, &vertexBuffer);
+    result = vkCreateBuffer(*device.GetVkDevice(), &vertexBufferCreateInfo, nullptr, &vertexBuffer);
     HK_ASSERT_VK(result);
 
     VkMemoryRequirements memoryRequirements;
-    vkGetBufferMemoryRequirements(device, vertexBuffer, &memoryRequirements);
+    vkGetBufferMemoryRequirements(*device.GetVkDevice(), vertexBuffer, &memoryRequirements);
 
     VkMemoryAllocateInfo memoryAllocateInfo;
     memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -626,15 +622,15 @@ auto main(int argc, char** argv) -> int {
     memoryAllocateInfo.memoryTypeIndex = hk::FindMemoryType(*physicalDevice.GetVkPhysicalDevice(), memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     VkDeviceMemory vertexBufferMemory;
-    result = vkAllocateMemory(device, &memoryAllocateInfo, nullptr, &vertexBufferMemory);
+    result = vkAllocateMemory(*device.GetVkDevice(), &memoryAllocateInfo, nullptr, &vertexBufferMemory);
     HK_ASSERT_VK(result);
 
-    vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
+    vkBindBufferMemory(*device.GetVkDevice(), vertexBuffer, vertexBufferMemory, 0);
 
     void* rawData;
-    vkMapMemory(device, vertexBufferMemory, 0, vertexBufferCreateInfo.size, 0, &rawData);
+    vkMapMemory(*device.GetVkDevice(), vertexBufferMemory, 0, vertexBufferCreateInfo.size, 0, &rawData);
     std::memcpy(rawData, hk::vertices.data(), (size_t)vertexBufferCreateInfo.size);
-    vkUnmapMemory(device, vertexBufferMemory);
+    vkUnmapMemory(*device.GetVkDevice(), vertexBufferMemory);
 
     VkCommandBufferAllocateInfo commandBufferAllocateInfo;
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -644,7 +640,7 @@ auto main(int argc, char** argv) -> int {
     commandBufferAllocateInfo.commandBufferCount = imagesInSwapchainCount;
 
     std::vector<VkCommandBuffer> commandBuffers(imagesInSwapchainCount);
-    result = vkAllocateCommandBuffers(device, &commandBufferAllocateInfo, commandBuffers.data());
+    result = vkAllocateCommandBuffers(*device.GetVkDevice(), &commandBufferAllocateInfo, commandBuffers.data());
     HK_ASSERT_VK(result);
 
     VkCommandBufferBeginInfo commandBufferBeginInfo;
@@ -691,16 +687,16 @@ auto main(int argc, char** argv) -> int {
     semaphoreCreateInfo.flags = 0;
 
     VkSemaphore semaphoreImageAvailable;
-    result = vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &semaphoreImageAvailable);
+    result = vkCreateSemaphore(*device.GetVkDevice(), &semaphoreCreateInfo, nullptr, &semaphoreImageAvailable);
     HK_ASSERT_VK(result);
 
     VkSemaphore semaphoreRenderingDone;
-    result = vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &semaphoreRenderingDone);
+    result = vkCreateSemaphore(*device.GetVkDevice(), &semaphoreCreateInfo, nullptr, &semaphoreRenderingDone);
     HK_ASSERT_VK(result);
 
     while(true) {
         hk::Uint_t imageIndex = 0;
-        vkAcquireNextImageKHR(device, swapchain, std::numeric_limits<uint64_t>::infinity(), semaphoreImageAvailable, VK_NULL_HANDLE, &imageIndex);
+        vkAcquireNextImageKHR(*device.GetVkDevice(), swapchain, std::numeric_limits<uint64_t>::infinity(), semaphoreImageAvailable, VK_NULL_HANDLE, &imageIndex);
 
         VkSubmitInfo submitInfo;
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -743,45 +739,45 @@ auto main(int argc, char** argv) -> int {
         vkQueueWaitIdle(queue);
     }
 
-    vkDeviceWaitIdle(device);
+    vkDeviceWaitIdle(*device.GetVkDevice());
 
-    vkDestroySemaphore(device, semaphoreImageAvailable, nullptr);
-    vkDestroySemaphore(device, semaphoreRenderingDone, nullptr);
+    vkDestroySemaphore(*device.GetVkDevice(), semaphoreImageAvailable, nullptr);
+    vkDestroySemaphore(*device.GetVkDevice(), semaphoreRenderingDone, nullptr);
 
-    vkFreeCommandBuffers(device, commandPool, commandBuffers.size(), commandBuffers.data());
+    vkFreeCommandBuffers(*device.GetVkDevice(), commandPool, commandBuffers.size(), commandBuffers.data());
     commandBuffers.clear();
 
-    vkDestroyCommandPool(device, commandPool, nullptr);
+    vkDestroyCommandPool(*device.GetVkDevice(), commandPool, nullptr);
 
     for(int i = 0; i < imagesInSwapchainCount; ++i) {
-        vkDestroyFramebuffer(device, framebuffers.at(i), nullptr);
+        vkDestroyFramebuffer(*device.GetVkDevice(), framebuffers.at(i), nullptr);
     }
     framebuffers.clear();
 
-    vkDestroyPipeline(device, pipeline, nullptr);
-    vkDestroyRenderPass(device, renderPass, nullptr);
+    vkDestroyPipeline(*device.GetVkDevice(), pipeline, nullptr);
+    vkDestroyRenderPass(*device.GetVkDevice(), renderPass, nullptr);
 
     for(int i = 0; i < imageViews.size(); ++i) {
-        vkDestroyImageView(device, imageViews.at(i), nullptr);
+        vkDestroyImageView(*device.GetVkDevice(), imageViews.at(i), nullptr);
     }
     imageViews.clear();
 
-    vkDestroyPipelineLayout(device, layout, nullptr);
+    vkDestroyPipelineLayout(*device.GetVkDevice(), layout, nullptr);
 
-    vkDestroyShaderModule(device, vertexShaderModule, nullptr);
-    vkDestroyShaderModule(device, fragmentShaderModule, nullptr);
+    vkDestroyShaderModule(*device.GetVkDevice(), vertexShaderModule, nullptr);
+    vkDestroyShaderModule(*device.GetVkDevice(), fragmentShaderModule, nullptr);
 
-    vkDestroySwapchainKHR(device, swapchain, nullptr);
+    vkDestroySwapchainKHR(*device.GetVkDevice(), swapchain, nullptr);
 
-    vkDestroyBuffer(device, vertexBuffer, nullptr);
-    vkFreeMemory(device, vertexBufferMemory, nullptr);
+    vkDestroyBuffer(*device.GetVkDevice(), vertexBuffer, nullptr);
+    vkFreeMemory(*device.GetVkDevice(), vertexBufferMemory, nullptr);
 
-    vkDestroyDevice(device, nullptr);
+    device.Destroy();
     surface.Destroy();
     window.Destroy();
 
     debugMessenger.DestroyVkMessenger();
-    instance.DestroyVkInstance();
+    instance.Destroy();
 
     std::cin.get();
     return 0;

@@ -43,10 +43,10 @@ namespace hk {
         Instance(InstanceCreateInfo* pInstanceCreateInfo = nullptr);
         virtual ~Instance();
 
-        virtual void CreateVkInstance();
-        virtual void DestroyVkInstance();
+        virtual void Create();
+        virtual void Destroy();
 
-        virtual void SetVkInstanceCreateInfo(InstanceCreateInfo* pInstanceCreateInfo = nullptr);
+        virtual void SetInstanceCreateInfo(InstanceCreateInfo* pInstanceCreateInfo = nullptr);
 
         HK_NODISCARD virtual VkInstance* GetVkInstance() HK_NOEXCEPT;
 

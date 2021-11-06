@@ -54,6 +54,7 @@ namespace hk {
 #include "core/Layer.hpp"
 #include "core/Extension.hpp"
 #include "core/PhysicalDevice.hpp"
+#include "core/Device.hpp"
 
 #include "graphics/Window/Window.hpp"
 #include "graphics/Surface/Surface.hpp"
