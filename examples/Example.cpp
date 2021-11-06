@@ -165,36 +165,6 @@ auto main(int argc, char** argv) -> int {
     physicalDevice.PrintPhysicalDeviceProps();
     physicalDevices.clear();
 
-    hk::Uint_t queueFamiliesCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevice.GetVkPhysicalDevice(), &queueFamiliesCount, nullptr);
-    std::vector<VkQueueFamilyProperties> vkFamilyProperties(queueFamiliesCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevice.GetVkPhysicalDevice(), &queueFamiliesCount, vkFamilyProperties.data());
-
-    std::string _format = "Queue Families Count: " + std::to_string(queueFamiliesCount);
-    hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
-    hk::Logger::Endl();
-
-    for(int i = 0; i < queueFamiliesCount; ++i) {
-        std::string _format = "Queue Family Number: " + std::to_string(i);
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
-        _format = "VK_QUEUE_GRAPHICS_BIT: " + std::to_string(((vkFamilyProperties.at(i).queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0));
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
-        _format = "VK_QUEUE_COMPUTE_BIT: " + std::to_string(((vkFamilyProperties.at(i).queueFlags & VK_QUEUE_COMPUTE_BIT) != 0));
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
-        _format = "VK_QUEUE_TRANSFER_BIT: " + std::to_string(((vkFamilyProperties.at(i).queueFlags & VK_QUEUE_TRANSFER_BIT) != 0));
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
-        _format = "VK_QUEUE_SPARSE_BINDING_BIT: " + std::to_string(((vkFamilyProperties.at(i).queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) != 0));
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
-        _format = "Queue Count: " + std::to_string(vkFamilyProperties.at(i).queueCount);
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
-        _format = "Timestamp Valid Bits: " + std::to_string(vkFamilyProperties.at(i).timestampValidBits);
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
-        _format = "Minimal Image Timestamp Granularity: " + std::to_string(vkFamilyProperties.at(i).minImageTransferGranularity.width) + ", " + std::to_string(vkFamilyProperties.at(i).minImageTransferGranularity.height) + ", " + std::to_string(vkFamilyProperties.at(i).minImageTransferGranularity.depth);
-        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
-        hk::Logger::Endl();
-    }
-    vkFamilyProperties.clear();
-
     hk::Float_t priorities[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     VkDeviceQueueCreateInfo deviceQueueCreateInfo;
@@ -222,9 +192,6 @@ auto main(int argc, char** argv) -> int {
     deviceCreateInfo.pEnabledFeatures = &usedFeatures;
 
     hk::Device device(physicalDevice.GetVkPhysicalDevice(), &deviceCreateInfo);
-
-    VkQueue queue;
-    vkGetDeviceQueue(*device.GetVkDevice(), 0, 0, &queue);
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(*physicalDevice.GetVkPhysicalDevice(), *surface.GetVkSurfaceKHR(), &surfaceCapabilities);
@@ -274,15 +241,61 @@ auto main(int argc, char** argv) -> int {
     hk::Logger::Endl();
     presentationModes.clear();
 
-    VkBool32 surfaceSupport = false;
-    result = vkGetPhysicalDeviceSurfaceSupportKHR(*physicalDevice.GetVkPhysicalDevice(), 0, *surface.GetVkSurfaceKHR(), &surfaceSupport);
-    HK_ASSERT_VK(result);
+    hk::Uint_t queueFamiliesCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevice.GetVkPhysicalDevice(), &queueFamiliesCount, nullptr);
+    std::vector<VkQueueFamilyProperties> vkFamilyProperties(queueFamiliesCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(*physicalDevice.GetVkPhysicalDevice(), &queueFamiliesCount, vkFamilyProperties.data());
 
-    if(!surfaceSupport) {
-        hk::Logger::Log(hk::LoggerSeriousness::Critical, "Surface Is Not Supported!");
-    } else {
-        hk::Logger::Log(hk::LoggerSeriousness::Info, "Surface Is Supported");
+    std::string _format = "Queue Families Count: " + std::to_string(queueFamiliesCount);
+    hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
+    hk::Logger::Endl();
+
+    hk::Int_t graphicsQueueCount = 0;
+    hk::Int_t presentQueueCount = 0;
+    for(int i = 0; i < queueFamiliesCount; ++i) {
+        if(vkFamilyProperties.at(i).queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            graphicsQueueCount = i;
+        }
+
+        VkBool32 surfaceSupport = false;
+        result = vkGetPhysicalDeviceSurfaceSupportKHR(*physicalDevice.GetVkPhysicalDevice(), i, *surface.GetVkSurfaceKHR(), &surfaceSupport);
+        HK_ASSERT_VK(result);
+
+        if(surfaceSupport) {
+            presentQueueCount = i;
+        }
+
+        std::string _format = "Queue Family Number: " + std::to_string(i);
+        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
+        _format = "VK_QUEUE_GRAPHICS_BIT: " + std::to_string(((vkFamilyProperties.at(i).queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0));
+        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
+        _format = "VK_QUEUE_COMPUTE_BIT: " + std::to_string(((vkFamilyProperties.at(i).queueFlags & VK_QUEUE_COMPUTE_BIT) != 0));
+        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
+        _format = "VK_QUEUE_TRANSFER_BIT: " + std::to_string(((vkFamilyProperties.at(i).queueFlags & VK_QUEUE_TRANSFER_BIT) != 0));
+        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
+        _format = "VK_QUEUE_SPARSE_BINDING_BIT: " + std::to_string(((vkFamilyProperties.at(i).queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) != 0));
+        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
+        _format = "Queue Count: " + std::to_string(vkFamilyProperties.at(i).queueCount);
+        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
+        _format = "Timestamp Valid Bits: " + std::to_string(vkFamilyProperties.at(i).timestampValidBits);
+        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
+        _format = "Minimal Image Timestamp Granularity: " + std::to_string(vkFamilyProperties.at(i).minImageTransferGranularity.width) + ", " + std::to_string(vkFamilyProperties.at(i).minImageTransferGranularity.height) + ", " + std::to_string(vkFamilyProperties.at(i).minImageTransferGranularity.depth);
+        hk::Logger::Log(hk::LoggerSeriousness::Info, _format);
+        hk::Logger::Endl();
     }
+    vkFamilyProperties.clear();
+
+    if(!presentQueueCount) {
+        hk::Logger::Log(hk::LoggerSeriousness::Info, "Surface Is Supported");
+    } else {
+        hk::Logger::Log(hk::LoggerSeriousness::Critical, "Surface Is Not Supported!");
+    }
+    hk::Logger::Endl();
+
+    VkQueue graphicsQueue;
+    vkGetDeviceQueue(*device.GetVkDevice(), graphicsQueueCount, 0, &graphicsQueue);
+    VkQueue presentQueue;
+    vkGetDeviceQueue(*device.GetVkDevice(), presentQueueCount, 0, &presentQueue);
 
     VkSwapchainCreateInfoKHR swapchainCreateInfo;
     swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -638,7 +651,6 @@ auto main(int argc, char** argv) -> int {
 
         vkCmdBindPipeline(commandBuffers.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-        // VkBuffer vertexBuffers[] = { vertexBuffer };
         VkBuffer vertexBuffers[] = { *vertexBuffer.GetBuffer() };
         VkDeviceSize offsets[] = { 0 };
 
@@ -665,20 +677,9 @@ auto main(int argc, char** argv) -> int {
     result = vkCreateSemaphore(*device.GetVkDevice(), &semaphoreCreateInfo, nullptr, &semaphoreRenderingDone);
     HK_ASSERT_VK(result);
 
-    VkFenceCreateInfo fenceCreateInfo;
-    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceCreateInfo.pNext = nullptr;
-    fenceCreateInfo.flags = 0;
-
-    VkFence fence;
-    result = vkCreateFence(*device.GetVkDevice(), &fenceCreateInfo, nullptr, &fence);
-    HK_ASSERT_VK(result);
-
     while(true) {
         hk::Uint_t imageIndex = 0;
         vkAcquireNextImageKHR(*device.GetVkDevice(), swapchain, std::numeric_limits<hk::Uint64_t>::infinity(), semaphoreImageAvailable, VK_NULL_HANDLE, &imageIndex);
-
-        vkWaitForFences(*device.GetVkDevice(), 1, &fence, VK_TRUE, std::numeric_limits<hk::Uint64_t>::infinity());
 
         VkSubmitInfo submitInfo;
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -692,9 +693,7 @@ auto main(int argc, char** argv) -> int {
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = &semaphoreRenderingDone;
 
-        vkResetFences(*device.GetVkDevice(), 1, &fence);
-
-        result = vkQueueSubmit(queue, 1, &submitInfo, fence);
+        result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
         HK_ASSERT_VK(result);
 
         VkPresentInfoKHR presentInfo;
@@ -707,7 +706,7 @@ auto main(int argc, char** argv) -> int {
         presentInfo.pImageIndices = &imageIndex;
         presentInfo.pResults = nullptr;
 
-        result = vkQueuePresentKHR(queue, &presentInfo);
+        result = vkQueuePresentKHR(presentQueue, &presentInfo);
         HK_ASSERT_VK(result);
 
         ++fps;
@@ -720,12 +719,10 @@ auto main(int argc, char** argv) -> int {
 
         window.Update();
 
-        vkQueueWaitIdle(queue);
+        vkQueueWaitIdle(graphicsQueue);
     }
 
     vkDeviceWaitIdle(*device.GetVkDevice());
-
-    vkDestroyFence(*device.GetVkDevice(), fence, nullptr);
 
     vkDestroySemaphore(*device.GetVkDevice(), semaphoreImageAvailable, nullptr);
     vkDestroySemaphore(*device.GetVkDevice(), semaphoreRenderingDone, nullptr);
