@@ -24,5 +24,5 @@ namespace hk {
 #if defined(HUKAN_SYSTEM_WIN32)
     #include "Win32/SurfaceWin32.hpp"
 #elif defined(HUKAN_SYSTEM_POSIX)
-    // TODO for Posix
+    #include "Posix/SurfacePosix.hpp"
 #endif

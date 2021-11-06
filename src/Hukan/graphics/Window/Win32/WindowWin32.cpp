@@ -1,7 +1,6 @@
 #include "WindowWin32.hpp"
 
 #if defined(HUKAN_SYSTEM_WIN32)
-#include <Windows.h>
 
 namespace hk {
     LRESULT CALLBACK HK_API WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {

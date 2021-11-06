@@ -1,7 +1,6 @@
 #include "SurfaceWin32.hpp"
 
 #if defined(HUKAN_SYSTEM_WIN32)
-#include <Windows.h>
 
 namespace hk {
     SurfaceWin32::SurfaceWin32(VkInstance* pVkInstance, SurfaceWin32CreateInfo* pSurfaceCreateInfo) {

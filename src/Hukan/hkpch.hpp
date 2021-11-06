@@ -21,6 +21,7 @@
 #include <iomanip>
 #include <cmath>
 #include <ctime>
+#include <cstring>
 #include <cstdint>
 #include <cstddef>
 #include <cstdlib>

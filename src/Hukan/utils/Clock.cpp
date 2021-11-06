@@ -2,7 +2,7 @@
 
 namespace hk {
     Clock::Clock() {
-        mStartPoint = std::chrono::high_resolution_clock::now();
+        mStartPoint = std::chrono::steady_clock::now();
     }
     
     Clock::~Clock() {
@@ -10,7 +10,7 @@ namespace hk {
     }
 
     void Clock::Restart() {
-        mStartPoint = std::chrono::high_resolution_clock::now();
+        mStartPoint = std::chrono::steady_clock::now();
     }
 
     std::tm* Clock::GetActualTime() {

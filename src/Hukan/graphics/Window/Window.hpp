@@ -36,5 +36,5 @@ namespace hk {
 #if defined(HUKAN_SYSTEM_WIN32)
     #include "Win32/WindowWin32.hpp"
 #elif defined(HUKAN_SYSTEM_POSIX)
-    // TODO for Posix
+    #include "Posix/WindowPosix.hpp"
 #endif

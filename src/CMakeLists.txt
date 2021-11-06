@@ -19,9 +19,9 @@ if(Vulkan_FOUND)
 endif(Vulkan_FOUND)
 
 if(UNIX)
-    find_package(X11 REQUIRED FATAL_ERROR)
+    find_package(X11 REQUIRED)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package(Threads REQUIRED FATAL_ERROR)
+    find_package(Threads REQUIRED)
 endif(UNIX)
 
 set(Hukan_SOURCE
@@ -49,14 +49,18 @@ set(Hukan_SOURCE
     Hukan/core/Extension.cpp
     Hukan/core/PhysicalDevice.hpp
     Hukan/core/PhysicalDevice.cpp
-    Hukan/graphics/Window/Win32/WindowWin32.hpp
-    Hukan/graphics/Window/Win32/WindowWin32.cpp
     Hukan/graphics/Window/Window.hpp
     Hukan/graphics/Window/Window.cpp
-    Hukan/graphics/Surface/Win32/SurfaceWin32.hpp
-    Hukan/graphics/Surface/Win32/SurfaceWin32.cpp
+    Hukan/graphics/Window/Posix/WindowPosix.hpp
+    Hukan/graphics/Window/Posix/WindowPosix.cpp
+    Hukan/graphics/Window/Win32/WindowWin32.hpp
+    Hukan/graphics/Window/Win32/WindowWin32.cpp
     Hukan/graphics/Surface/Surface.hpp
     Hukan/graphics/Surface/Surface.cpp
+    Hukan/graphics/Surface/Posix/SurfacePosix.hpp
+    Hukan/graphics/Surface/Posix/SurfacePosix.cpp
+    Hukan/graphics/Surface/Win32/SurfaceWin32.hpp
+    Hukan/graphics/Surface/Win32/SurfaceWin32.cpp
     Hukan/Hukan.hpp
     Hukan/Hukan.cpp
 )

@@ -112,7 +112,11 @@ auto main(int argc, char** argv) -> int {
 
     if(HK_ENABLE_VALIDATION_LAYERS) {
         usedExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-        usedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+        #if defined(HUKAN_SYSTEM_WIN32)
+            usedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+        #elif defined(HUKAN_SYSTEM_POSIX)
+            usedExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+        #endif
         usedExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
 
@@ -135,18 +139,31 @@ auto main(int argc, char** argv) -> int {
     hk::Messenger debugMessenger(instance.GetVkInstance(), &messengerCreateInfo);
 
     hk::WindowCreateInfo windowCreateInfo;
-    windowCreateInfo.title = "Hukan Window Impl Win32";
+    windowCreateInfo.title = "Hukan Window Impl";
     windowCreateInfo.width = 1280;
     windowCreateInfo.height = 720;
 
-    hk::WindowImplWin32 window(&windowCreateInfo);
+    #if defined(HUKAN_SYSTEM_WIN32)
+        hk::WindowImplWin32 window(&windowCreateInfo);
 
-    hk::SurfaceWin32CreateInfo surfaceCreateInfo;
-    surfaceCreateInfo.pNext = nullptr;
-    surfaceCreateInfo.pHinstance = window.GetHINSTANCE();
-    surfaceCreateInfo.pHwnd = window.GetHWND();
+        hk::SurfaceWin32CreateInfo surfaceCreateInfo;
+        surfaceCreateInfo.pNext = nullptr;
+        surfaceCreateInfo.pHinstance = window.GetHINSTANCE();
+        surfaceCreateInfo.pHwnd = window.GetHWND();
 
-    hk::SurfaceWin32 surface(instance.GetVkInstance(), &surfaceCreateInfo);
+        hk::SurfaceWin32 surface(instance.GetVkInstance(), &surfaceCreateInfo);
+    #elif defined(HUKAN_SYSTEM_POSIX)
+        hk::WindowImplPosix window(&windowCreateInfo);
+
+        hk::SurfacePosixCreateInfo surfaceCreateInfo;
+        surfaceCreateInfo.pNext = nullptr;
+        surfaceCreateInfo.pDisplay = window.GetDisplay();
+        surfaceCreateInfo.window = *window.GetWindow();
+        printf("test\n");
+
+        hk::SurfacePosix surface(instance.GetVkInstance(), &surfaceCreateInfo);
+        printf("test2\n");
+    #endif
 
     hk::Uint_t physicalDevicesCount = 0;
     vkEnumeratePhysicalDevices(*instance.GetVkInstance(), &physicalDevicesCount, nullptr);
@@ -712,7 +729,7 @@ auto main(int argc, char** argv) -> int {
         HK_ASSERT_VK(result);
 
         ++fps;
-        if(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - *clock.GetStartPoint()) >= std::chrono::seconds(1)) {
+        if(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - *clock.GetStartPoint()) >= std::chrono::seconds(1)) {
             clock.Restart();
             std::string formatFps = "FPS: " + std::to_string(fps);
             hk::Logger::Log(hk::LoggerSeriousness::Info, formatFps);
