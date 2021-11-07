@@ -32,6 +32,7 @@ set(Hukan_SOURCE
     Hukan/utils/Vec2.hpp
     Hukan/utils/Vec3.hpp
     Hukan/utils/Vec4.hpp
+    Hukan/utils/Mat4x4.hpp
     Hukan/api/Platform.hpp
     Hukan/api/Platform.cpp
     Hukan/api/Terminal.hpp
