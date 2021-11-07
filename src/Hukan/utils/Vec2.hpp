@@ -7,61 +7,51 @@ namespace hk {
     struct Vec2 {
     public:
         static_assert(std::is_arithmetic_v<T>, "Hukan Vec2<T> Is Not Arithmetic As Expected.");
-        Vec2(T x, T y) {
-            mX = x;
-            mY = y;
+        T x;
+        T y;
+
+        Vec2(T x0, T y0) {
+            x = x0;
+            y = y0;
         }
 
         template<typename U>
         Vec2(const Vec2<U>& vec) {
-            mX = static_cast<T>(vec.GetX());
-            mY = static_cast<T>(vec.GetY());
-        }
-
-        HK_NODISCARD T GetX() HK_NOEXCEPT {
-            return mX;
-        }
-
-        HK_NODISCARD T GetY() HK_NOEXCEPT {
-            return mY;
+            x = static_cast<T>(vec.x);
+            y = static_cast<T>(vec.y);
         }
 
         Vec2<T> operator+=(const T& value) HK_NOEXCEPT {
-            return Vec2<T>(mX += value, mY += value);
+            return Vec2<T>(x += value, y += value);
         }
 
         Vec2<T> operator-=(const T& value) HK_NOEXCEPT {
-            return Vec2<T>(mX -= value, mY -= value);
+            return Vec2<T>(x -= value, y -= value);
         }
 
         Vec2<T> operator*=(const T& value) HK_NOEXCEPT {
-            return Vec2<T>(mX *= value, mY *= value);
+            return Vec2<T>(x *= value, y *= value);
         }
 
         Vec2<T> operator/=(const T& value) HK_NOEXCEPT {
-            return Vec2<T>(mX /= value, mY /= value);
+            return Vec2<T>(x /= value, y /= value);
         }
 
         Vec2<T> operator+=(const Vec2<T>& vec) HK_NOEXCEPT {
-            return Vec2<T>(mX += vec.mX, mY += vec.mY);
+            return Vec2<T>(x += vec.x, y += vec.y);
         }
 
         Vec2<T> operator-=(const Vec2<T>& vec) HK_NOEXCEPT {
-            return Vec2<T>(mX -= vec.mX, mY -= vec.mY);
+            return Vec2<T>(x -= vec.x, y -= vec.y);
         }
 
         Vec2<T> operator*=(const Vec2<T>& vec) HK_NOEXCEPT {
-            return Vec2<T>(mX *= vec.mX, mY *= vec.mY);
+            return Vec2<T>(x *= vec.x, y *= vec.y);
         }
 
         Vec2<T> operator/=(const Vec2<T>& vec) HK_NOEXCEPT {
-            return Vec2<T>(mX /= vec.mX, mY /= vec.mY);
+            return Vec2<T>(x /= vec.x, y /= vec.y);
         }
-
-    private:
-        T mX;
-        T mY;
-
     };
 
     using Vec2f = Vec2<Float_t>;

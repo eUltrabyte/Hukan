@@ -41,7 +41,7 @@ namespace hk {
 
     class HK_API Buffer {
     public:
-        Buffer(VkPhysicalDevice* pPhysicalDevice, VkDevice* pDevice, BufferCreateInfo* pBufferCreateInfo = nullptr);
+        Buffer(VkPhysicalDevice* pPhysicalDevice, VkDevice* pDevice, BufferCreateInfo* pBufferCreateInfo = nullptr, bool create = true);
         virtual ~Buffer();
 
         virtual void Create();
