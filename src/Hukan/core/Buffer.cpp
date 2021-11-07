@@ -12,11 +12,13 @@ namespace hk {
         }
     }
 
-    Buffer::Buffer(VkPhysicalDevice* pPhysicalDevice, VkDevice* pDevice, BufferCreateInfo* pBufferCreateInfo) {
+    Buffer::Buffer(VkPhysicalDevice* pPhysicalDevice, VkDevice* pDevice, BufferCreateInfo* pBufferCreateInfo, bool create) {
         SetVkPhysicalDevice(pPhysicalDevice);
         SetVkDevice(pDevice);
         SetBufferCreateInfo(pBufferCreateInfo);
-        Create();
+        if(create) {
+            Create();
+        }
     }
 
     Buffer::~Buffer() {

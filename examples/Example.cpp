@@ -3,7 +3,7 @@
 VkResult result;
 
 namespace hk {
-    std::vector<Char_t> ReadFile(const std::string& filename) {
+    std::vector<Char_t> HK_API ReadFile(const std::string& filename) {
         std::ifstream _file(filename, std::ios::binary | std::ios::ate);
 
         if(_file) {
@@ -19,7 +19,7 @@ namespace hk {
         }
     }
 
-    struct Vertex {
+    struct HK_API Vertex {
         Vec3f position;
         Vec4f color;
 
@@ -46,10 +46,62 @@ namespace hk {
     };
 
     const std::vector<Vertex> vertices = {
-        {{  0.0f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }},
+        {{ -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }},
         {{  0.5f,  0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }},
-        {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }}
+        {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }},
+        {{  0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }}
     };
+
+    const std::vector<Uint_t> indices = {
+        0, 1, 2, 0, 3, 1
+    };
+
+    void HK_API CopyBuffer(VkDevice* pDevice, VkCommandPool* pCommandPool, VkQueue* pQueue, VkBuffer source, VkBuffer destination, VkDeviceSize size) {
+        VkCommandBufferAllocateInfo _commandBufferAllocateInfo;
+        _commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        _commandBufferAllocateInfo.pNext = nullptr;
+        _commandBufferAllocateInfo.commandPool = *pCommandPool;
+        _commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        _commandBufferAllocateInfo.commandBufferCount = 1;
+
+        VkCommandBuffer _commandBuffer;
+        result = vkAllocateCommandBuffers(*pDevice, &_commandBufferAllocateInfo, &_commandBuffer);
+        HK_ASSERT_VK(result);
+
+        VkCommandBufferBeginInfo _commandBufferBeginInfo;
+        _commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        _commandBufferBeginInfo.pNext = nullptr;
+        _commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        _commandBufferBeginInfo.pInheritanceInfo = nullptr;
+
+        result = vkBeginCommandBuffer(_commandBuffer, &_commandBufferBeginInfo);
+        HK_ASSERT_VK(result);
+
+        VkBufferCopy _bufferCopy;
+        _bufferCopy.srcOffset = 0;
+        _bufferCopy.dstOffset = 0;
+        _bufferCopy.size = size;
+        vkCmdCopyBuffer(_commandBuffer, source, destination, 1, &_bufferCopy);
+
+        result = vkEndCommandBuffer(_commandBuffer);
+        HK_ASSERT_VK(result);
+
+        VkSubmitInfo _submitInfo;
+        _submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        _submitInfo.pNext = nullptr;
+        _submitInfo.waitSemaphoreCount = 0;
+        _submitInfo.pWaitSemaphores = nullptr;
+        _submitInfo.pWaitDstStageMask = nullptr;
+        _submitInfo.commandBufferCount = 1;
+        _submitInfo.pCommandBuffers = &_commandBuffer;
+        _submitInfo.signalSemaphoreCount = 0;
+        _submitInfo.pSignalSemaphores = nullptr;
+
+        result = vkQueueSubmit(*pQueue, 1, &_submitInfo, VK_NULL_HANDLE);
+        HK_ASSERT_VK(result);
+
+        vkQueueWaitIdle(*pQueue);
+    }
 };
 
 auto main(int argc, char** argv) -> int {
@@ -602,18 +654,57 @@ auto main(int argc, char** argv) -> int {
     result = vkCreateCommandPool(*device.GetVkDevice(), &commandPoolCreateInfo, nullptr, &commandPool);
     HK_ASSERT_VK(result);
 
+    VkDeviceSize vertexBufferSize = sizeof(hk::vertices.at(0)) * hk::vertices.size();
+        
+    hk::BufferCreateInfo firstStagingBufferCreateInfo;
+    firstStagingBufferCreateInfo.pNext = nullptr;
+    firstStagingBufferCreateInfo.size = vertexBufferSize;
+    firstStagingBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    firstStagingBufferCreateInfo.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    hk::Buffer firstStagingBuffer(physicalDevice.GetVkPhysicalDevice(), device.GetVkDevice(), &firstStagingBufferCreateInfo);
+
+    void* firstRawData;
+    vkMapMemory(*device.GetVkDevice(), *firstStagingBuffer.GetBufferMemory(), 0, vertexBufferSize, 0, &firstRawData);
+    std::memcpy(firstRawData, hk::vertices.data(), vertexBufferSize);
+    vkUnmapMemory(*device.GetVkDevice(), *firstStagingBuffer.GetBufferMemory());
+
     hk::BufferCreateInfo vertexBufferCreateInfo;
     vertexBufferCreateInfo.pNext = nullptr;
-    vertexBufferCreateInfo.size = sizeof(hk::vertices.at(0)) * hk::vertices.size();
-    vertexBufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    vertexBufferCreateInfo.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    vertexBufferCreateInfo.size = vertexBufferSize;
+    vertexBufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    vertexBufferCreateInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
     hk::Buffer vertexBuffer(physicalDevice.GetVkPhysicalDevice(), device.GetVkDevice(), &vertexBufferCreateInfo);
 
-    void* rawData;
-    vkMapMemory(*device.GetVkDevice(), *vertexBuffer.GetBufferMemory(), 0, vertexBufferCreateInfo.size, 0, &rawData);
-    std::memcpy(rawData, hk::vertices.data(), (size_t)vertexBufferCreateInfo.size);
-    vkUnmapMemory(*device.GetVkDevice(), *vertexBuffer.GetBufferMemory());
+    hk::CopyBuffer(device.GetVkDevice(), &commandPool, &graphicsQueue, *firstStagingBuffer.GetBuffer(), *vertexBuffer.GetBuffer(), vertexBufferSize);
+    firstStagingBuffer.Destroy();
+
+    VkDeviceSize indexBufferSize = sizeof(hk::indices.at(0)) * hk::indices.size();
+        
+    hk::BufferCreateInfo secondStagingBufferCreateInfo;
+    secondStagingBufferCreateInfo.pNext = nullptr;
+    secondStagingBufferCreateInfo.size = indexBufferSize;
+    secondStagingBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    secondStagingBufferCreateInfo.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    hk::Buffer secondStagingBuffer(physicalDevice.GetVkPhysicalDevice(), device.GetVkDevice(), &secondStagingBufferCreateInfo);
+
+    void* secondRawData;
+    vkMapMemory(*device.GetVkDevice(), *secondStagingBuffer.GetBufferMemory(), 0, indexBufferSize, 0, &secondRawData);
+    std::memcpy(secondRawData, hk::indices.data(), indexBufferSize);
+    vkUnmapMemory(*device.GetVkDevice(), *secondStagingBuffer.GetBufferMemory());
+
+    hk::BufferCreateInfo indexBufferCreateInfo;
+    indexBufferCreateInfo.pNext = nullptr;
+    indexBufferCreateInfo.size = indexBufferSize;
+    indexBufferCreateInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    indexBufferCreateInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    hk::Buffer indexBuffer(physicalDevice.GetVkPhysicalDevice(), device.GetVkDevice(), &indexBufferCreateInfo);
+
+    hk::CopyBuffer(device.GetVkDevice(), &commandPool, &graphicsQueue, *secondStagingBuffer.GetBuffer(), *indexBuffer.GetBuffer(), indexBufferSize);
+    secondStagingBuffer.Destroy();
 
     VkCommandBufferAllocateInfo commandBufferAllocateInfo;
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -655,8 +746,10 @@ auto main(int argc, char** argv) -> int {
         VkDeviceSize offsets[] = { 0 };
 
         vkCmdBindVertexBuffers(commandBuffers.at(i), 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(commandBuffers.at(i), *indexBuffer.GetBuffer(), offsets[0], VK_INDEX_TYPE_UINT32);
 
-        vkCmdDraw(commandBuffers.at(i), (hk::Uint_t)hk::vertices.size(), 1, 0, 0);
+        // vkCmdDraw(commandBuffers.at(i), hk::vertices.size(), 1, 0, 0);
+        vkCmdDrawIndexed(commandBuffers.at(i), hk::indices.size(), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers.at(i));
 
@@ -752,6 +845,7 @@ auto main(int argc, char** argv) -> int {
 
     vkDestroySwapchainKHR(*device.GetVkDevice(), swapchain, nullptr);
 
+    indexBuffer.Destroy();
     vertexBuffer.Destroy();
 
     device.Destroy();
