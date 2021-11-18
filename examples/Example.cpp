@@ -102,6 +102,8 @@ namespace hk {
 
         vkQueueWaitIdle(*pQueue);
     }
+
+    
 };
 
 auto main(int argc, char** argv) -> int {
@@ -172,8 +174,15 @@ auto main(int argc, char** argv) -> int {
     hk::InstanceCreateInfo instanceCreateInfo;
     instanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)messengerCreateInfo.GetVkMessengerCreateInfo();
     instanceCreateInfo.pAppInfo = &appInfo;
-    instanceCreateInfo.enabledLayersCount = hk::g_validationLayers.size();
-    instanceCreateInfo.ppEnabledLayers = hk::g_validationLayers.data();
+
+    #if HK_ENABLE_VALIDATION_LAYERS == false
+        instanceCreateInfo.enabledLayersCount = hk::g_validationLayers.size();
+        instanceCreateInfo.ppEnabledLayers = hk::g_validationLayers.data();
+    #else
+        instanceCreateInfo.enabledLayersCount = 0;
+        instanceCreateInfo.ppEnabledLayers = nullptr;
+    #endif
+
     instanceCreateInfo.enabledExtensionsCount = usedExtensions.size();
     instanceCreateInfo.ppEnabledExtensions = usedExtensions.data();
 

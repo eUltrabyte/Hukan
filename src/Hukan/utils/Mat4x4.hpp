@@ -70,8 +70,8 @@ namespace hk {
             Mat4x4<T> _result;
 
             for(auto x = 0; x < 4; ++x) {
-                for(auto x = 0; x < 4; ++x) {
-                    for(auto x = 0; x < 4; ++x) {
+                for(auto y = 0; y < 4; ++y) {
+                    for(auto z = 0; z < 4; ++z) {
                         _result.matrix[x][y] += mat.matrix[x][z] * matrix[z][y];
                     }
                 }
