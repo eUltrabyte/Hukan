@@ -37,13 +37,13 @@
 
 #if defined(HUKAN_DEBUG)
     #define HK_ENABLE_VALIDATION_LAYERS false
-#else
-    #define HK_ENABLE_VALIDATION_LAYERS  true
-#endif
 
-namespace hk {
-    extern const std::vector<const Char_t*> g_validationLayers;
-};
+    namespace hk {
+        extern const std::vector<const Char_t*> g_validationLayers;
+    };
+#else
+    #define HK_ENABLE_VALIDATION_LAYERS true
+#endif
 
 #include "api/Platform.hpp"
 #include "api/Terminal.hpp"

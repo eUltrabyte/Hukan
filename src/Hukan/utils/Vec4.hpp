@@ -12,6 +12,8 @@ namespace hk {
         T z;
         T w;
 
+        Vec4() = default;
+
         Vec4(T x0, T y0, T z0, T w0) {
             x = x0;
             y = y0;

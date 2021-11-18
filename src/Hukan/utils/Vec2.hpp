@@ -10,6 +10,8 @@ namespace hk {
         T x;
         T y;
 
+        Vec2() = default;
+
         Vec2(T x0, T y0) {
             x = x0;
             y = y0;

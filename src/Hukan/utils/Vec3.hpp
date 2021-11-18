@@ -11,6 +11,8 @@ namespace hk {
         T y;
         T z;
 
+        Vec3() = default;
+
         Vec3(T x0, T y0, T z0) {
             x = x0;
             y = y0;
@@ -76,4 +78,33 @@ namespace hk {
     using Vec3u = Vec3<Uint_t>;
     using Vec3l = Vec3<Long_t>;
     using Vec3d = Vec3<Double_t>;
+
+    template<typename T>
+    constexpr T DotProduct(const Vec3<T>& vec0, const Vec3<T>& vec1) {
+        return vec0.x * vec1.x + vec0.y * vec1.y + vec0.z * vec1.z;
+    }
+
+    template<typename T>
+    constexpr Vec3<T> CrossProduct(const Vec3<T>& vec0, const Vec3<T>& vec1) {
+        Vec3<T> _result;
+        _result.x = vec0.y * vec1.z - vec0.z * vec1.y;
+        _result.y = vec0.z * vec1.x - vec0.x * vec1.z;
+        _result.z = vec0.x * vec1.y - vec0.y * vec1.x;
+        return _result;
+    }
+
+    template<typename T>
+    constexpr T Length(const Vec3<T>& vec) {
+        return std::sqrt((vec.x * vec.x) + (vec.y * vec.y) + (vec.z * vec.z));
+    }
+
+    template<typename T>
+    constexpr Vec3<T> Normalize(const Vec3<T>& vec) {
+        T _length = Length(vec);
+        Vec3<T> _result;
+        _result.x = vec.x / _length;
+        _result.y = vec.y / _length;
+        _result.z = vec.z / _length;
+        return _result;
+    }
 };
