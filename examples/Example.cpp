@@ -103,7 +103,11 @@ namespace hk {
         vkQueueWaitIdle(*pQueue);
     }
 
-    
+    struct HK_API UBO {
+        Mat4x4f model;
+        Mat4x4f view;
+        Mat4x4f projection;
+    };
 };
 
 auto main(int argc, char** argv) -> int {
@@ -412,6 +416,24 @@ auto main(int argc, char** argv) -> int {
 
     swapchainImages.clear();
 
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBinding;
+    descriptorSetLayoutBinding.binding = 0;
+    descriptorSetLayoutBinding.descriptorCount = 1;
+    descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+
+    VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo;
+    descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorSetLayoutCreateInfo.pNext = nullptr;
+    descriptorSetLayoutCreateInfo.flags = 0;
+    descriptorSetLayoutCreateInfo.bindingCount = 1;
+    descriptorSetLayoutCreateInfo.pBindings = &descriptorSetLayoutBinding;
+
+    VkDescriptorSetLayout descriptorSetLayout;
+    result = vkCreateDescriptorSetLayout(*device.GetVkDevice(), &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout);
+    HK_ASSERT_VK(result);
+
     std::vector<hk::Char_t> vertexShaderCode = hk::ReadFile("shader.vert.spv");
 
     VkShaderModuleCreateInfo vertexShaderCreateInfo;
@@ -506,7 +528,7 @@ auto main(int argc, char** argv) -> int {
     rasterizationStateCreateInfo.rasterizerDiscardEnable = VK_FALSE;
     rasterizationStateCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizationStateCreateInfo.depthBiasEnable = VK_FALSE;
     rasterizationStateCreateInfo.depthBiasConstantFactor = 0.0f;
     rasterizationStateCreateInfo.depthBiasClamp = 0.0f;
@@ -551,8 +573,8 @@ auto main(int argc, char** argv) -> int {
     layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     layoutCreateInfo.pNext = nullptr;
     layoutCreateInfo.flags = 0;
-    layoutCreateInfo.setLayoutCount = 0;
-    layoutCreateInfo.pSetLayouts = nullptr;
+    layoutCreateInfo.setLayoutCount = 1;
+    layoutCreateInfo.pSetLayouts = &descriptorSetLayout;
     layoutCreateInfo.pushConstantRangeCount = 0;
     layoutCreateInfo.pPushConstantRanges = nullptr;
 
@@ -715,6 +737,62 @@ auto main(int argc, char** argv) -> int {
     hk::CopyBuffer(device.GetVkDevice(), &commandPool, &graphicsQueue, *secondStagingBuffer.GetBuffer(), *indexBuffer.GetBuffer(), indexBufferSize);
     secondStagingBuffer.Destroy();
 
+    VkDeviceSize uniformBufferSize = sizeof(hk::UBO);
+
+    hk::BufferCreateInfo uniformBufferCreateInfo;
+    uniformBufferCreateInfo.pNext = nullptr;
+    uniformBufferCreateInfo.size = uniformBufferSize;
+    uniformBufferCreateInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    uniformBufferCreateInfo.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    hk::Buffer uniformBuffer(physicalDevice.GetVkPhysicalDevice(), device.GetVkDevice(), &uniformBufferCreateInfo);
+
+    VkDescriptorPoolSize descriptorPoolSize;
+    descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorPoolSize.descriptorCount = 1;
+
+    VkDescriptorPoolCreateInfo descriptorPoolCreateInfo;
+    descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    descriptorPoolCreateInfo.pNext = nullptr;
+    descriptorPoolCreateInfo.flags = 0;
+    descriptorPoolCreateInfo.poolSizeCount = 1;
+    descriptorPoolCreateInfo.pPoolSizes = &descriptorPoolSize;
+    descriptorPoolCreateInfo.maxSets = 1;
+
+    VkDescriptorPool descriptorPool;
+    result = vkCreateDescriptorPool(*device.GetVkDevice(), &descriptorPoolCreateInfo, nullptr, &descriptorPool);
+    HK_ASSERT_VK(result);
+
+    VkDescriptorSetAllocateInfo descriptorSetAllocateInfo;
+    descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptorSetAllocateInfo.pNext = nullptr;
+    descriptorSetAllocateInfo.descriptorPool = descriptorPool;
+    descriptorSetAllocateInfo.descriptorSetCount = 1;
+    descriptorSetAllocateInfo.pSetLayouts = &descriptorSetLayout;
+
+    VkDescriptorSet descriptorSet;
+    result = vkAllocateDescriptorSets(*device.GetVkDevice(), &descriptorSetAllocateInfo, &descriptorSet);
+    HK_ASSERT_VK(result);
+
+    VkDescriptorBufferInfo descriptorBufferInfo;
+    descriptorBufferInfo.buffer = *uniformBuffer.GetBuffer();
+    descriptorBufferInfo.offset = 0;
+    descriptorBufferInfo.range = sizeof(hk::UBO);
+
+    VkWriteDescriptorSet writeDescriptorSet;
+    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet.pNext = nullptr;
+    writeDescriptorSet.dstSet = descriptorSet;
+    writeDescriptorSet.dstBinding = 0;
+    writeDescriptorSet.dstArrayElement = 0;
+    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+    writeDescriptorSet.descriptorCount = 1;
+    writeDescriptorSet.pBufferInfo = &descriptorBufferInfo;
+    writeDescriptorSet.pImageInfo = nullptr;
+    writeDescriptorSet.pTexelBufferView = nullptr;
+
+    vkUpdateDescriptorSets(*device.GetVkDevice(), 1, &writeDescriptorSet, 0, nullptr);
+
     VkCommandBufferAllocateInfo commandBufferAllocateInfo;
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     commandBufferAllocateInfo.pNext = nullptr;
@@ -756,6 +834,7 @@ auto main(int argc, char** argv) -> int {
 
         vkCmdBindVertexBuffers(commandBuffers.at(i), 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffers.at(i), *indexBuffer.GetBuffer(), offsets[0], VK_INDEX_TYPE_UINT32);
+        vkCmdBindDescriptorSets(commandBuffers.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptorSet, 0, nullptr);
 
         // vkCmdDraw(commandBuffers.at(i), hk::vertices.size(), 1, 0, 0);
         vkCmdDrawIndexed(commandBuffers.at(i), hk::indices.size(), 1, 0, 0, 0);
@@ -779,9 +858,25 @@ auto main(int argc, char** argv) -> int {
     result = vkCreateSemaphore(*device.GetVkDevice(), &semaphoreCreateInfo, nullptr, &semaphoreRenderingDone);
     HK_ASSERT_VK(result);
 
+    hk::Float_t rotationTime = 0.0f;
+    hk::Clock rotationClock;
     while(true) {
         hk::Uint_t imageIndex = 0;
         vkAcquireNextImageKHR(*device.GetVkDevice(), swapchain, std::numeric_limits<hk::Uint64_t>::infinity(), semaphoreImageAvailable, VK_NULL_HANDLE, &imageIndex);
+
+        rotationTime = std::chrono::duration<hk::Float_t, std::chrono::seconds::period>(std::chrono::steady_clock::now() - *rotationClock.GetStartPoint()).count();
+
+        hk::UBO ubo;
+        ubo.model = hk::Identity<hk::Float_t>();
+        hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f), hk::Vec3f(0.0f, 0.0f, 1.0f));
+        ubo.view = hk::LookAt<hk::Float_t>(hk::Vec3f(2.0f, 2.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 0.0f), hk::Vec3f(0.0f, 0.0f, 1.0f));
+        ubo.projection = hk::Projection(hk::radians(45.0f), (hk::Float_t)(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), 0.1f, 1000.0f);
+        ubo.projection.matrix[1][1] *= -1;
+
+        void* thirdRawData;
+        vkMapMemory(*device.GetVkDevice(), *uniformBuffer.GetBufferMemory(), 0, sizeof(ubo), 0, &thirdRawData);
+        std::memcpy(thirdRawData, &ubo, sizeof(ubo));
+        vkUnmapMemory(*device.GetVkDevice(), *uniformBuffer.GetBufferMemory());
 
         VkSubmitInfo submitInfo;
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -852,8 +947,12 @@ auto main(int argc, char** argv) -> int {
     vkDestroyShaderModule(*device.GetVkDevice(), vertexShaderModule, nullptr);
     vkDestroyShaderModule(*device.GetVkDevice(), fragmentShaderModule, nullptr);
 
+    vkDestroyDescriptorSetLayout(*device.GetVkDevice(), descriptorSetLayout, nullptr);
+    vkDestroyDescriptorPool(*device.GetVkDevice(), descriptorPool, nullptr);
+
     vkDestroySwapchainKHR(*device.GetVkDevice(), swapchain, nullptr);
 
+    uniformBuffer.Destroy();
     indexBuffer.Destroy();
     vertexBuffer.Destroy();
 
