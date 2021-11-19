@@ -45,6 +45,8 @@
     #define HK_ENABLE_VALIDATION_LAYERS true
 #endif
 
+#include "../include/stb_image.h"
+
 #include "api/Platform.hpp"
 #include "api/Terminal.hpp"
 #include "api/Logger.hpp"

@@ -3,6 +3,8 @@
 #include "../Hukan.hpp"
 
 namespace hk {
+    extern HK_NODISCARD Uint_t HK_API FindMemoryType(VkPhysicalDevice physicalDevice, Uint_t typeFilter, VkMemoryPropertyFlags properties);
+
     struct HK_API BufferCreateInfo {
     public:
         const void* pNext;

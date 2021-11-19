@@ -46,10 +46,10 @@ namespace hk {
     };
 
     const std::vector<Vertex> vertices = {
-        {{ -0.5f, -0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }},
-        {{  0.5f,  0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }},
-        {{ -0.5f,  0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }},
-        {{  0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }}
+        {{ -1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }},
+        {{  1.0f,  1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }},
+        {{ -1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }},
+        {{  1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }}
     };
 
     const std::vector<Uint_t> indices = {
@@ -686,7 +686,7 @@ auto main(int argc, char** argv) -> int {
     HK_ASSERT_VK(result);
 
     VkDeviceSize vertexBufferSize = sizeof(hk::vertices.at(0)) * hk::vertices.size();
-        
+    
     hk::BufferCreateInfo firstStagingBufferCreateInfo;
     firstStagingBufferCreateInfo.pNext = nullptr;
     firstStagingBufferCreateInfo.size = vertexBufferSize;
@@ -836,7 +836,6 @@ auto main(int argc, char** argv) -> int {
         vkCmdBindIndexBuffer(commandBuffers.at(i), *indexBuffer.GetBuffer(), offsets[0], VK_INDEX_TYPE_UINT32);
         vkCmdBindDescriptorSets(commandBuffers.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptorSet, 0, nullptr);
 
-        // vkCmdDraw(commandBuffers.at(i), hk::vertices.size(), 1, 0, 0);
         vkCmdDrawIndexed(commandBuffers.at(i), hk::indices.size(), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers.at(i));
