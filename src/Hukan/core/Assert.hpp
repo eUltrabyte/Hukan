@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Hukan.hpp"
+#include "Core.hpp"
 
 namespace hk {
     extern void Debugbreak(Uint_t line, const Char_t* filename);

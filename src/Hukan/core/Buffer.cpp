@@ -12,9 +12,9 @@ namespace hk {
         }
     }
 
-    Buffer::Buffer(VkPhysicalDevice* pPhysicalDevice, VkDevice* pDevice, BufferCreateInfo* pBufferCreateInfo, bool create) {
-        SetVkPhysicalDevice(pPhysicalDevice);
-        SetVkDevice(pDevice);
+    Buffer::Buffer(PhysicalDevice* pPhysicalDevice, Device* pDevice, BufferCreateInfo* pBufferCreateInfo, bool create) {
+        SetPhysicalDevice(pPhysicalDevice);
+        SetDevice(pDevice);
         SetBufferCreateInfo(pBufferCreateInfo);
         if(create) {
             Create();
@@ -27,38 +27,38 @@ namespace hk {
     }
 
     void Buffer::Create() {
-        VkResult _result = vkCreateBuffer(*mpDevice, mpBufferCreateInfo->GetVkBufferCreateInfo(), nullptr, &mBuffer);
+        VkResult _result = vkCreateBuffer(*mpDevice->GetVkDevice(), mpBufferCreateInfo->GetVkBufferCreateInfo(), nullptr, &mBuffer);
         HK_ASSERT_VK(_result);
 
         VkMemoryRequirements _memoryRequirements;
-        vkGetBufferMemoryRequirements(*mpDevice, mBuffer, &_memoryRequirements);
+        vkGetBufferMemoryRequirements(*mpDevice->GetVkDevice(), mBuffer, &_memoryRequirements);
 
         VkMemoryAllocateInfo _memoryAllocateInfo;
         _memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         _memoryAllocateInfo.pNext = nullptr;
         _memoryAllocateInfo.allocationSize = _memoryRequirements.size;
-        _memoryAllocateInfo.memoryTypeIndex = hk::FindMemoryType(*mpPhysicalDevice, _memoryRequirements.memoryTypeBits, *mpBufferCreateInfo->GetVkMemoryPropertyFlags());
+        _memoryAllocateInfo.memoryTypeIndex = hk::FindMemoryType(*mpPhysicalDevice->GetVkPhysicalDevice(), _memoryRequirements.memoryTypeBits, *mpBufferCreateInfo->GetVkMemoryPropertyFlags());
 
-        _result = vkAllocateMemory(*mpDevice, &_memoryAllocateInfo, nullptr, &mBufferMemory);
+        _result = vkAllocateMemory(*mpDevice->GetVkDevice(), &_memoryAllocateInfo, nullptr, &mBufferMemory);
         HK_ASSERT_VK(_result);
 
         Bind();
     }
 
     void Buffer::Destroy() {
-        vkDestroyBuffer(*mpDevice, mBuffer, nullptr);
-        vkFreeMemory(*mpDevice, mBufferMemory, nullptr);
+        vkDestroyBuffer(*mpDevice->GetVkDevice(), mBuffer, nullptr);
+        vkFreeMemory(*mpDevice->GetVkDevice(), mBufferMemory, nullptr);
     }
 
     void Buffer::Bind() {
-        vkBindBufferMemory(*mpDevice, mBuffer, mBufferMemory, 0);
+        vkBindBufferMemory(*mpDevice->GetVkDevice(), mBuffer, mBufferMemory, 0);
     }
 
-    void Buffer::SetVkPhysicalDevice(VkPhysicalDevice* pPhysicalDevice) {
+    void Buffer::SetPhysicalDevice(PhysicalDevice* pPhysicalDevice) {
         mpPhysicalDevice = pPhysicalDevice;
     }
 
-    void Buffer::SetVkDevice(VkDevice* pDevice) {
+    void Buffer::SetDevice(Device* pDevice) {
         mpDevice = pDevice;
     }
 

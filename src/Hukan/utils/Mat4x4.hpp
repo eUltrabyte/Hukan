@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../Hukan.hpp"
+#include "../core/Core.hpp"
 
 namespace hk {
-    constexpr Int64_t pi = 3.14159265359;
+    constexpr Double_t pi = 3.14159265359;
 
     template<typename T>
     constexpr T radians(T degrees) {

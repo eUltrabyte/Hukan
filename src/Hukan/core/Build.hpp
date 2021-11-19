@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Hukan.hpp"
+#include "Core.hpp"
 
 #define HUKAN_STATIC_LIBRARY
 #if defined(HUKAN_STATIC_LIBRARY)

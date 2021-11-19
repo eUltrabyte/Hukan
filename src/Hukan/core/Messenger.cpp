@@ -13,8 +13,8 @@ namespace hk {
         return VK_FALSE;
     }
 
-    Messenger::Messenger(VkInstance* pVkInstance, MessengerCreateInfo* pMessengerCreateInfo) {
-        SetInstance(pVkInstance);
+    Messenger::Messenger(Instance* pInstance, MessengerCreateInfo* pMessengerCreateInfo) {
+        SetInstance(pInstance);
         if(pMessengerCreateInfo != nullptr) {
             SetMessengerCreateInfo(pMessengerCreateInfo);
             CreateVkMessenger();
@@ -27,16 +27,16 @@ namespace hk {
     }
 
     void Messenger::CreateVkMessenger() {
-        auto _func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(*mpVkInstance, "vkCreateDebugUtilsMessengerEXT");
+        auto _func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(*mpInstance->GetVkInstance(), "vkCreateDebugUtilsMessengerEXT");
         if(_func != nullptr) {
-            _func(*mpVkInstance, mpMessengerCreateInfo->GetVkMessengerCreateInfo(), nullptr, &mVkDebugMessenger);
+            _func(*mpInstance->GetVkInstance(), mpMessengerCreateInfo->GetVkMessengerCreateInfo(), nullptr, &mVkDebugMessenger);
         }
     }
     
     void Messenger::DestroyVkMessenger() {
-        auto _func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(*mpVkInstance, "vkDestroyDebugUtilsMessengerEXT");
+        auto _func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(*mpInstance->GetVkInstance(), "vkDestroyDebugUtilsMessengerEXT");
         if(_func != nullptr) {
-            _func(*mpVkInstance, mVkDebugMessenger, nullptr);
+            _func(*mpInstance->GetVkInstance(), mVkDebugMessenger, nullptr);
         }
     }
 
@@ -44,8 +44,8 @@ namespace hk {
         mpMessengerCreateInfo = pMessengerCreateInfo;
     }
 
-    void Messenger::SetInstance(VkInstance* pVkInstance) {
-        mpVkInstance = pVkInstance;
+    void Messenger::SetInstance(Instance* pInstance) {
+        mpInstance = pInstance;
     }
 
     VkDebugUtilsMessengerEXT* Messenger::GetVkMessenger() HK_NOEXCEPT {
