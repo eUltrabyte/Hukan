@@ -67,8 +67,9 @@ set(Hukan_SOURCE
     Hukan/graphics/Surface/Posix/SurfacePosix.cpp
     Hukan/graphics/Surface/Win32/SurfaceWin32.hpp
     Hukan/graphics/Surface/Win32/SurfaceWin32.cpp
+    Hukan/core/Core.hpp
+    Hukan/core/Core.cpp
     Hukan/Hukan.hpp
-    Hukan/Hukan.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${Hukan_SOURCE})

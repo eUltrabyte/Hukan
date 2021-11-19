@@ -191,7 +191,7 @@ auto main(int argc, char** argv) -> int {
     instanceCreateInfo.ppEnabledExtensions = usedExtensions.data();
 
     hk::Instance instance(&instanceCreateInfo);
-    hk::Messenger debugMessenger(instance.GetVkInstance(), &messengerCreateInfo);
+    hk::Messenger debugMessenger(&instance, &messengerCreateInfo);
 
     hk::WindowCreateInfo windowCreateInfo;
     windowCreateInfo.width = 1280;
@@ -256,7 +256,7 @@ auto main(int argc, char** argv) -> int {
     deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
     deviceCreateInfo.pEnabledFeatures = &usedFeatures;
 
-    hk::Device device(physicalDevice.GetVkPhysicalDevice(), &deviceCreateInfo);
+    hk::Device device(&physicalDevice, &deviceCreateInfo);
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(*physicalDevice.GetVkPhysicalDevice(), *surface.GetVkSurfaceKHR(), &surfaceCapabilities);
@@ -693,7 +693,7 @@ auto main(int argc, char** argv) -> int {
     firstStagingBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     firstStagingBufferCreateInfo.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
-    hk::Buffer firstStagingBuffer(physicalDevice.GetVkPhysicalDevice(), device.GetVkDevice(), &firstStagingBufferCreateInfo);
+    hk::Buffer firstStagingBuffer(&physicalDevice, &device, &firstStagingBufferCreateInfo);
 
     void* firstRawData;
     vkMapMemory(*device.GetVkDevice(), *firstStagingBuffer.GetBufferMemory(), 0, vertexBufferSize, 0, &firstRawData);
@@ -706,7 +706,7 @@ auto main(int argc, char** argv) -> int {
     vertexBufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     vertexBufferCreateInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-    hk::Buffer vertexBuffer(physicalDevice.GetVkPhysicalDevice(), device.GetVkDevice(), &vertexBufferCreateInfo);
+    hk::Buffer vertexBuffer(&physicalDevice, &device, &vertexBufferCreateInfo);
 
     hk::CopyBuffer(device.GetVkDevice(), &commandPool, &graphicsQueue, *firstStagingBuffer.GetBuffer(), *vertexBuffer.GetBuffer(), vertexBufferSize);
     firstStagingBuffer.Destroy();
@@ -719,7 +719,7 @@ auto main(int argc, char** argv) -> int {
     secondStagingBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     secondStagingBufferCreateInfo.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
-    hk::Buffer secondStagingBuffer(physicalDevice.GetVkPhysicalDevice(), device.GetVkDevice(), &secondStagingBufferCreateInfo);
+    hk::Buffer secondStagingBuffer(&physicalDevice, &device, &secondStagingBufferCreateInfo);
 
     void* secondRawData;
     vkMapMemory(*device.GetVkDevice(), *secondStagingBuffer.GetBufferMemory(), 0, indexBufferSize, 0, &secondRawData);
@@ -732,7 +732,7 @@ auto main(int argc, char** argv) -> int {
     indexBufferCreateInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     indexBufferCreateInfo.properties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-    hk::Buffer indexBuffer(physicalDevice.GetVkPhysicalDevice(), device.GetVkDevice(), &indexBufferCreateInfo);
+    hk::Buffer indexBuffer(&physicalDevice, &device, &indexBufferCreateInfo);
 
     hk::CopyBuffer(device.GetVkDevice(), &commandPool, &graphicsQueue, *secondStagingBuffer.GetBuffer(), *indexBuffer.GetBuffer(), indexBufferSize);
     secondStagingBuffer.Destroy();
@@ -745,7 +745,7 @@ auto main(int argc, char** argv) -> int {
     uniformBufferCreateInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     uniformBufferCreateInfo.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
-    hk::Buffer uniformBuffer(physicalDevice.GetVkPhysicalDevice(), device.GetVkDevice(), &uniformBufferCreateInfo);
+    hk::Buffer uniformBuffer(&physicalDevice, &device, &uniformBufferCreateInfo);
 
     VkDescriptorPoolSize descriptorPoolSize;
     descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -867,7 +867,7 @@ auto main(int argc, char** argv) -> int {
 
         hk::UBO ubo;
         ubo.model = hk::Identity<hk::Float_t>();
-        hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f), hk::Vec3f(0.0f, 0.0f, 1.0f));
+        hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f) * 2.0f, hk::Vec3f(0.0f, 0.0f, 1.0f));
         ubo.view = hk::LookAt<hk::Float_t>(hk::Vec3f(2.0f, 2.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 0.0f), hk::Vec3f(0.0f, 0.0f, 1.0f));
         ubo.projection = hk::Projection(hk::radians(45.0f), (hk::Float_t)(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), 0.1f, 1000.0f);
         ubo.projection.matrix[1][1] *= -1;

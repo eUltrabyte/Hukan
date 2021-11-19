@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../Hukan.hpp"
+#include "Core.hpp"
+#include "Instance.hpp"
 
 namespace hk {
     extern VKAPI_ATTR VkBool32 VKAPI_CALL HK_API DebugMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
@@ -40,19 +41,19 @@ namespace hk {
 
     class HK_API Messenger {
     public:
-        Messenger(VkInstance* pVkInstance = nullptr, MessengerCreateInfo* pMessengerCreateInfo = nullptr);
+        Messenger(Instance* pInstance = nullptr, MessengerCreateInfo* pMessengerCreateInfo = nullptr);
         virtual ~Messenger();
 
         virtual void CreateVkMessenger();
         virtual void DestroyVkMessenger();
 
         virtual void SetMessengerCreateInfo(MessengerCreateInfo* pMessengerCreateInfo = nullptr);
-        virtual void SetInstance(VkInstance* pVkInstance = nullptr);
+        virtual void SetInstance(Instance* pInstance = nullptr);
 
         HK_NODISCARD virtual VkDebugUtilsMessengerEXT* GetVkMessenger() HK_NOEXCEPT;
 
     private:
-        VkInstance* mpVkInstance;
+        Instance* mpInstance;
         MessengerCreateInfo* mpMessengerCreateInfo;
         VkDebugUtilsMessengerEXT mVkDebugMessenger;
 

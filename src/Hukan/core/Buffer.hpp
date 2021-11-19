@@ -1,6 +1,8 @@
 #pragma once
 
-#include "../Hukan.hpp"
+#include "Core.hpp"
+#include "PhysicalDevice.hpp"
+#include "Device.hpp"
 
 namespace hk {
     extern HK_NODISCARD Uint_t HK_API FindMemoryType(VkPhysicalDevice physicalDevice, Uint_t typeFilter, VkMemoryPropertyFlags properties);
@@ -43,23 +45,23 @@ namespace hk {
 
     class HK_API Buffer {
     public:
-        Buffer(VkPhysicalDevice* pPhysicalDevice, VkDevice* pDevice, BufferCreateInfo* pBufferCreateInfo = nullptr, bool create = true);
+        Buffer(PhysicalDevice* pPhysicalDevice, Device* pDevice, BufferCreateInfo* pBufferCreateInfo = nullptr, bool create = true);
         virtual ~Buffer();
 
         virtual void Create();
         virtual void Destroy();
         virtual void Bind();
 
-        virtual void SetVkPhysicalDevice(VkPhysicalDevice* pPhysicalDevice);
-        virtual void SetVkDevice(VkDevice* pDevice);
+        virtual void SetPhysicalDevice(PhysicalDevice* pPhysicalDevice);
+        virtual void SetDevice(Device* pDevice);
         virtual void SetBufferCreateInfo(BufferCreateInfo* pBufferCreateInfo = nullptr);
 
         HK_NODISCARD virtual VkBuffer* GetBuffer() HK_NOEXCEPT;
         HK_NODISCARD virtual VkDeviceMemory* GetBufferMemory() HK_NOEXCEPT;
 
     private:
-        VkPhysicalDevice* mpPhysicalDevice;
-        VkDevice* mpDevice;
+        PhysicalDevice* mpPhysicalDevice;
+        Device* mpDevice;
         BufferCreateInfo* mpBufferCreateInfo;
         VkBuffer mBuffer;
         VkDeviceMemory mBufferMemory;

@@ -1,9 +1,9 @@
 #include "Device.hpp"
 
 namespace hk {
-    Device::Device(VkPhysicalDevice* pVkPhysicalDevice, DeviceCreateInfo* pDeviceCreateInfo) {
+    Device::Device(PhysicalDevice* pPhysicalDevice, DeviceCreateInfo* pDeviceCreateInfo) {
         SetDeviceCreateInfo(pDeviceCreateInfo);
-        Create(pVkPhysicalDevice);
+        Create(pPhysicalDevice);
     }
 
     Device::~Device() {
@@ -11,8 +11,8 @@ namespace hk {
         delete this;
     }
 
-    void Device::Create(VkPhysicalDevice* pVkPhysicalDevice) {
-        VkResult _result = vkCreateDevice(*pVkPhysicalDevice, mpDeviceCreateInfo->GetVkDeviceCreateInfo(), nullptr, &mDevice);
+    void Device::Create(PhysicalDevice* pPhysicalDevice) {
+        VkResult _result = vkCreateDevice(*pPhysicalDevice->GetVkPhysicalDevice(), mpDeviceCreateInfo->GetVkDeviceCreateInfo(), nullptr, &mDevice);
         HK_ASSERT_VK(_result);
     }
     

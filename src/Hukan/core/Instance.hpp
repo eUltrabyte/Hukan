@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Hukan.hpp"
+#include "Core.hpp"
 
 namespace hk {
     struct HK_API InstanceCreateInfo {

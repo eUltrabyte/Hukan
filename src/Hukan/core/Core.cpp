@@ -1,4 +1,4 @@
-#include "Hukan.hpp"
+#include "Core.hpp"
 
 namespace hk {
     #if defined(HUKAN_DEBUG)

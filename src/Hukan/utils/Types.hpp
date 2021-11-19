@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Hukan.hpp"
+#include "../core/Core.hpp"
 
 namespace hk {
     using Char_t = char;

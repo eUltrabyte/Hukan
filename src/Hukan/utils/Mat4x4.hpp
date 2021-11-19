@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Hukan.hpp"
+#include "../core/Core.hpp"
 
 namespace hk {
     constexpr Double_t pi = 3.14159265359;

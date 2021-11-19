@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../Hukan.hpp"
+#include "Core.hpp"
+#include "PhysicalDevice.hpp"
 
 namespace hk {
     struct HK_API DeviceCreateInfo {
@@ -47,10 +48,10 @@ namespace hk {
 
     class HK_API Device {
     public:
-        Device(VkPhysicalDevice* pVkPhysicalDevice, DeviceCreateInfo* pDeviceCreateInfo = nullptr);
+        Device(PhysicalDevice* pPhysicalDevice, DeviceCreateInfo* pDeviceCreateInfo = nullptr);
         virtual ~Device();
 
-        virtual void Create(VkPhysicalDevice* pVkPhysicalDevice);
+        virtual void Create(PhysicalDevice* pVkPhysicalDevice);
         virtual void Destroy();
 
         virtual void SetDeviceCreateInfo(DeviceCreateInfo* pDeviceCreateInfo = nullptr);
