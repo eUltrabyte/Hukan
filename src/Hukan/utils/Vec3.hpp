@@ -40,6 +40,10 @@ namespace hk {
             z = static_cast<T>(vec.z);
         }
 
+        Vec3<T> operator+(const Vec3<T>& vec) HK_NOEXCEPT {
+            return Vec3<T>(x + vec.x, y + vec.y, z + vec.z);
+        }
+
         Vec3<T> operator+=(const T& value) HK_NOEXCEPT {
             return Vec3<T>(x += value, y += value, z += value);
         }

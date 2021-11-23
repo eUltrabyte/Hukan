@@ -35,7 +35,7 @@
 #define HK_VERSION_MINOR(version) (((hk::Uint_t)(version) >> 12) & 0x3ff)
 #define HK_VERSION_PATCH(version) ((hk::Uint_t)(version) & 0xfff)
 
-#if defined(HUKAN_DEBUG)
+#if defined(NDEBUG)
     #define HK_ENABLE_VALIDATION_LAYERS false
 
     namespace hk {
@@ -44,8 +44,6 @@
 #else
     #define HK_ENABLE_VALIDATION_LAYERS true
 #endif
-
-#include "../../include/stb_image.h"
 
 #include "../api/Platform.hpp"
 #include "../api/Terminal.hpp"

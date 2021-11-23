@@ -55,7 +55,7 @@ namespace hk {
         }
 
         void Scale(const Vec3<T>& vec) {
-            Mat4x4<T> _result;
+            Mat4x4<T> _result = Identity<T>();
             _result.matrix[0][0] = vec.x;
             _result.matrix[1][1] = vec.y;
             _result.matrix[2][2] = vec.z;

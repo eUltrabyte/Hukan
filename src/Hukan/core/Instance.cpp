@@ -2,28 +2,26 @@
 
 namespace hk {
     Instance::Instance(InstanceCreateInfo* pInstanceCreateInfo) {
-        if(pInstanceCreateInfo != nullptr) {
-            SetInstanceCreateInfo(pInstanceCreateInfo);
-            Create();
-        }
+        SetInstanceCreateInfo(pInstanceCreateInfo);
+        Create();
     }
-    
+
     Instance::~Instance() {
         Destroy();
         delete this;
     }
 
     void Instance::Create() {
-        VkResult _result = vkCreateInstance(mpInstanceCreateInfo->GetVkInstanceCreateInfo(), nullptr, &mInstance);
+        VkResult _result = vkCreateInstance(mInstanceCreateInfo.GetVkInstanceCreateInfo(), nullptr, &mInstance);
         HK_ASSERT(_result);
     }
-    
+
     void Instance::Destroy() {
         vkDestroyInstance(mInstance, nullptr);
     }
 
     void Instance::SetInstanceCreateInfo(InstanceCreateInfo* pInstanceCreateInfo) {
-        mpInstanceCreateInfo = pInstanceCreateInfo;
+        mInstanceCreateInfo = *pInstanceCreateInfo;
     }
 
     VkInstance* Instance::GetVkInstance() HK_NOEXCEPT {

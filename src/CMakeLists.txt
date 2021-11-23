@@ -6,10 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-if(CMAKE_BUILD_TYPE EQUAL "Debug")
-    add_definitions(-DHUKAN_DEBUG)
-endif(CMAKE_BUILD_TYPE EQUAL "Debug")
-
 include_directories(${PROJECT_NAME} PRIVATE ../..)
 include_directories(${PROJECT_NAME} PRIVATE Hukan)
 
