@@ -40,18 +40,18 @@ namespace hk {
 
     class HK_API Instance {
     public:
-        Instance(InstanceCreateInfo* pInstanceCreateInfo);
+        Instance(InstanceCreateInfo* pInstanceCreateInfo = nullptr);
         virtual ~Instance();
 
         virtual void Create();
         virtual void Destroy();
 
-        virtual void SetInstanceCreateInfo(InstanceCreateInfo* pInstanceCreateInfo);
+        virtual void SetInstanceCreateInfo(InstanceCreateInfo* pInstanceCreateInfo = nullptr);
 
         HK_NODISCARD virtual VkInstance* GetVkInstance() HK_NOEXCEPT;
 
     private:
-        InstanceCreateInfo mInstanceCreateInfo;
+        InstanceCreateInfo* mpInstanceCreateInfo;
         VkInstance mInstance;
 
     };

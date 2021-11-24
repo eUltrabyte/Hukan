@@ -12,7 +12,7 @@ namespace hk {
     }
 
     void Instance::Create() {
-        VkResult _result = vkCreateInstance(mInstanceCreateInfo.GetVkInstanceCreateInfo(), nullptr, &mInstance);
+        VkResult _result = vkCreateInstance(mpInstanceCreateInfo->GetVkInstanceCreateInfo(), nullptr, &mInstance);
         HK_ASSERT(_result);
     }
 
@@ -21,7 +21,7 @@ namespace hk {
     }
 
     void Instance::SetInstanceCreateInfo(InstanceCreateInfo* pInstanceCreateInfo) {
-        mInstanceCreateInfo = *pInstanceCreateInfo;
+        mpInstanceCreateInfo = pInstanceCreateInfo;
     }
 
     VkInstance* Instance::GetVkInstance() HK_NOEXCEPT {

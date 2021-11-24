@@ -35,6 +35,7 @@
 #define HK_VERSION_MINOR(version) (((hk::Uint_t)(version) >> 12) & 0x3ff)
 #define HK_VERSION_PATCH(version) ((hk::Uint_t)(version) & 0xfff)
 
+#define NDEBUG
 #if defined(NDEBUG)
     #define HK_ENABLE_VALIDATION_LAYERS false
 

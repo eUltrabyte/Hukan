@@ -202,7 +202,7 @@ auto main(int argc, char** argv) -> int {
 
     std::vector<const hk::Char_t*> usedExtensions;
 
-    #if HK_ENABLE_VALIDATION_LAYERS == true
+    #if HK_ENABLE_VALIDATION_LAYERS == false
         usedExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
         #if defined(HUKAN_SYSTEM_WIN32)
                 usedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
@@ -231,8 +231,18 @@ auto main(int argc, char** argv) -> int {
         instanceCreateInfo.ppEnabledLayers = nullptr;
     #endif
 
-    instanceCreateInfo.enabledExtensionsCount = 0;
-    instanceCreateInfo.ppEnabledExtensions = nullptr;
+    instanceCreateInfo.enabledExtensionsCount = usedExtensions.size();
+    instanceCreateInfo.ppEnabledExtensions = usedExtensions.data();
+
+    for(auto i = 0; i < instanceCreateInfo.enabledLayersCount; ++i) {
+        hk::Logger::Log(hk::LoggerSeriousness::Info, std::string("Used Layer: " + std::string(instanceCreateInfo.ppEnabledLayers[i])));
+    }
+    hk::Logger::Endl();
+
+    for(auto i = 0; i < instanceCreateInfo.enabledExtensionsCount; ++i) {
+        hk::Logger::Log(hk::LoggerSeriousness::Info, std::string("Used Extension: " + std::string(instanceCreateInfo.ppEnabledExtensions[i])));
+    }
+    hk::Logger::Endl();
 
     hk::Instance instance(&instanceCreateInfo);
     hk::Messenger debugMessenger(&instance, &messengerCreateInfo);
@@ -286,7 +296,7 @@ auto main(int argc, char** argv) -> int {
 
     VkPhysicalDeviceFeatures usedFeatures = {  };
 
-    const hk::Char_t* deviceExtensions[] = {
+    std::vector<const hk::Char_t*> deviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
@@ -296,8 +306,8 @@ auto main(int argc, char** argv) -> int {
     deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
     deviceCreateInfo.enabledLayerCount = 0;
     deviceCreateInfo.ppEnabledLayerNames = nullptr;
-    deviceCreateInfo.enabledExtensionCount = 1;
-    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
+    deviceCreateInfo.enabledExtensionCount = deviceExtensions.size();
+    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
     deviceCreateInfo.pEnabledFeatures = &usedFeatures;
 
     hk::Device device(&physicalDevice, &deviceCreateInfo);

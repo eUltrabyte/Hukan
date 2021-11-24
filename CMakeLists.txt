@@ -39,3 +39,5 @@ add_executable(Hukan-Example
 add_dependencies(Hukan-Example Hukan-Shaders)
 
 target_link_libraries(Hukan-Example Hukan)
+
+file(COPY res/ DESTINATION res/)
