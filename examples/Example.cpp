@@ -22,6 +22,7 @@ namespace hk {
     struct HK_API Vertex {
         Vec3f position;
         Vec4f color;
+        Vec2f texCoord;
 
         static VkVertexInputBindingDescription GetVkVertexInputBindingDescription() {
             VkVertexInputBindingDescription _vertexInputBindingDescription;
@@ -31,41 +32,49 @@ namespace hk {
             return _vertexInputBindingDescription;
         }
 
-        static std::array<VkVertexInputAttributeDescription, 2> GetVkVertexInputAttributeDescriptions() {
-            std::array<VkVertexInputAttributeDescription, 2> _vertexInputAttributeDescription;
+        static std::array<VkVertexInputAttributeDescription, 3> GetVkVertexInputAttributeDescriptions() {
+            std::array<VkVertexInputAttributeDescription, 3> _vertexInputAttributeDescription;
+
             _vertexInputAttributeDescription.at(0).binding = 0;
             _vertexInputAttributeDescription.at(0).location = 0;
             _vertexInputAttributeDescription.at(0).format = VK_FORMAT_R32G32B32_SFLOAT;
             _vertexInputAttributeDescription.at(0).offset = offsetof(Vertex, position);
+
             _vertexInputAttributeDescription.at(1).binding = 0;
             _vertexInputAttributeDescription.at(1).location = 1;
             _vertexInputAttributeDescription.at(1).format = VK_FORMAT_R32G32B32A32_SFLOAT;
             _vertexInputAttributeDescription.at(1).offset = offsetof(Vertex, color);
+
+            _vertexInputAttributeDescription.at(2).binding = 0;
+            _vertexInputAttributeDescription.at(2).location = 2;
+            _vertexInputAttributeDescription.at(2).format = VK_FORMAT_R32G32_SFLOAT;
+            _vertexInputAttributeDescription.at(2).offset = offsetof(Vertex, texCoord);
+
             return _vertexInputAttributeDescription;
         }
     };
 
     const std::vector<Vertex> vertices = {
-        {{ -1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }},
-        {{  1.0f,  1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }},
-        {{ -1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }},
-        {{  1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }}
+        {{ -1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
+        {{  1.0f, -1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+        {{  1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f }},
+        {{ -1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }}
     };
 
     const std::vector<Uint_t> indices = {
-        0, 1, 2, 0, 3, 1
+        0, 1, 2, 2, 3, 0
     };
 
-    void HK_API CopyBuffer(VkDevice* pDevice, VkCommandPool* pCommandPool, VkQueue* pQueue, VkBuffer source, VkBuffer destination, VkDeviceSize size) {
+    VkCommandBuffer HK_API BeginSingleCommandBuffer(Device* pDevice, VkCommandPool* pCommandPool) {
         VkCommandBufferAllocateInfo _commandBufferAllocateInfo;
         _commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         _commandBufferAllocateInfo.pNext = nullptr;
-        _commandBufferAllocateInfo.commandPool = *pCommandPool;
         _commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        _commandBufferAllocateInfo.commandPool = *pCommandPool;
         _commandBufferAllocateInfo.commandBufferCount = 1;
 
         VkCommandBuffer _commandBuffer;
-        result = vkAllocateCommandBuffers(*pDevice, &_commandBufferAllocateInfo, &_commandBuffer);
+        result = vkAllocateCommandBuffers(*pDevice->GetVkDevice(), &_commandBufferAllocateInfo, &_commandBuffer);
         HK_ASSERT_VK(result);
 
         VkCommandBufferBeginInfo _commandBufferBeginInfo;
@@ -77,13 +86,11 @@ namespace hk {
         result = vkBeginCommandBuffer(_commandBuffer, &_commandBufferBeginInfo);
         HK_ASSERT_VK(result);
 
-        VkBufferCopy _bufferCopy;
-        _bufferCopy.srcOffset = 0;
-        _bufferCopy.dstOffset = 0;
-        _bufferCopy.size = size;
-        vkCmdCopyBuffer(_commandBuffer, source, destination, 1, &_bufferCopy);
+        return _commandBuffer;
+    }
 
-        result = vkEndCommandBuffer(_commandBuffer);
+    void HK_API EndSingleCommandBuffer(Device* pDevice, VkCommandPool* pCommandPool, VkCommandBuffer commandBuffer, VkQueue* pQueue) {
+        result = vkEndCommandBuffer(commandBuffer);
         HK_ASSERT_VK(result);
 
         VkSubmitInfo _submitInfo;
@@ -93,7 +100,7 @@ namespace hk {
         _submitInfo.pWaitSemaphores = nullptr;
         _submitInfo.pWaitDstStageMask = nullptr;
         _submitInfo.commandBufferCount = 1;
-        _submitInfo.pCommandBuffers = &_commandBuffer;
+        _submitInfo.pCommandBuffers = &commandBuffer;
         _submitInfo.signalSemaphoreCount = 0;
         _submitInfo.pSignalSemaphores = nullptr;
 
@@ -101,6 +108,20 @@ namespace hk {
         HK_ASSERT_VK(result);
 
         vkQueueWaitIdle(*pQueue);
+
+        vkFreeCommandBuffers(*pDevice->GetVkDevice(), *pCommandPool, 1, &commandBuffer);
+    }
+
+    void HK_API CopyBuffer(Device* pDevice, VkCommandPool* pCommandPool, VkQueue* pQueue, VkBuffer source, VkBuffer destination, VkDeviceSize size) {
+        VkCommandBuffer _commandBuffer = BeginSingleCommandBuffer(pDevice, pCommandPool);
+
+        VkBufferCopy _bufferCopy;
+        _bufferCopy.srcOffset = 0;
+        _bufferCopy.dstOffset = 0;
+        _bufferCopy.size = size;
+        vkCmdCopyBuffer(_commandBuffer, source, destination, 1, &_bufferCopy);
+
+        EndSingleCommandBuffer(pDevice, pCommandPool, _commandBuffer, pQueue);
     }
 
     struct HK_API UBO {
@@ -108,6 +129,31 @@ namespace hk {
         Mat4x4f view;
         Mat4x4f projection;
     };
+
+    void HK_API AllocateRawData(Device* pDevice, Buffer* pBuffer, VkDeviceSize size, const void* data) {
+        void* _rawData;
+        vkMapMemory(*pDevice->GetVkDevice(), *pBuffer->GetBufferMemory(), 0, size, 0, &_rawData);
+        std::memcpy(_rawData, data, size);
+        vkUnmapMemory(*pDevice->GetVkDevice(), *pBuffer->GetBufferMemory());
+    }
+
+    void HK_API CopyBufferToImage(Device* pDevice, VkCommandPool* pCommandPool, VkQueue* pQueue, VkBuffer source, VkImage destination, Vec2u size) {
+        VkCommandBuffer _commandBuffer = BeginSingleCommandBuffer(pDevice, pCommandPool);
+
+        VkBufferImageCopy _bufferImageCopy;
+        _bufferImageCopy.bufferOffset = 0;
+        _bufferImageCopy.bufferRowLength = 0;
+        _bufferImageCopy.bufferImageHeight = 0;
+        _bufferImageCopy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        _bufferImageCopy.imageSubresource.mipLevel = 0;
+        _bufferImageCopy.imageSubresource.baseArrayLayer = 0;
+        _bufferImageCopy.imageSubresource.layerCount = 1;
+        _bufferImageCopy.imageOffset = { 0, 0, 0 };
+        _bufferImageCopy.imageExtent = { size.x, size.y, 1 };
+        vkCmdCopyBufferToImage(_commandBuffer, source, destination, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &_bufferImageCopy);
+
+        EndSingleCommandBuffer(pDevice, pCommandPool, _commandBuffer, pQueue);
+    }
 };
 
 auto main(int argc, char** argv) -> int {
@@ -157,16 +203,13 @@ auto main(int argc, char** argv) -> int {
 
     std::vector<const hk::Char_t*> usedExtensions;
 
-    if(HK_ENABLE_VALIDATION_LAYERS) {
-        usedExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-        #if defined(HUKAN_SYSTEM_WIN32)
-            usedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-        #elif defined(HUKAN_SYSTEM_POSIX)
-            usedExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
-            usedExtensions.push_back(VK_KHR_DISPLAY_EXTENSION_NAME);
-        #endif
-        usedExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-    }
+    usedExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+    #if defined(HUKAN_SYSTEM_WIN32)
+        usedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+    #elif defined(HUKAN_SYSTEM_POSIX)
+        usedExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+    #endif
+    usedExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
     hk::MessengerCreateInfo messengerCreateInfo;
     messengerCreateInfo.pNext = nullptr;
@@ -189,6 +232,16 @@ auto main(int argc, char** argv) -> int {
 
     instanceCreateInfo.enabledExtensionsCount = usedExtensions.size();
     instanceCreateInfo.ppEnabledExtensions = usedExtensions.data();
+
+    for(auto i = 0; i < instanceCreateInfo.enabledLayersCount; ++i) {
+        hk::Logger::Log(hk::LoggerSeriousness::Info, std::string("Used Layer: " + std::string(instanceCreateInfo.ppEnabledLayers[i])));
+    }
+    hk::Logger::Endl();
+
+    for(auto i = 0; i < instanceCreateInfo.enabledExtensionsCount; ++i) {
+        hk::Logger::Log(hk::LoggerSeriousness::Info, std::string("Used Extension: " + std::string(instanceCreateInfo.ppEnabledExtensions[i])));
+    }
+    hk::Logger::Endl();
 
     hk::Instance instance(&instanceCreateInfo);
     hk::Messenger debugMessenger(&instance, &messengerCreateInfo);
@@ -240,9 +293,10 @@ auto main(int argc, char** argv) -> int {
     deviceQueueCreateInfo.queueCount = 1;
     deviceQueueCreateInfo.pQueuePriorities = priorities;
 
-    VkPhysicalDeviceFeatures usedFeatures = {  };
+    VkPhysicalDeviceFeatures usedFeatures;
+    vkGetPhysicalDeviceFeatures(*physicalDevice.GetVkPhysicalDevice(), &usedFeatures);
 
-    const hk::Char_t* deviceExtensions[] = {
+    std::vector<const hk::Char_t*> deviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
@@ -252,8 +306,8 @@ auto main(int argc, char** argv) -> int {
     deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
     deviceCreateInfo.enabledLayerCount = 0;
     deviceCreateInfo.ppEnabledLayerNames = nullptr;
-    deviceCreateInfo.enabledExtensionCount = 1;
-    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
+    deviceCreateInfo.enabledExtensionCount = deviceExtensions.size();
+    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
     deviceCreateInfo.pEnabledFeatures = &usedFeatures;
 
     hk::Device device(&physicalDevice, &deviceCreateInfo);
@@ -423,12 +477,20 @@ auto main(int argc, char** argv) -> int {
     descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
 
+    VkDescriptorSetLayoutBinding samplerSetLayoutBinding;
+    samplerSetLayoutBinding.binding = 1;
+    samplerSetLayoutBinding.descriptorCount = 1;
+    samplerSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerSetLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    samplerSetLayoutBinding.pImmutableSamplers = nullptr;
+
+    std::array<VkDescriptorSetLayoutBinding, 2> bindings = { descriptorSetLayoutBinding, samplerSetLayoutBinding };
     VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo;
     descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorSetLayoutCreateInfo.pNext = nullptr;
     descriptorSetLayoutCreateInfo.flags = 0;
-    descriptorSetLayoutCreateInfo.bindingCount = 1;
-    descriptorSetLayoutCreateInfo.pBindings = &descriptorSetLayoutBinding;
+    descriptorSetLayoutCreateInfo.bindingCount = bindings.size();
+    descriptorSetLayoutCreateInfo.pBindings = bindings.data();
 
     VkDescriptorSetLayout descriptorSetLayout;
     result = vkCreateDescriptorSetLayout(*device.GetVkDevice(), &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout);
@@ -685,8 +747,158 @@ auto main(int argc, char** argv) -> int {
     result = vkCreateCommandPool(*device.GetVkDevice(), &commandPoolCreateInfo, nullptr, &commandPool);
     HK_ASSERT_VK(result);
 
+    int textureWidth, textureHeight, textureChannels;
+    stbi_uc* pixels = stbi_load("res/test.jpg", &textureWidth, &textureHeight, &textureChannels, STBI_rgb_alpha);
+    VkDeviceSize imageSize = textureWidth * textureHeight * 4;
+
+    if(!pixels) {
+        hk::Logger::Log(hk::LoggerSeriousness::Error, "Failed Texture Loading");
+        hk::Logger::Endl();
+    }
+
+    hk::BufferCreateInfo textureStagingBufferCreateInfo;
+    textureStagingBufferCreateInfo.pNext = nullptr;
+    textureStagingBufferCreateInfo.size = imageSize;
+    textureStagingBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    textureStagingBufferCreateInfo.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+    hk::Buffer textureStagingBuffer(&physicalDevice, &device, &textureStagingBufferCreateInfo);
+    hk::AllocateRawData(&device, &textureStagingBuffer, imageSize, pixels);
+
+    stbi_image_free(pixels);
+
+    VkImageCreateInfo imageCreateInfo;
+    imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imageCreateInfo.pNext = nullptr;
+    imageCreateInfo.flags = 0;
+    imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+    imageCreateInfo.extent = { (hk::Uint_t)textureWidth, (hk::Uint_t)textureHeight, 1 };
+    imageCreateInfo.mipLevels = 1;
+    imageCreateInfo.arrayLayers = 1;
+    imageCreateInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+    imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageCreateInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+    imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+
+    VkImage textureImage;
+    result = vkCreateImage(*device.GetVkDevice(), &imageCreateInfo, nullptr, &textureImage);
+    HK_ASSERT_VK(result);
+
+    VkMemoryRequirements textureMemoryRequirements;
+    vkGetImageMemoryRequirements(*device.GetVkDevice(), textureImage, &textureMemoryRequirements);
+
+    VkMemoryAllocateInfo textureMemoryAllocateInfo;
+    textureMemoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    textureMemoryAllocateInfo.pNext = nullptr;
+    textureMemoryAllocateInfo.allocationSize = textureMemoryRequirements.size;
+    textureMemoryAllocateInfo.memoryTypeIndex = hk::FindMemoryType(*physicalDevice.GetVkPhysicalDevice(), textureMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    VkDeviceMemory imageDeviceMemory;
+    result = vkAllocateMemory(*device.GetVkDevice(), &textureMemoryAllocateInfo, nullptr, &imageDeviceMemory);
+    HK_ASSERT_VK(result);
+
+    vkBindImageMemory(*device.GetVkDevice(), textureImage, imageDeviceMemory, 0);
+
+    VkCommandBuffer imageCommandBuffer = hk::BeginSingleCommandBuffer(&device, &commandPool);
+
+    VkImageMemoryBarrier imageMemoryBarrier;
+    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    imageMemoryBarrier.pNext = nullptr;
+    imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    imageMemoryBarrier.image = textureImage;
+    imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+    imageMemoryBarrier.subresourceRange.levelCount = 1;
+    imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+    imageMemoryBarrier.subresourceRange.layerCount = 1;
+    imageMemoryBarrier.srcAccessMask = 0;
+    imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+    vkCmdPipelineBarrier(imageCommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+
+    hk::EndSingleCommandBuffer(&device, &commandPool, imageCommandBuffer, &graphicsQueue);
+
+    hk::CopyBufferToImage(&device, &commandPool, &graphicsQueue, *textureStagingBuffer.GetBuffer(), textureImage, { (hk::Uint_t)textureWidth, (hk::Uint_t)textureHeight });
+
+    VkCommandBuffer secondImageCommandBuffer = hk::BeginSingleCommandBuffer(&device, &commandPool);
+
+    VkImageMemoryBarrier secondImageMemoryBarrier;
+    secondImageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    secondImageMemoryBarrier.pNext = nullptr;
+    secondImageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    secondImageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    secondImageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    secondImageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    secondImageMemoryBarrier.image = textureImage;
+    secondImageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    secondImageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+    secondImageMemoryBarrier.subresourceRange.levelCount = 1;
+    secondImageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+    secondImageMemoryBarrier.subresourceRange.layerCount = 1;
+    secondImageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    secondImageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+    vkCmdPipelineBarrier(secondImageCommandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &secondImageMemoryBarrier);
+
+    hk::EndSingleCommandBuffer(&device, &commandPool, secondImageCommandBuffer, &graphicsQueue);
+
+    textureStagingBuffer.Destroy();
+
+    VkImageViewCreateInfo imageViewCreateInfo;
+    imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    imageViewCreateInfo.pNext = nullptr;
+    imageViewCreateInfo.flags = 0;
+    imageViewCreateInfo.image = textureImage;
+    imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    imageViewCreateInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
+    imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+    imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+    imageViewCreateInfo.subresourceRange.levelCount = 1;
+    imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+    imageViewCreateInfo.subresourceRange.layerCount = 1;
+
+    VkImageView textureImageView;
+    result = vkCreateImageView(*device.GetVkDevice(), &imageViewCreateInfo, nullptr, &textureImageView);
+    HK_ASSERT_VK(result);
+
+    VkPhysicalDeviceProperties physicalDeviceProperties;
+    vkGetPhysicalDeviceProperties(*physicalDevice.GetVkPhysicalDevice(), &physicalDeviceProperties);
+
+    VkSamplerCreateInfo samplerCreateInfo;
+    samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerCreateInfo.pNext = nullptr;
+    samplerCreateInfo.flags = 0;
+    samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
+    samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
+    samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerCreateInfo.anisotropyEnable = usedFeatures.samplerAnisotropy;
+    samplerCreateInfo.maxAnisotropy = physicalDeviceProperties.limits.maxSamplerAnisotropy;
+    samplerCreateInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
+    samplerCreateInfo.compareEnable = VK_FALSE;
+    samplerCreateInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+    samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    samplerCreateInfo.mipLodBias = 0.0f;
+    samplerCreateInfo.minLod = 0.0f;
+    samplerCreateInfo.maxLod = 0.0f;
+
+    VkSampler textureSampler;
+    result = vkCreateSampler(*device.GetVkDevice(), &samplerCreateInfo, nullptr, &textureSampler);
+    HK_ASSERT_VK(result);
+
     VkDeviceSize vertexBufferSize = sizeof(hk::vertices.at(0)) * hk::vertices.size();
-    
+
     hk::BufferCreateInfo firstStagingBufferCreateInfo;
     firstStagingBufferCreateInfo.pNext = nullptr;
     firstStagingBufferCreateInfo.size = vertexBufferSize;
@@ -694,11 +906,7 @@ auto main(int argc, char** argv) -> int {
     firstStagingBufferCreateInfo.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
     hk::Buffer firstStagingBuffer(&physicalDevice, &device, &firstStagingBufferCreateInfo);
-
-    void* firstRawData;
-    vkMapMemory(*device.GetVkDevice(), *firstStagingBuffer.GetBufferMemory(), 0, vertexBufferSize, 0, &firstRawData);
-    std::memcpy(firstRawData, hk::vertices.data(), vertexBufferSize);
-    vkUnmapMemory(*device.GetVkDevice(), *firstStagingBuffer.GetBufferMemory());
+    hk::AllocateRawData(&device, &firstStagingBuffer, vertexBufferSize, hk::vertices.data());
 
     hk::BufferCreateInfo vertexBufferCreateInfo;
     vertexBufferCreateInfo.pNext = nullptr;
@@ -708,11 +916,11 @@ auto main(int argc, char** argv) -> int {
 
     hk::Buffer vertexBuffer(&physicalDevice, &device, &vertexBufferCreateInfo);
 
-    hk::CopyBuffer(device.GetVkDevice(), &commandPool, &graphicsQueue, *firstStagingBuffer.GetBuffer(), *vertexBuffer.GetBuffer(), vertexBufferSize);
+    hk::CopyBuffer(&device, &commandPool, &graphicsQueue, *firstStagingBuffer.GetBuffer(), *vertexBuffer.GetBuffer(), vertexBufferSize);
     firstStagingBuffer.Destroy();
 
     VkDeviceSize indexBufferSize = sizeof(hk::indices.at(0)) * hk::indices.size();
-        
+
     hk::BufferCreateInfo secondStagingBufferCreateInfo;
     secondStagingBufferCreateInfo.pNext = nullptr;
     secondStagingBufferCreateInfo.size = indexBufferSize;
@@ -720,11 +928,7 @@ auto main(int argc, char** argv) -> int {
     secondStagingBufferCreateInfo.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
     hk::Buffer secondStagingBuffer(&physicalDevice, &device, &secondStagingBufferCreateInfo);
-
-    void* secondRawData;
-    vkMapMemory(*device.GetVkDevice(), *secondStagingBuffer.GetBufferMemory(), 0, indexBufferSize, 0, &secondRawData);
-    std::memcpy(secondRawData, hk::indices.data(), indexBufferSize);
-    vkUnmapMemory(*device.GetVkDevice(), *secondStagingBuffer.GetBufferMemory());
+    hk::AllocateRawData(&device, &secondStagingBuffer, indexBufferSize, hk::indices.data());
 
     hk::BufferCreateInfo indexBufferCreateInfo;
     indexBufferCreateInfo.pNext = nullptr;
@@ -734,7 +938,7 @@ auto main(int argc, char** argv) -> int {
 
     hk::Buffer indexBuffer(&physicalDevice, &device, &indexBufferCreateInfo);
 
-    hk::CopyBuffer(device.GetVkDevice(), &commandPool, &graphicsQueue, *secondStagingBuffer.GetBuffer(), *indexBuffer.GetBuffer(), indexBufferSize);
+    hk::CopyBuffer(&device, &commandPool, &graphicsQueue, *secondStagingBuffer.GetBuffer(), *indexBuffer.GetBuffer(), indexBufferSize);
     secondStagingBuffer.Destroy();
 
     VkDeviceSize uniformBufferSize = sizeof(hk::UBO);
@@ -747,16 +951,18 @@ auto main(int argc, char** argv) -> int {
 
     hk::Buffer uniformBuffer(&physicalDevice, &device, &uniformBufferCreateInfo);
 
-    VkDescriptorPoolSize descriptorPoolSize;
-    descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorPoolSize.descriptorCount = 1;
+    std::array<VkDescriptorPoolSize, 2> descriptorsPoolSizes;
+    descriptorsPoolSizes.at(0).type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorsPoolSizes.at(0).descriptorCount = 1;
+    descriptorsPoolSizes.at(1).type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    descriptorsPoolSizes.at(1).descriptorCount = 1;
 
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo;
     descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     descriptorPoolCreateInfo.pNext = nullptr;
     descriptorPoolCreateInfo.flags = 0;
-    descriptorPoolCreateInfo.poolSizeCount = 1;
-    descriptorPoolCreateInfo.pPoolSizes = &descriptorPoolSize;
+    descriptorPoolCreateInfo.poolSizeCount = descriptorsPoolSizes.size();
+    descriptorPoolCreateInfo.pPoolSizes = descriptorsPoolSizes.data();
     descriptorPoolCreateInfo.maxSets = 1;
 
     VkDescriptorPool descriptorPool;
@@ -779,19 +985,35 @@ auto main(int argc, char** argv) -> int {
     descriptorBufferInfo.offset = 0;
     descriptorBufferInfo.range = sizeof(hk::UBO);
 
-    VkWriteDescriptorSet writeDescriptorSet;
-    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    writeDescriptorSet.pNext = nullptr;
-    writeDescriptorSet.dstSet = descriptorSet;
-    writeDescriptorSet.dstBinding = 0;
-    writeDescriptorSet.dstArrayElement = 0;
-    writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-    writeDescriptorSet.descriptorCount = 1;
-    writeDescriptorSet.pBufferInfo = &descriptorBufferInfo;
-    writeDescriptorSet.pImageInfo = nullptr;
-    writeDescriptorSet.pTexelBufferView = nullptr;
+    VkDescriptorImageInfo descriptorImageInfo;
+    descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    descriptorImageInfo.imageView = textureImageView;
+    descriptorImageInfo.sampler = textureSampler;
 
-    vkUpdateDescriptorSets(*device.GetVkDevice(), 1, &writeDescriptorSet, 0, nullptr);
+    std::array<VkWriteDescriptorSet, 2> writeDescriptorSets;
+    writeDescriptorSets.at(0).sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSets.at(0).pNext = nullptr;
+    writeDescriptorSets.at(0).dstSet = descriptorSet;
+    writeDescriptorSets.at(0).dstBinding = 0;
+    writeDescriptorSets.at(0).dstArrayElement = 0;
+    writeDescriptorSets.at(0).descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    writeDescriptorSets.at(0).descriptorCount = 1;
+    writeDescriptorSets.at(0).pBufferInfo = &descriptorBufferInfo;
+    writeDescriptorSets.at(0).pImageInfo = nullptr;
+    writeDescriptorSets.at(0).pTexelBufferView = nullptr;
+
+    writeDescriptorSets.at(1).sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSets.at(1).pNext = nullptr;
+    writeDescriptorSets.at(1).dstSet = descriptorSet;
+    writeDescriptorSets.at(1).dstBinding = 1;
+    writeDescriptorSets.at(1).dstArrayElement = 0;
+    writeDescriptorSets.at(1).descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    writeDescriptorSets.at(1).descriptorCount = 1;
+    writeDescriptorSets.at(1).pBufferInfo = nullptr;
+    writeDescriptorSets.at(1).pImageInfo = &descriptorImageInfo;
+    writeDescriptorSets.at(1).pTexelBufferView = nullptr;
+
+    vkUpdateDescriptorSets(*device.GetVkDevice(), writeDescriptorSets.size(), writeDescriptorSets.data(), 0, nullptr);
 
     VkCommandBufferAllocateInfo commandBufferAllocateInfo;
     commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -867,15 +1089,13 @@ auto main(int argc, char** argv) -> int {
 
         hk::UBO ubo;
         ubo.model = hk::Identity<hk::Float_t>();
-        hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f) * 2.0f, hk::Vec3f(0.0f, 0.0f, 1.0f));
-        ubo.view = hk::LookAt<hk::Float_t>(hk::Vec3f(2.0f, 2.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 0.0f), hk::Vec3f(0.0f, 0.0f, 1.0f));
+        hk::Scale(ubo.model, hk::Vec3f(1.0f, 1.0f, 1.0f));
+        // hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f) * 2.0f, hk::Vec3f(0.0f, 0.0f, 1.0f));
+        ubo.view = hk::LookAt(hk::Vec3f(0.0f, 0.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 2.0f) + hk::Vec3f(0.0f, 0.0f, -1.0f), hk::Vec3f(0.0f, 1.0f, 0.0f));
         ubo.projection = hk::Projection(hk::radians(45.0f), (hk::Float_t)(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), 0.1f, 1000.0f);
         ubo.projection.matrix[1][1] *= -1;
 
-        void* thirdRawData;
-        vkMapMemory(*device.GetVkDevice(), *uniformBuffer.GetBufferMemory(), 0, sizeof(ubo), 0, &thirdRawData);
-        std::memcpy(thirdRawData, &ubo, sizeof(ubo));
-        vkUnmapMemory(*device.GetVkDevice(), *uniformBuffer.GetBufferMemory());
+        hk::AllocateRawData(&device, &uniformBuffer, sizeof(ubo), &ubo);
 
         VkSubmitInfo submitInfo;
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -950,6 +1170,13 @@ auto main(int argc, char** argv) -> int {
     vkDestroyDescriptorPool(*device.GetVkDevice(), descriptorPool, nullptr);
 
     vkDestroySwapchainKHR(*device.GetVkDevice(), swapchain, nullptr);
+
+    vkDestroySampler(*device.GetVkDevice(), textureSampler, nullptr);
+
+    vkDestroyImageView(*device.GetVkDevice(), textureImageView, nullptr);
+
+    vkDestroyImage(*device.GetVkDevice(), textureImage, nullptr);
+    vkFreeMemory(*device.GetVkDevice(), imageDeviceMemory, nullptr);
 
     uniformBuffer.Destroy();
     indexBuffer.Destroy();

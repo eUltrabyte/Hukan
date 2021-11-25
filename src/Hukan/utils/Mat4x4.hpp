@@ -47,21 +47,6 @@ namespace hk {
             matrix = { std::array<T, 4>{ 0, 0, 0, 0 }, std::array<T, 4>{ 0, 0, 0, 0 }, std::array<T, 4>{ 0, 0, 0, 0 }, std::array<T, 4>{ 0, 0, 0, 0 } };
         }
 
-        void Translate(const Vec3<T>& vec) {
-            matrix[3][0] = matrix[0][0] * vec.x + matrix[1][0] * vec.y + matrix[2][0] * vec.z + matrix[3][0];
-		    matrix[3][1] = matrix[0][1] * vec.x + matrix[1][1] * vec.y + matrix[2][1] * vec.z + matrix[3][1];
-            matrix[3][2] = matrix[0][2] * vec.x + matrix[1][2] * vec.y + matrix[2][2] * vec.z + matrix[3][2];
-		    matrix[3][3] = matrix[0][3] * vec.x + matrix[1][3] * vec.y + matrix[2][3] * vec.z + matrix[3][3];
-        }
-
-        void Scale(const Vec3<T>& vec) {
-            Mat4x4<T> _result;
-            _result.matrix[0][0] = vec.x;
-            _result.matrix[1][1] = vec.y;
-            _result.matrix[2][2] = vec.z;
-            matrix = matrix * _result;
-        }
-
         void SetMatrixAt(Int_t x, Int_t y, T data) {
             matrix[x][y] = data;
         }
@@ -91,11 +76,14 @@ namespace hk {
     using Mat4x4l = Mat4x4<Long_t>;
     using Mat4x4d = Mat4x4<Double_t>;
 
-    using Mat4f = Mat4x4f;
-    using Mat4i = Mat4x4i;
-    using Mat4u = Mat4x4u;
-    using Mat4l = Mat4x4l;
-    using Mat4d = Mat4x4d;
+    template<typename T>
+    using Mat4 = Mat4x4<T>;
+
+    using Mat4f = Mat4<Float_t>;
+    using Mat4i = Mat4<Int_t>;
+    using Mat4u = Mat4<Uint_t>;
+    using Mat4l = Mat4<Long_t>;
+    using Mat4d = Mat4<Double_t>;
 
     template<typename T>
     constexpr Mat4x4<T> Identity() {
@@ -183,6 +171,17 @@ namespace hk {
         _result.matrix[3][0] = -DotProduct(_norm1, eye);
         _result.matrix[3][1] = -DotProduct(_norm2, eye);
         _result.matrix[3][2] = -DotProduct(_norm0, eye);
+        return _result;
+    }
+
+    template<typename T>
+    constexpr Mat4x4<T> Inverse(const Mat4x4<T>& mat) {
+        Mat4x4<T> _result;
+        for(auto x = 0; x < 4; ++x) {
+            for(auto y = 0; y < 4; ++y) {
+                _result.matrix[x][y] = -mat.matrix[x][y];
+            }
+        }
         return _result;
     }
 };

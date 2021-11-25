@@ -3,7 +3,6 @@
 #include "Core.hpp"
 
 namespace hk {
-    extern void Debugbreak(Uint_t line, const Char_t* filename);
     extern void Assert();
 };
 
@@ -14,5 +13,5 @@ namespace hk {
 #endif
 
 #define HK_ASSERT_MESSAGE() hk::Assert();
-#define HK_ASSERT(value) if(value < 0) { HK_ASSERT_MESSAGE(); HK_DEBUG_BREAK(__LINE__, __FILE__); }
-#define HK_ASSERT_VK(value) if(value != VK_SUCCESS) { HK_ASSERT_MESSAGE(); HK_DEBUG_BREAK(__LINE__, __FILE__); }
+#define HK_ASSERT(value) if(value < 0) { HK_ASSERT_MESSAGE(); }
+#define HK_ASSERT_VK(value) if(value != VK_SUCCESS) { HK_ASSERT_MESSAGE(); }

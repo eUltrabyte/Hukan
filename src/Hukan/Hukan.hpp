@@ -10,3 +10,6 @@
 #include "core/Buffer.hpp"
 #include "graphics/Window/Window.hpp"
 #include "graphics/Surface/Surface.hpp"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "../include/stb_image.h"

@@ -2,12 +2,10 @@
 
 namespace hk {
     Instance::Instance(InstanceCreateInfo* pInstanceCreateInfo) {
-        if(pInstanceCreateInfo != nullptr) {
-            SetInstanceCreateInfo(pInstanceCreateInfo);
-            Create();
-        }
+        SetInstanceCreateInfo(pInstanceCreateInfo);
+        Create();
     }
-    
+
     Instance::~Instance() {
         Destroy();
         delete this;
@@ -17,7 +15,7 @@ namespace hk {
         VkResult _result = vkCreateInstance(mpInstanceCreateInfo->GetVkInstanceCreateInfo(), nullptr, &mInstance);
         HK_ASSERT(_result);
     }
-    
+
     void Instance::Destroy() {
         vkDestroyInstance(mInstance, nullptr);
     }
