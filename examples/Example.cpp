@@ -69,6 +69,7 @@ namespace hk {
         VkCommandBufferAllocateInfo _commandBufferAllocateInfo;
         _commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         _commandBufferAllocateInfo.pNext = nullptr;
+        _commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         _commandBufferAllocateInfo.commandPool = *pCommandPool;
         _commandBufferAllocateInfo.commandBufferCount = 1;
 
@@ -202,15 +203,13 @@ auto main(int argc, char** argv) -> int {
 
     std::vector<const hk::Char_t*> usedExtensions;
 
-    #if HK_ENABLE_VALIDATION_LAYERS == false
-        usedExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-        #if defined(HUKAN_SYSTEM_WIN32)
-                usedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-        #elif defined(HUKAN_SYSTEM_POSIX)
-                usedExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
-        #endif
-        usedExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    usedExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+    #if defined(HUKAN_SYSTEM_WIN32)
+        usedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+    #elif defined(HUKAN_SYSTEM_POSIX)
+        usedExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
     #endif
+    usedExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
     hk::MessengerCreateInfo messengerCreateInfo;
     messengerCreateInfo.pNext = nullptr;
@@ -294,7 +293,8 @@ auto main(int argc, char** argv) -> int {
     deviceQueueCreateInfo.queueCount = 1;
     deviceQueueCreateInfo.pQueuePriorities = priorities;
 
-    VkPhysicalDeviceFeatures usedFeatures = {  };
+    VkPhysicalDeviceFeatures usedFeatures;
+    vkGetPhysicalDeviceFeatures(*physicalDevice.GetVkPhysicalDevice(), &usedFeatures);
 
     std::vector<const hk::Char_t*> deviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
@@ -882,7 +882,7 @@ auto main(int argc, char** argv) -> int {
     samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerCreateInfo.anisotropyEnable = VK_TRUE;
+    samplerCreateInfo.anisotropyEnable = usedFeatures.samplerAnisotropy;
     samplerCreateInfo.maxAnisotropy = physicalDeviceProperties.limits.maxSamplerAnisotropy;
     samplerCreateInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
     samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
@@ -996,7 +996,7 @@ auto main(int argc, char** argv) -> int {
     writeDescriptorSets.at(0).dstSet = descriptorSet;
     writeDescriptorSets.at(0).dstBinding = 0;
     writeDescriptorSets.at(0).dstArrayElement = 0;
-    writeDescriptorSets.at(0).descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+    writeDescriptorSets.at(0).descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     writeDescriptorSets.at(0).descriptorCount = 1;
     writeDescriptorSets.at(0).pBufferInfo = &descriptorBufferInfo;
     writeDescriptorSets.at(0).pImageInfo = nullptr;
@@ -1089,9 +1089,9 @@ auto main(int argc, char** argv) -> int {
 
         hk::UBO ubo;
         ubo.model = hk::Identity<hk::Float_t>();
-        hk::Scale(ubo.model, hk::Vec3f(1.0f, 0.5f, 1.0f));
+        hk::Scale(ubo.model, hk::Vec3f(1.0f, 1.0f, 1.0f));
         // hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f) * 2.0f, hk::Vec3f(0.0f, 0.0f, 1.0f));
-        ubo.view = hk::LookAt<hk::Float_t>(hk::Vec3f(0.0f, 0.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 2.0f) + hk::Vec3f(0.0f, 0.0f, -1.0f), hk::Vec3f(0.0f, 1.0f, 0.0f));
+        ubo.view = hk::LookAt(hk::Vec3f(0.0f, 0.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 2.0f) + hk::Vec3f(0.0f, 0.0f, -1.0f), hk::Vec3f(0.0f, 1.0f, 0.0f));
         ubo.projection = hk::Projection(hk::radians(45.0f), (hk::Float_t)(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), 0.1f, 1000.0f);
         ubo.projection.matrix[1][1] *= -1;
 
