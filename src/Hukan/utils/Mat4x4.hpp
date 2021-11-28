@@ -41,6 +41,7 @@ namespace hk {
             matrix[3][0] = -(right + left) / (right - left);
             matrix[3][1] = -(top + bottom) / (top - bottom);
             matrix[3][2] = -(zFar + zNear) / (zFar - zNear);
+            matrix[3][3] = 1.0f;
         }
 
         void Clear() {
@@ -147,8 +148,8 @@ namespace hk {
     constexpr void Scale(Mat4x4<T>& mat, const Vec3<T>& vec) {
         Mat4x4<T> _result = Identity<T>();
         _result.matrix[0][0] = vec.x;
-        _result.matrix[1][1] = vec.x;
-        _result.matrix[2][2] = vec.x;
+        _result.matrix[1][1] = vec.y;
+        _result.matrix[2][2] = vec.z;
         mat = mat * _result;
     }
 

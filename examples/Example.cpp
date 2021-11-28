@@ -55,10 +55,10 @@ namespace hk {
     };
 
     const std::vector<Vertex> vertices = {
-        {{ -1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
-        {{  1.0f, -1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
-        {{  1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f }},
-        {{ -1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }}
+        {{ -1.0f, -1.0f, 0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
+        {{  1.0f, -1.0f, 0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+        {{  1.0f,  1.0f, 0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f }},
+        {{ -1.0f,  1.0f, 0.5f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }}
     };
 
     const std::vector<Uint_t> indices = {
@@ -125,9 +125,9 @@ namespace hk {
     }
 
     struct HK_API UBO {
-        Mat4x4f model;
-        Mat4x4f view;
-        Mat4x4f projection;
+        Mat4f model;
+        Mat4f view;
+        Mat4f projection;
     };
 
     void HK_API AllocateRawData(Device* pDevice, Buffer* pBuffer, VkDeviceSize size, const void* data) {
@@ -222,7 +222,7 @@ auto main(int argc, char** argv) -> int {
     instanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)messengerCreateInfo.GetVkMessengerCreateInfo();
     instanceCreateInfo.pAppInfo = &appInfo;
 
-    #if HK_ENABLE_VALIDATION_LAYERS == false
+    #if HK_ENABLE_VALIDATION_LAYERS == true
         instanceCreateInfo.enabledLayersCount = hk::g_validationLayers.size();
         instanceCreateInfo.ppEnabledLayers = hk::g_validationLayers.data();
     #else
@@ -1092,8 +1092,9 @@ auto main(int argc, char** argv) -> int {
         hk::Scale(ubo.model, hk::Vec3f(1.0f, 1.0f, 1.0f));
         // hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f) * 2.0f, hk::Vec3f(0.0f, 0.0f, 1.0f));
         ubo.view = hk::LookAt(hk::Vec3f(0.0f, 0.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 2.0f) + hk::Vec3f(0.0f, 0.0f, -1.0f), hk::Vec3f(0.0f, 1.0f, 0.0f));
-        ubo.projection = hk::Projection(hk::radians(45.0f), (hk::Float_t)(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), 0.1f, 1000.0f);
+        ubo.projection = hk::Projection<hk::Float_t>(hk::radians(45.0f), (hk::Float_t)(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), 0.1f, 1000.0f);
         ubo.projection.matrix[1][1] *= -1;
+        // ubo.projection = hk::Ortho2D<hk::Float_t>(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f);
 
         hk::AllocateRawData(&device, &uniformBuffer, sizeof(ubo), &ubo);
 
