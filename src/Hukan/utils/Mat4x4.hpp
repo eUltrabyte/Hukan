@@ -23,29 +23,35 @@ namespace hk {
 
         Mat4x4() { Clear(); }
 
-        Mat4x4(T fov, T aspectRatio, T zNear, T zFar) { // REMEMBER FOV IN RADIANS
+        Mat4x4(T fov, T aspectRatio, T zNear, T zFar) {
             Clear();
             T _halfFov = 1.0f / std::tan(1.0f * fov);
             matrix[0][0] = 1.0f / aspectRatio * _halfFov;
-            matrix[1][1] = 1.0f / _halfFov;
+            matrix[1][1] = -(1.0f / _halfFov);
             matrix[2][2] = zFar / (zFar - zNear);
             matrix[2][3] = 1.0f;
             matrix[3][2] = -(2.0f * zFar * zNear) / (zFar - zNear);
         }
 
         Mat4x4(T left, T right, T bottom, T top, T zNear, T zFar) {
-            Clear();
+            Identity();
             matrix[0][0] = 2.0f / (right - left);
-            matrix[1][1] = 2.0f / (top - bottom);
-            matrix[2][2] = -2.0f / (zFar - zNear);
+            matrix[1][1] = 2.0f / (bottom - top);
+            matrix[2][2] = 1.0f / (zFar - zNear);
             matrix[3][0] = -(right + left) / (right - left);
-            matrix[3][1] = -(top + bottom) / (top - bottom);
-            matrix[3][2] = -(zFar + zNear) / (zFar - zNear);
-            matrix[3][3] = 1.0f;
+            matrix[3][1] = -(bottom + top) / (bottom - top);
+            matrix[3][2] = -zNear / (zFar - zNear);
         }
 
         void Clear() {
             matrix = { std::array<T, 4>{ 0, 0, 0, 0 }, std::array<T, 4>{ 0, 0, 0, 0 }, std::array<T, 4>{ 0, 0, 0, 0 }, std::array<T, 4>{ 0, 0, 0, 0 } };
+        }
+
+        void Identity() {
+            matrix[0][0] = 1.0f;
+            matrix[1][1] = 1.0f;
+            matrix[2][2] = 1.0f;
+            matrix[3][3] = 1.0f;
         }
 
         void SetMatrixAt(Int_t x, Int_t y, T data) {

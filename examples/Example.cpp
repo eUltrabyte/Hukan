@@ -1093,8 +1093,7 @@ auto main(int argc, char** argv) -> int {
         // hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f) * 2.0f, hk::Vec3f(0.0f, 0.0f, 1.0f));
         ubo.view = hk::LookAt(hk::Vec3f(0.0f, 0.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 2.0f) + hk::Vec3f(0.0f, 0.0f, -1.0f), hk::Vec3f(0.0f, 1.0f, 0.0f));
         ubo.projection = hk::Projection<hk::Float_t>(hk::radians(45.0f), (hk::Float_t)(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), 0.1f, 1000.0f);
-        ubo.projection.matrix[1][1] *= -1;
-        // ubo.projection = hk::Ortho2D<hk::Float_t>(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f);
+        // ubo.projection = hk::Ortho2D<hk::Float_t>(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 
         hk::AllocateRawData(&device, &uniformBuffer, sizeof(ubo), &ubo);
 
