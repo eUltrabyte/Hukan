@@ -30,6 +30,19 @@ namespace hk {
     }
 
     namespace Extensions {
+        void EnumerateExtensions(std::vector<Extension>& extensions) HK_NOEXCEPT {
+            Uint_t count = 0;
+            vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+            std::vector<VkExtensionProperties> vkExtensionsProperties(count);
+            vkEnumerateInstanceExtensionProperties(nullptr, &count, vkExtensionsProperties.data());
+            
+            for(auto i = 0; i < vkExtensionsProperties.size(); ++i) {
+                extensions.emplace_back(Extension(vkExtensionsProperties.at(i)));
+            }
+
+            vkExtensionsProperties.clear();
+        }
+
         void EnumerateExtensions(Uint_t& count, std::vector<Extension>& extensions) HK_NOEXCEPT {
             vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
             std::vector<VkExtensionProperties> vkExtensionsProperties(count);

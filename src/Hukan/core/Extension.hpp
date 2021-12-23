@@ -23,6 +23,7 @@ namespace hk {
     };
 
     namespace Extensions {
+        extern void EnumerateExtensions(std::vector<Extension>& extensions) HK_NOEXCEPT;
         extern void EnumerateExtensions(Uint_t& count, std::vector<Extension>& extensions) HK_NOEXCEPT;
     };
 };

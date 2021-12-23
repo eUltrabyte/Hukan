@@ -177,16 +177,14 @@ auto main(int argc, char** argv) -> int {
     appInfo.pEngineName = "Hukan";
     appInfo.apiVersion = instanceVersion;
 
-    hk::Uint_t layerCount = 0;
     std::vector<hk::Layer> layers;
-    hk::Layers::EnumerateLayers(layerCount, layers);
+    hk::Layers::EnumerateLayers(layers);
     for(auto i = 0; i < layers.size(); ++i) {
         layers.at(i).PrintVkLayerProperties();
     }
 
-    hk::Uint_t extensionCount = 0;
     std::vector<hk::Extension> extensions;
-    hk::Extensions::EnumerateExtensions(extensionCount, extensions);
+    hk::Extensions::EnumerateExtensions(extensions);
     for(int i = 0; i < extensions.size(); ++i) {
         extensions.at(i).PrintVkExtensionProperties();
     }
@@ -212,7 +210,7 @@ auto main(int argc, char** argv) -> int {
     instanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)messengerCreateInfo.GetVkMessengerCreateInfo();
     instanceCreateInfo.pAppInfo = &appInfo;
 
-    #if HK_ENABLE_VALIDATION_LAYERS == true
+    #if defined(HK_ENABLE_VALIDATION_LAYERS)
         instanceCreateInfo.enabledLayersCount = hk::g_validationLayers.size();
         instanceCreateInfo.ppEnabledLayers = hk::g_validationLayers.data();
     #else

@@ -42,6 +42,19 @@ namespace hk {
     }
 
     namespace Layers {
+        void EnumerateLayers(std::vector<Layer>& layers) HK_NOEXCEPT {
+            Uint_t count = 0;
+            vkEnumerateInstanceLayerProperties(&count, nullptr);
+            std::vector<VkLayerProperties> vkLayers(count);
+            vkEnumerateInstanceLayerProperties(&count, vkLayers.data());
+
+            for(auto i = 0; i < vkLayers.size(); ++i) {
+                layers.emplace_back(Layer(vkLayers.at(i)));
+            }
+
+            vkLayers.clear();
+        }
+
         void EnumerateLayers(Uint_t& count, std::vector<Layer>& layers) HK_NOEXCEPT {
             vkEnumerateInstanceLayerProperties(&count, nullptr);
             std::vector<VkLayerProperties> vkLayers(count);

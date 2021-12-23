@@ -25,6 +25,7 @@ namespace hk {
     };
 
     namespace Layers {
+        extern void EnumerateLayers(std::vector<Layer>& layers) HK_NOEXCEPT;
         extern void EnumerateLayers(Uint_t& count, std::vector<Layer>& layers) HK_NOEXCEPT;
     };
 };

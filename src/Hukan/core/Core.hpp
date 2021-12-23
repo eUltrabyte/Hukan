@@ -36,13 +36,11 @@
 #define HK_VERSION_PATCH(version) ((hk::Uint_t)(version) & 0xfff)
 
 #if defined(HUKAN_DEBUG)
-    #define HK_ENABLE_VALIDATION_LAYERS true
+    #define HK_ENABLE_VALIDATION_LAYERS
 
     namespace hk {
         extern const std::vector<const Char_t*> g_validationLayers;
     };
-#else
-    #define HK_ENABLE_VALIDATION_LAYERS false
 #endif
 
 #include "../api/Platform.hpp"
