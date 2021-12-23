@@ -173,43 +173,33 @@ auto main(int argc, char** argv) -> int {
     appInfo.pNext = nullptr;
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pApplicationName = "Hukan-Example";
-    appInfo.engineVersion = VK_MAKE_VERSION(0, 1, 3);
+    appInfo.engineVersion = VK_MAKE_VERSION(0, 1, 4);
     appInfo.pEngineName = "Hukan";
     appInfo.apiVersion = instanceVersion;
 
     hk::Uint_t layerCount = 0;
-    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-    std::vector<VkLayerProperties> vkLayers(layerCount);
-    vkEnumerateInstanceLayerProperties(&layerCount, vkLayers.data());
-
-    std::vector<hk::Layer> layers(layerCount);
-    for(int i = 0; i < layers.size(); ++i) {
-        layers.at(i).SetVkLayerProperties(&vkLayers.at(i));
+    std::vector<hk::Layer> layers;
+    hk::Layers::EnumerateLayers(layerCount, layers);
+    for(auto i = 0; i < layers.size(); ++i) {
         layers.at(i).PrintVkLayerProperties();
     }
-    vkLayers.clear();
 
     hk::Uint_t extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-    std::vector<VkExtensionProperties> vkExtensionsProperties(extensionCount);
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, vkExtensionsProperties.data());
-
-    std::vector<hk::Extension> extensions(extensionCount);
-    for(int i = 0; i < vkExtensionsProperties.size(); ++i) {
-        extensions.at(i).SetVkExtensionProperties(&vkExtensionsProperties.at(i));
+    std::vector<hk::Extension> extensions;
+    hk::Extensions::EnumerateExtensions(extensionCount, extensions);
+    for(int i = 0; i < extensions.size(); ++i) {
         extensions.at(i).PrintVkExtensionProperties();
     }
-    vkExtensionsProperties.clear();
 
     std::vector<const hk::Char_t*> usedExtensions;
 
-    usedExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+    usedExtensions.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME);
     #if defined(HUKAN_SYSTEM_WIN32)
-        usedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+        usedExtensions.emplace_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
     #elif defined(HUKAN_SYSTEM_POSIX)
-        usedExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+        usedExtensions.emplace_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
     #endif
-    usedExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    usedExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
     hk::MessengerCreateInfo messengerCreateInfo;
     messengerCreateInfo.pNext = nullptr;
@@ -1090,10 +1080,10 @@ auto main(int argc, char** argv) -> int {
         hk::UBO ubo;
         ubo.model = hk::Identity<hk::Float_t>();
         hk::Scale(ubo.model, hk::Vec3f(1.0f, 1.0f, 1.0f));
-        // hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f) * 2.0f, hk::Vec3f(0.0f, 0.0f, 1.0f));
-        ubo.view = hk::LookAt(hk::Vec3f(0.0f, 0.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 2.0f) + hk::Vec3f(0.0f, 0.0f, -1.0f), hk::Vec3f(0.0f, 1.0f, 0.0f));
+        hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f) * 2.0f, hk::Vec3f(0.0f, 0.0f, 1.0f));
+        ubo.view = hk::LookAt(hk::Vec3f(0.0f, 0.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 1.0f), hk::Vec3f(0.0f, 1.0f, 0.0f));
         ubo.projection = hk::Projection<hk::Float_t>(hk::radians(45.0f), (hk::Float_t)(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), 0.1f, 1000.0f);
-        // ubo.projection = hk::Ortho2D<hk::Float_t>(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+        // ubo.projection = hk::Ortho2D<hk::Float_t>(0.0f, window.GetWindowCreateInfo()->width, window.GetWindowCreateInfo()->height, 0.0f, -1.0f, 1.0f);
 
         hk::AllocateRawData(&device, &uniformBuffer, sizeof(ubo), &ubo);
 

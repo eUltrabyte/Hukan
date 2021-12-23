@@ -5,12 +5,12 @@
 namespace hk {
     class HK_API Layer {
     public:
-        Layer(VkLayerProperties* pVkLayerProperties = nullptr);
-        virtual ~Layer();
+        Layer(VkLayerProperties vkLayerProperties);
+        virtual ~Layer() = default;
 
         virtual void PrintVkLayerProperties();
 
-        virtual void SetVkLayerProperties(VkLayerProperties* pVkLayerProperties = nullptr);
+        virtual void SetVkLayerProperties(VkLayerProperties vkLayerProperties);
 
         HK_NODISCARD virtual const Char_t* GetName() HK_NOEXCEPT;
         HK_NODISCARD virtual const Char_t* GetDescription() HK_NOEXCEPT;
@@ -20,7 +20,11 @@ namespace hk {
         HK_NODISCARD virtual VkLayerProperties* GetVkLayerProperties() HK_NOEXCEPT;
 
     private:
-        VkLayerProperties* mpVkLayerProperties;
+        VkLayerProperties mVkLayerProperties;
 
+    };
+
+    namespace Layers {
+        extern void EnumerateLayers(Uint_t& count, std::vector<Layer>& layers) HK_NOEXCEPT;
     };
 };

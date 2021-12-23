@@ -1,12 +1,8 @@
 #include "Extension.hpp"
 
 namespace hk {
-    Extension::Extension(VkExtensionProperties* pVkExtensionProperties) {
-        SetVkExtensionProperties(pVkExtensionProperties);
-    }
-    
-    Extension::~Extension() {
-        delete this;
+    Extension::Extension(VkExtensionProperties vkExtensionProperties) {
+        SetVkExtensionProperties(vkExtensionProperties);
     }
 
     void Extension::PrintVkExtensionProperties() {
@@ -17,19 +13,33 @@ namespace hk {
         Logger::Endl();
     }
 
-    void Extension::SetVkExtensionProperties(VkExtensionProperties* pVkExtensionProperties) {
-        mpVkExtensionProperties = pVkExtensionProperties;
+    void Extension::SetVkExtensionProperties(VkExtensionProperties vkExtensionProperties) {
+        mVkExtensionProperties = vkExtensionProperties;
     }
 
     const Char_t* Extension::GetName() HK_NOEXCEPT {
-        return mpVkExtensionProperties->extensionName;
+        return mVkExtensionProperties.extensionName;
     }
     
     Uint_t Extension::GetSpecificationVersion() HK_NOEXCEPT {
-        return mpVkExtensionProperties->specVersion;
+        return mVkExtensionProperties.specVersion;
     }
 
     VkExtensionProperties* Extension::GetVkExtensionProperties() HK_NOEXCEPT {
-        return mpVkExtensionProperties;
+        return &mVkExtensionProperties;
     }
+
+    namespace Extensions {
+        void EnumerateExtensions(Uint_t& count, std::vector<Extension>& extensions) HK_NOEXCEPT {
+            vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+            std::vector<VkExtensionProperties> vkExtensionsProperties(count);
+            vkEnumerateInstanceExtensionProperties(nullptr, &count, vkExtensionsProperties.data());
+            
+            for(auto i = 0; i < vkExtensionsProperties.size(); ++i) {
+                extensions.emplace_back(Extension(vkExtensionsProperties.at(i)));
+            }
+
+            vkExtensionsProperties.clear();
+        }
+    };
 };
