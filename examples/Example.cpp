@@ -263,11 +263,10 @@ auto main(int argc, char** argv) -> int {
     #endif
 
     hk::Uint_t physicalDevicesCount = 0;
-    vkEnumeratePhysicalDevices(*instance.GetVkInstance(), &physicalDevicesCount, nullptr);
-    std::vector<VkPhysicalDevice> physicalDevices(physicalDevicesCount);
-    vkEnumeratePhysicalDevices(*instance.GetVkInstance(), &physicalDevicesCount, physicalDevices.data());
+    std::vector<hk::PhysicalDevice> physicalDevices;
+    hk::PhysicalDevices::EnumeratePhysicalDevices(instance, physicalDevicesCount, physicalDevices);
 
-    hk::PhysicalDevice physicalDevice(&physicalDevices.at(0));
+    hk::PhysicalDevice physicalDevice(physicalDevices.at(0).GetVkPhysicalDevice());
     physicalDevice.PrintPhysicalDeviceProps();
     physicalDevices.clear();
 

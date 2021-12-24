@@ -1,8 +1,8 @@
 #include "Extension.hpp"
 
 namespace hk {
-    Extension::Extension(VkExtensionProperties vkExtensionProperties) {
-        SetVkExtensionProperties(vkExtensionProperties);
+    Extension::Extension(VkExtensionProperties* pVkExtensionProperties) {
+        SetVkExtensionProperties(pVkExtensionProperties);
     }
 
     void Extension::PrintVkExtensionProperties() {
@@ -13,8 +13,8 @@ namespace hk {
         Logger::Endl();
     }
 
-    void Extension::SetVkExtensionProperties(VkExtensionProperties vkExtensionProperties) {
-        mVkExtensionProperties = vkExtensionProperties;
+    void Extension::SetVkExtensionProperties(VkExtensionProperties* pVkExtensionProperties) {
+        mVkExtensionProperties = *pVkExtensionProperties;
     }
 
     const Char_t* Extension::GetName() HK_NOEXCEPT {
@@ -37,7 +37,7 @@ namespace hk {
             vkEnumerateInstanceExtensionProperties(nullptr, &count, vkExtensionsProperties.data());
             
             for(auto i = 0; i < vkExtensionsProperties.size(); ++i) {
-                extensions.emplace_back(Extension(vkExtensionsProperties.at(i)));
+                extensions.emplace_back(Extension(&vkExtensionsProperties.at(i)));
             }
 
             vkExtensionsProperties.clear();
@@ -49,7 +49,7 @@ namespace hk {
             vkEnumerateInstanceExtensionProperties(nullptr, &count, vkExtensionsProperties.data());
             
             for(auto i = 0; i < vkExtensionsProperties.size(); ++i) {
-                extensions.emplace_back(Extension(vkExtensionsProperties.at(i)));
+                extensions.emplace_back(Extension(&vkExtensionsProperties.at(i)));
             }
 
             vkExtensionsProperties.clear();

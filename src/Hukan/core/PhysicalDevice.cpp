@@ -5,10 +5,6 @@ namespace hk {
         SetVkPhysicalDevice(pPhysicalDevice);
         mPhysicalDeviceProps.GetPhysicalDeviceProps(pPhysicalDevice);
     }
-    
-    PhysicalDevice::~PhysicalDevice() {
-        delete this;
-    }
 
     void PhysicalDevice::PrintPhysicalDeviceProps() {
         std::string formatPhysicalDevice = "Device Name: " + std::string(mPhysicalDeviceProps.deviceName);
@@ -29,4 +25,18 @@ namespace hk {
     PhysicalDeviceProps* PhysicalDevice::GetPhysicalDeviceProps() HK_NOEXCEPT {
         return &mPhysicalDeviceProps;
     }
+
+    namespace PhysicalDevices {
+        void EnumeratePhysicalDevices(Instance& instance, Uint_t& count, std::vector<PhysicalDevice>& physicalDevices) {
+            vkEnumeratePhysicalDevices(*instance.GetVkInstance(), &count, nullptr);
+            std::vector<VkPhysicalDevice> vkPhysicalDevices(count);
+            vkEnumeratePhysicalDevices(*instance.GetVkInstance(), &count, vkPhysicalDevices.data());
+
+            for(auto i = 0; i < vkPhysicalDevices.size(); ++i) {
+                physicalDevices.emplace_back(PhysicalDevice(&vkPhysicalDevices.at(i)));
+            }
+
+            vkPhysicalDevices.clear();
+        }
+    };
 };

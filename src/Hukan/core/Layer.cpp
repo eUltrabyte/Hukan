@@ -1,8 +1,8 @@
 #include "Layer.hpp"
 
 namespace hk {
-    Layer::Layer(VkLayerProperties vkLayerProperties) {
-        SetVkLayerProperties(vkLayerProperties);
+    Layer::Layer(VkLayerProperties* pVkLayerProperties) {
+        SetVkLayerProperties(pVkLayerProperties);
     }
 
     void Layer::PrintVkLayerProperties() {
@@ -17,8 +17,8 @@ namespace hk {
         Logger::Endl();
     }
 
-    void Layer::SetVkLayerProperties(VkLayerProperties vkLayerProperties) {
-        mVkLayerProperties = vkLayerProperties;
+    void Layer::SetVkLayerProperties(VkLayerProperties* pVkLayerProperties) {
+        mVkLayerProperties = *pVkLayerProperties;
     }
 
     const Char_t* Layer::GetName() HK_NOEXCEPT {
@@ -49,7 +49,7 @@ namespace hk {
             vkEnumerateInstanceLayerProperties(&count, vkLayers.data());
 
             for(auto i = 0; i < vkLayers.size(); ++i) {
-                layers.emplace_back(Layer(vkLayers.at(i)));
+                layers.emplace_back(Layer(&vkLayers.at(i)));
             }
 
             vkLayers.clear();
@@ -61,7 +61,7 @@ namespace hk {
             vkEnumerateInstanceLayerProperties(&count, vkLayers.data());
 
             for(auto i = 0; i < vkLayers.size(); ++i) {
-                layers.emplace_back(Layer(vkLayers.at(i)));
+                layers.emplace_back(Layer(&vkLayers.at(i)));
             }
 
             vkLayers.clear();

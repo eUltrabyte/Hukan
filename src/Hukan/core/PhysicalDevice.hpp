@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.hpp"
+#include "Instance.hpp"
 
 namespace hk {
     struct HK_API PhysicalDeviceProps {
@@ -39,7 +40,7 @@ namespace hk {
     class HK_API PhysicalDevice {
     public:
         PhysicalDevice(VkPhysicalDevice* pPhysicalDevice = nullptr);
-        virtual ~PhysicalDevice();
+        virtual ~PhysicalDevice() = default;
 
         virtual void PrintPhysicalDeviceProps();
 
@@ -52,5 +53,9 @@ namespace hk {
         VkPhysicalDevice mPhysicalDevice;
         PhysicalDeviceProps mPhysicalDeviceProps;
 
+    };
+
+    namespace PhysicalDevices {
+        extern void EnumeratePhysicalDevices(Instance& instance, Uint_t& count, std::vector<PhysicalDevice>& physicalDevices);
     };
 };
