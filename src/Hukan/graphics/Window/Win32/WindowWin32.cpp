@@ -12,7 +12,7 @@ namespace hk {
             case WM_DESTROY:
                 DestroyWindow(hwnd);
                 PostQuitMessage(0);
-                std::quick_exit(0);
+                std::exit(0);
                 break;
 
             default:

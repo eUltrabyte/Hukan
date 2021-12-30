@@ -23,18 +23,18 @@ namespace hk {
 
         Mat4x4() { Clear(); }
 
-        Mat4x4(T fov, T aspectRatio, T zNear, T zFar) { // REMEMBER FOV IN RADIANS
+        Mat4x4(T fov, T aspectRatio, T zNear, T zFar) {
             Clear();
             T _halfFov = 1.0f / std::tan(1.0f * fov);
             matrix[0][0] = 1.0f / aspectRatio * _halfFov;
-            matrix[1][1] = 1.0f / _halfFov;
+            matrix[1][1] = -(1.0f / _halfFov);
             matrix[2][2] = zFar / (zFar - zNear);
             matrix[2][3] = 1.0f;
             matrix[3][2] = -(2.0f * zFar * zNear) / (zFar - zNear);
         }
 
         Mat4x4(T left, T right, T bottom, T top, T zNear, T zFar) {
-            Clear();
+            Identity();
             matrix[0][0] = 2.0f / (right - left);
             matrix[1][1] = 2.0f / (top - bottom);
             matrix[2][2] = -2.0f / (zFar - zNear);
@@ -45,6 +45,13 @@ namespace hk {
 
         void Clear() {
             matrix = { std::array<T, 4>{ 0, 0, 0, 0 }, std::array<T, 4>{ 0, 0, 0, 0 }, std::array<T, 4>{ 0, 0, 0, 0 }, std::array<T, 4>{ 0, 0, 0, 0 } };
+        }
+
+        void Identity() {
+            matrix[0][0] = 1.0f;
+            matrix[1][1] = 1.0f;
+            matrix[2][2] = 1.0f;
+            matrix[3][3] = 1.0f;
         }
 
         void SetMatrixAt(Int_t x, Int_t y, T data) {
@@ -147,8 +154,8 @@ namespace hk {
     constexpr void Scale(Mat4x4<T>& mat, const Vec3<T>& vec) {
         Mat4x4<T> _result = Identity<T>();
         _result.matrix[0][0] = vec.x;
-        _result.matrix[1][1] = vec.x;
-        _result.matrix[2][2] = vec.x;
+        _result.matrix[1][1] = vec.y;
+        _result.matrix[2][2] = vec.z;
         mat = mat * _result;
     }
 

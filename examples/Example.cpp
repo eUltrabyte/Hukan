@@ -58,11 +58,17 @@ namespace hk {
         {{ -1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
         {{  1.0f, -1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
         {{  1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f }},
-        {{ -1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }}
+        {{ -1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }},
+
+        {{ -1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
+        {{  1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+        {{  1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f }},
+        {{ -1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }}
     };
 
     const std::vector<Uint_t> indices = {
-        0, 1, 2, 2, 3, 0
+        0, 1, 2, 2, 3, 0,
+        4, 5, 6, 6, 7, 4
     };
 
     VkCommandBuffer HK_API BeginSingleCommandBuffer(Device* pDevice, VkCommandPool* pCommandPool) {
@@ -125,9 +131,9 @@ namespace hk {
     }
 
     struct HK_API UBO {
-        Mat4x4f model;
-        Mat4x4f view;
-        Mat4x4f projection;
+        Mat4f model;
+        Mat4f view;
+        Mat4f projection;
     };
 
     void HK_API AllocateRawData(Device* pDevice, Buffer* pBuffer, VkDeviceSize size, const void* data) {
@@ -154,6 +160,26 @@ namespace hk {
 
         EndSingleCommandBuffer(pDevice, pCommandPool, _commandBuffer, pQueue);
     }
+
+    VkFormat FindSupportedFormat(PhysicalDevice* physicalDevice, const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
+        for(auto& format : candidates) {
+            VkFormatProperties properties;
+            vkGetPhysicalDeviceFormatProperties(*physicalDevice->GetVkPhysicalDevice(), format, &properties);
+            if(tiling == VK_IMAGE_TILING_LINEAR && (properties.linearTilingFeatures & features) == features) {
+                return format;
+            } else if(tiling == VK_IMAGE_TILING_OPTIMAL && (properties.optimalTilingFeatures & features) == features) {
+                return format;
+            }
+        }
+    }
+
+    VkFormat FindDepthFormat(PhysicalDevice* physicalDevice) {
+        return FindSupportedFormat(physicalDevice, { VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+    }
+
+    bool HasStencilComponent(VkFormat format) {
+        return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+    }
 };
 
 auto main(int argc, char** argv) -> int {
@@ -173,43 +199,31 @@ auto main(int argc, char** argv) -> int {
     appInfo.pNext = nullptr;
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pApplicationName = "Hukan-Example";
-    appInfo.engineVersion = VK_MAKE_VERSION(0, 1, 3);
+    appInfo.engineVersion = VK_MAKE_VERSION(0, 1, 4);
     appInfo.pEngineName = "Hukan";
     appInfo.apiVersion = instanceVersion;
 
-    hk::Uint_t layerCount = 0;
-    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-    std::vector<VkLayerProperties> vkLayers(layerCount);
-    vkEnumerateInstanceLayerProperties(&layerCount, vkLayers.data());
-
-    std::vector<hk::Layer> layers(layerCount);
-    for(int i = 0; i < layers.size(); ++i) {
-        layers.at(i).SetVkLayerProperties(&vkLayers.at(i));
+    std::vector<hk::Layer> layers;
+    hk::Layers::EnumerateLayers(layers);
+    for(auto i = 0; i < layers.size(); ++i) {
         layers.at(i).PrintVkLayerProperties();
     }
-    vkLayers.clear();
 
-    hk::Uint_t extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-    std::vector<VkExtensionProperties> vkExtensionsProperties(extensionCount);
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, vkExtensionsProperties.data());
-
-    std::vector<hk::Extension> extensions(extensionCount);
-    for(int i = 0; i < vkExtensionsProperties.size(); ++i) {
-        extensions.at(i).SetVkExtensionProperties(&vkExtensionsProperties.at(i));
+    std::vector<hk::Extension> extensions;
+    hk::Extensions::EnumerateExtensions(extensions);
+    for(int i = 0; i < extensions.size(); ++i) {
         extensions.at(i).PrintVkExtensionProperties();
     }
-    vkExtensionsProperties.clear();
 
     std::vector<const hk::Char_t*> usedExtensions;
 
-    usedExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+    usedExtensions.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME);
     #if defined(HUKAN_SYSTEM_WIN32)
-        usedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+        usedExtensions.emplace_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
     #elif defined(HUKAN_SYSTEM_POSIX)
-        usedExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+        usedExtensions.emplace_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
     #endif
-    usedExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    usedExtensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
     hk::MessengerCreateInfo messengerCreateInfo;
     messengerCreateInfo.pNext = nullptr;
@@ -222,7 +236,7 @@ auto main(int argc, char** argv) -> int {
     instanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)messengerCreateInfo.GetVkMessengerCreateInfo();
     instanceCreateInfo.pAppInfo = &appInfo;
 
-    #if HK_ENABLE_VALIDATION_LAYERS == false
+    #if defined(HK_ENABLE_VALIDATION_LAYERS)
         instanceCreateInfo.enabledLayersCount = hk::g_validationLayers.size();
         instanceCreateInfo.ppEnabledLayers = hk::g_validationLayers.data();
     #else
@@ -275,11 +289,10 @@ auto main(int argc, char** argv) -> int {
     #endif
 
     hk::Uint_t physicalDevicesCount = 0;
-    vkEnumeratePhysicalDevices(*instance.GetVkInstance(), &physicalDevicesCount, nullptr);
-    std::vector<VkPhysicalDevice> physicalDevices(physicalDevicesCount);
-    vkEnumeratePhysicalDevices(*instance.GetVkInstance(), &physicalDevicesCount, physicalDevices.data());
+    std::vector<hk::PhysicalDevice> physicalDevices;
+    hk::PhysicalDevices::EnumeratePhysicalDevices(instance, physicalDevicesCount, physicalDevices);
 
-    hk::PhysicalDevice physicalDevice(&physicalDevices.at(0));
+    hk::PhysicalDevice physicalDevice(physicalDevices.at(0).GetVkPhysicalDevice());
     physicalDevice.PrintPhysicalDeviceProps();
     physicalDevices.clear();
 
@@ -382,6 +395,9 @@ auto main(int argc, char** argv) -> int {
 
         if(surfaceSupport) {
             presentQueueCount = i;
+            hk::Logger::Log(hk::LoggerSeriousness::Info, std::string("Surface Is Supported: " + std::to_string(i)));
+        } else {
+            hk::Logger::Log(hk::LoggerSeriousness::Critical, std::string("Surface Is Not Supported: " + std::to_string(i)));
         }
 
         std::string _format = "Queue Family Number: " + std::to_string(i);
@@ -403,13 +419,6 @@ auto main(int argc, char** argv) -> int {
         hk::Logger::Endl();
     }
     vkFamilyProperties.clear();
-
-    if(!presentQueueCount) {
-        hk::Logger::Log(hk::LoggerSeriousness::Info, "Surface Is Supported");
-    } else {
-        hk::Logger::Log(hk::LoggerSeriousness::Critical, "Surface Is Not Supported!");
-    }
-    hk::Logger::Endl();
 
     VkQueue graphicsQueue;
     vkGetDeviceQueue(*device.GetVkDevice(), graphicsQueueCount, 0, &graphicsQueue);
@@ -590,7 +599,7 @@ auto main(int argc, char** argv) -> int {
     rasterizationStateCreateInfo.rasterizerDiscardEnable = VK_FALSE;
     rasterizationStateCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; // VK_FRONT_FACE_CLOCKWISE;
     rasterizationStateCreateInfo.depthBiasEnable = VK_FALSE;
     rasterizationStateCreateInfo.depthBiasConstantFactor = 0.0f;
     rasterizationStateCreateInfo.depthBiasClamp = 0.0f;
@@ -607,6 +616,20 @@ auto main(int argc, char** argv) -> int {
     multisampleStateCreateInfo.pSampleMask = nullptr;
     multisampleStateCreateInfo.alphaToCoverageEnable = VK_FALSE;
     multisampleStateCreateInfo.alphaToOneEnable = VK_FALSE;
+
+    VkPipelineDepthStencilStateCreateInfo depthStencilStateCreateInfo;
+    depthStencilStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencilStateCreateInfo.pNext = nullptr;
+    depthStencilStateCreateInfo.flags = 0;
+    depthStencilStateCreateInfo.depthTestEnable = VK_TRUE;
+    depthStencilStateCreateInfo.depthWriteEnable = VK_TRUE;
+    depthStencilStateCreateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
+    depthStencilStateCreateInfo.depthBoundsTestEnable = VK_FALSE;
+    depthStencilStateCreateInfo.minDepthBounds = 0.0f;
+    depthStencilStateCreateInfo.maxDepthBounds = 1.0f;
+    depthStencilStateCreateInfo.stencilTestEnable = VK_FALSE;
+    depthStencilStateCreateInfo.front = { };
+    depthStencilStateCreateInfo.back = { };
 
     VkPipelineColorBlendAttachmentState colorBlendAttachmentState;
     colorBlendAttachmentState.blendEnable = VK_TRUE;
@@ -644,20 +667,35 @@ auto main(int argc, char** argv) -> int {
     result = vkCreatePipelineLayout(*device.GetVkDevice(), &layoutCreateInfo, nullptr, &layout);
     HK_ASSERT_VK(result);
 
-    VkAttachmentDescription attachmentDescription;
-    attachmentDescription.flags = 0;
-    attachmentDescription.format = VK_FORMAT_B8G8R8A8_SRGB;
-    attachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
-    attachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    attachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    attachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    attachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    attachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    attachmentDescription.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    VkAttachmentDescription colorAttachmentDescription;
+    colorAttachmentDescription.flags = 0;
+    colorAttachmentDescription.format = VK_FORMAT_B8G8R8A8_SRGB;
+    colorAttachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachmentDescription.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-    VkAttachmentReference attachmentReference;
-    attachmentReference.attachment = 0;
-    attachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    VkAttachmentDescription depthAttachmentDescription;
+    depthAttachmentDescription.flags = 0;
+    depthAttachmentDescription.format = hk::FindDepthFormat(&physicalDevice);
+    depthAttachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthAttachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    depthAttachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    depthAttachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthAttachmentDescription.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference colorAttachmentReference;
+    colorAttachmentReference.attachment = 0;
+    colorAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference depthAttachmentReference;
+    depthAttachmentReference.attachment = 1;
+    depthAttachmentReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkSubpassDescription subpassDescription;
     subpassDescription.flags = 0;
@@ -665,27 +703,28 @@ auto main(int argc, char** argv) -> int {
     subpassDescription.inputAttachmentCount = 0;
     subpassDescription.pInputAttachments = nullptr;
     subpassDescription.colorAttachmentCount = 1;
-    subpassDescription.pColorAttachments = &attachmentReference;
+    subpassDescription.pColorAttachments = &colorAttachmentReference;
     subpassDescription.pResolveAttachments = nullptr;
-    subpassDescription.pDepthStencilAttachment = nullptr;
+    subpassDescription.pDepthStencilAttachment = &depthAttachmentReference;
     subpassDescription.preserveAttachmentCount = 0;
     subpassDescription.pPreserveAttachments = nullptr;
 
     VkSubpassDependency subpassDependency;
     subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     subpassDependency.dstSubpass = 0;
-    subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    subpassDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    subpassDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     subpassDependency.srcAccessMask = 0;
-    subpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    subpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
     subpassDependency.dependencyFlags = 0;
 
+    std::array<VkAttachmentDescription, 2> attachments = { colorAttachmentDescription, depthAttachmentDescription };
     VkRenderPassCreateInfo renderPassCreateInfo;
     renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassCreateInfo.pNext = nullptr;
     renderPassCreateInfo.flags = 0;
-    renderPassCreateInfo.attachmentCount = 1;
-    renderPassCreateInfo.pAttachments = &attachmentDescription;
+    renderPassCreateInfo.attachmentCount = attachments.size();
+    renderPassCreateInfo.pAttachments = attachments.data();
     renderPassCreateInfo.subpassCount = 1;
     renderPassCreateInfo.pSubpasses = &subpassDescription;
     renderPassCreateInfo.dependencyCount = 1;
@@ -707,7 +746,7 @@ auto main(int argc, char** argv) -> int {
     graphicsPipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
     graphicsPipelineCreateInfo.pRasterizationState = &rasterizationStateCreateInfo;
     graphicsPipelineCreateInfo.pMultisampleState = &multisampleStateCreateInfo;
-    graphicsPipelineCreateInfo.pDepthStencilState = nullptr;
+    graphicsPipelineCreateInfo.pDepthStencilState = &depthStencilStateCreateInfo;
     graphicsPipelineCreateInfo.pColorBlendState = &colorBlendStateCreateInfo;
     graphicsPipelineCreateInfo.pDynamicState = nullptr;
     graphicsPipelineCreateInfo.layout = layout;
@@ -720,23 +759,6 @@ auto main(int argc, char** argv) -> int {
     result = vkCreateGraphicsPipelines(*device.GetVkDevice(), VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, nullptr, &pipeline);
     HK_ASSERT_VK(result);
 
-    std::vector<VkFramebuffer> framebuffers(imagesInSwapchainCount);
-    for(int i = 0; i < imagesInSwapchainCount; ++i) {
-        VkFramebufferCreateInfo framebufferCreateInfo;
-        framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferCreateInfo.pNext = nullptr;
-        framebufferCreateInfo.flags = 0;
-        framebufferCreateInfo.renderPass = renderPass;
-        framebufferCreateInfo.attachmentCount = 1;
-        framebufferCreateInfo.pAttachments = &imageViews.at(i);
-        framebufferCreateInfo.width = window.GetWindowCreateInfo()->width;
-        framebufferCreateInfo.height = window.GetWindowCreateInfo()->height;
-        framebufferCreateInfo.layers = 1;
-
-        result = vkCreateFramebuffer(*device.GetVkDevice(), &framebufferCreateInfo, nullptr, &framebuffers.at(i));
-        HK_ASSERT_VK(result);
-    }
-
     VkCommandPoolCreateInfo commandPoolCreateInfo;
     commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     commandPoolCreateInfo.pNext = nullptr;
@@ -746,6 +768,104 @@ auto main(int argc, char** argv) -> int {
     VkCommandPool commandPool;
     result = vkCreateCommandPool(*device.GetVkDevice(), &commandPoolCreateInfo, nullptr, &commandPool);
     HK_ASSERT_VK(result);
+
+    VkFormat depthFormat = hk::FindDepthFormat(&physicalDevice);
+
+    VkImageCreateInfo depthImageCreateInfo;
+    depthImageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    depthImageCreateInfo.pNext = nullptr;
+    depthImageCreateInfo.flags = 0;
+    depthImageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+    depthImageCreateInfo.extent = { window.GetWindowCreateInfo()->width, window.GetWindowCreateInfo()->height, 1 };
+    depthImageCreateInfo.mipLevels = 1;
+    depthImageCreateInfo.arrayLayers = 1;
+    depthImageCreateInfo.format = depthFormat;
+    depthImageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    depthImageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthImageCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    depthImageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    depthImageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+
+    VkImage depthTextureImage;
+    result = vkCreateImage(*device.GetVkDevice(), &depthImageCreateInfo, nullptr, &depthTextureImage);
+    HK_ASSERT_VK(result);
+
+    VkMemoryRequirements depthTextureMemoryRequirements;
+    vkGetImageMemoryRequirements(*device.GetVkDevice(), depthTextureImage, &depthTextureMemoryRequirements);
+
+    VkMemoryAllocateInfo depthTextureMemoryAllocateInfo;
+    depthTextureMemoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    depthTextureMemoryAllocateInfo.pNext = nullptr;
+    depthTextureMemoryAllocateInfo.allocationSize = depthTextureMemoryRequirements.size;
+    depthTextureMemoryAllocateInfo.memoryTypeIndex = hk::FindMemoryType(*physicalDevice.GetVkPhysicalDevice(), depthTextureMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    VkDeviceMemory depthImageDeviceMemory;
+    result = vkAllocateMemory(*device.GetVkDevice(), &depthTextureMemoryAllocateInfo, nullptr, &depthImageDeviceMemory);
+    HK_ASSERT_VK(result);
+
+    vkBindImageMemory(*device.GetVkDevice(), depthTextureImage, depthImageDeviceMemory, 0);
+
+    VkImageViewCreateInfo depthImageViewCreateInfo;
+    depthImageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    depthImageViewCreateInfo.pNext = nullptr;
+    depthImageViewCreateInfo.flags = 0;
+    depthImageViewCreateInfo.image = depthTextureImage;
+    depthImageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    depthImageViewCreateInfo.format = depthFormat;
+    depthImageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+    depthImageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+    depthImageViewCreateInfo.subresourceRange.levelCount = 1;
+    depthImageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+    depthImageViewCreateInfo.subresourceRange.layerCount = 1;
+    depthImageViewCreateInfo.components = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY };
+
+    VkImageView depthImageView;
+    result = vkCreateImageView(*device.GetVkDevice(), &depthImageViewCreateInfo, nullptr, &depthImageView);
+    HK_ASSERT_VK(result);
+
+    VkCommandBuffer depthCommandBuffer = hk::BeginSingleCommandBuffer(&device, &commandPool);
+
+    VkImageMemoryBarrier depthImageMemoryBarrier;
+    depthImageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    depthImageMemoryBarrier.pNext = nullptr;
+    depthImageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depthImageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    depthImageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    depthImageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    depthImageMemoryBarrier.image = depthTextureImage;
+    depthImageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+    if(hk::HasStencilComponent(depthFormat)) {
+        depthImageMemoryBarrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+    }
+    depthImageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+    depthImageMemoryBarrier.subresourceRange.levelCount = 1;
+    depthImageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+    depthImageMemoryBarrier.subresourceRange.layerCount = 1;
+    depthImageMemoryBarrier.srcAccessMask = 0;
+    depthImageMemoryBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    
+    vkCmdPipelineBarrier(depthCommandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, 0, 0, nullptr, 0, nullptr, 1, &depthImageMemoryBarrier);
+
+    hk::EndSingleCommandBuffer(&device, &commandPool, depthCommandBuffer, &graphicsQueue);
+
+    std::vector<VkFramebuffer> framebuffers(imagesInSwapchainCount);
+    for(int i = 0; i < imagesInSwapchainCount; ++i) {
+        std::array<VkImageView, 2> attachments = { imageViews.at(i), depthImageView };
+
+        VkFramebufferCreateInfo framebufferCreateInfo;
+        framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferCreateInfo.pNext = nullptr;
+        framebufferCreateInfo.flags = 0;
+        framebufferCreateInfo.renderPass = renderPass;
+        framebufferCreateInfo.attachmentCount = attachments.size();
+        framebufferCreateInfo.pAttachments = attachments.data();
+        framebufferCreateInfo.width = window.GetWindowCreateInfo()->width;
+        framebufferCreateInfo.height = window.GetWindowCreateInfo()->height;
+        framebufferCreateInfo.layers = 1;
+
+        result = vkCreateFramebuffer(*device.GetVkDevice(), &framebufferCreateInfo, nullptr, &framebuffers.at(i));
+        HK_ASSERT_VK(result);
+    }
 
     int textureWidth, textureHeight, textureChannels;
     stbi_uc* pixels = stbi_load("res/test.jpg", &textureWidth, &textureHeight, &textureChannels, STBI_rgb_alpha);
@@ -1043,9 +1163,11 @@ auto main(int argc, char** argv) -> int {
         renderPassBeginInfo.framebuffer = framebuffers.at(i);
         renderPassBeginInfo.renderArea.offset = { 0, 0 };
         renderPassBeginInfo.renderArea.extent = { window.GetWindowCreateInfo()->width, window.GetWindowCreateInfo()->height };
-        VkClearValue clearValue = { 0.0f, 0.0f, 0.0f, 1.0f };
-        renderPassBeginInfo.clearValueCount = 1;
-        renderPassBeginInfo.pClearValues = &clearValue;
+        std::array<VkClearValue, 2> clearValues;
+        clearValues.at(0).color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+        clearValues.at(1).depthStencil = { 1.0f, 0 };
+        renderPassBeginInfo.clearValueCount = clearValues.size();
+        renderPassBeginInfo.pClearValues = clearValues.data();
 
         vkCmdBeginRenderPass(commandBuffers.at(i), &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -1090,10 +1212,11 @@ auto main(int argc, char** argv) -> int {
         hk::UBO ubo;
         ubo.model = hk::Identity<hk::Float_t>();
         hk::Scale(ubo.model, hk::Vec3f(1.0f, 1.0f, 1.0f));
-        // hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f) * 2.0f, hk::Vec3f(0.0f, 0.0f, 1.0f));
-        ubo.view = hk::LookAt(hk::Vec3f(0.0f, 0.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 2.0f) + hk::Vec3f(0.0f, 0.0f, -1.0f), hk::Vec3f(0.0f, 1.0f, 0.0f));
-        ubo.projection = hk::Projection(hk::radians(45.0f), (hk::Float_t)(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), 0.1f, 1000.0f);
-        ubo.projection.matrix[1][1] *= -1;
+        hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f) * 2.0f, hk::Vec3f(0.0f, 0.0f, 1.0f));
+        ubo.view = hk::LookAt(hk::Vec3f(2.0f, 2.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 0.0f), hk::Vec3f(0.0f, 0.0f, 1.0f));
+        // ubo.view = hk::LookAt(hk::Vec3f(0.0f, 0.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 1.0f), hk::Vec3f(0.0f, 1.0f, 0.0f));
+        ubo.projection = hk::Projection<hk::Float_t>(hk::radians(45.0f), (hk::Float_t)(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), 0.1f, 1000.0f);
+        // ubo.projection = hk::Ortho2D<hk::Float_t>(0.0f, window.GetWindowCreateInfo()->width, 0.0f, window.GetWindowCreateInfo()->height, -1.0f, 1.0f);
 
         hk::AllocateRawData(&device, &uniformBuffer, sizeof(ubo), &ubo);
 

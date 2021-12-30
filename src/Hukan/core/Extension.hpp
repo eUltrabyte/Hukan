@@ -6,7 +6,7 @@ namespace hk {
     class HK_API Extension {
     public:
         Extension(VkExtensionProperties* pVkExtensionProperties = nullptr);
-        virtual ~Extension();
+        virtual ~Extension() = default;
 
         virtual void PrintVkExtensionProperties();
 
@@ -18,7 +18,12 @@ namespace hk {
         HK_NODISCARD virtual VkExtensionProperties* GetVkExtensionProperties() HK_NOEXCEPT;
 
     private:
-        VkExtensionProperties* mpVkExtensionProperties;
+        VkExtensionProperties mVkExtensionProperties;
 
+    };
+
+    namespace Extensions {
+        extern void EnumerateExtensions(std::vector<Extension>& extensions) HK_NOEXCEPT;
+        extern void EnumerateExtensions(Uint_t& count, std::vector<Extension>& extensions) HK_NOEXCEPT;
     };
 };
