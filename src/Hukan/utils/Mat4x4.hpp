@@ -36,7 +36,7 @@ namespace hk {
         Mat4x4(T left, T right, T bottom, T top, T zNear, T zFar) {
             Identity();
             matrix[0][0] = 2.0f / (right - left);
-            matrix[1][1] = -2.0f / (top - bottom);
+            matrix[1][1] = 2.0f / (top - bottom);
             matrix[2][2] = -2.0f / (zFar - zNear);
             matrix[3][0] = -(right + left) / (right - left);
             matrix[3][1] = -(top + bottom) / (top - bottom);
