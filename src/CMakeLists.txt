@@ -23,7 +23,7 @@ if(UNIX)
 endif(UNIX)
 
 set(Hukan_SOURCE
-    ../include/stb_image.h
+    ../include/stb_image.hpp
     Hukan/core/Build.hpp
     Hukan/utils/Types.hpp
     Hukan/utils/Clock.hpp
