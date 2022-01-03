@@ -13,11 +13,11 @@ namespace hk {
 
     class HK_API Logger {
     public:
-        Logger(const std::string& filename);
-        virtual ~Logger();
+        Logger(std::string_view filename);
+        virtual ~Logger() = default;
         
-        static void HK_API Log(const std::string& format, Terminal::ColorList color = Terminal::ColorList::Reset);
-        static void HK_API Log(const LoggerSeriousness& seriousness, const std::string& format, Terminal::ColorList color = Terminal::ColorList::Reset);
+        static void HK_API Log(std::string_view format, Terminal::ColorList color = Terminal::ColorList::Reset);
+        static void HK_API Log(const LoggerSeriousness& seriousness, std::string_view format, Terminal::ColorList color = Terminal::ColorList::Reset);
         static void HK_API Endl();
         
     };

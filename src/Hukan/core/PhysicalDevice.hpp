@@ -56,6 +56,7 @@ namespace hk {
     };
 
     namespace PhysicalDevices {
-        extern void EnumeratePhysicalDevices(Instance& instance, Uint_t& count, std::vector<PhysicalDevice>& physicalDevices);
+        extern void HK_API EnumeratePhysicalDevices(Instance& instance, Uint_t& count, std::vector<PhysicalDevice>& physicalDevices);
+        extern bool HK_API IsDeviceSuitable(PhysicalDevice physicalDevice);
     };
 };

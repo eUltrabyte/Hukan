@@ -1,20 +1,16 @@
 #include "Logger.hpp"
 
 namespace hk {
-    Logger::Logger(const std::string& filename) {
+    Logger::Logger(std::string_view filename) {
         // TODO: writing to file
     }
-    
-    Logger::~Logger() {
-        delete this;
-    }
 
-    void Logger::Log(const std::string& format, Terminal::ColorList color) {
+    void Logger::Log(std::string_view format, Terminal::ColorList color) {
         Terminal::Color::UseColor(color);
-        printf("%s", format.c_str());
+        printf("%s", format.data());
     }
 
-    void Logger::Log(const LoggerSeriousness& seriousness, const std::string& format, Terminal::ColorList color) {
+    void Logger::Log(const LoggerSeriousness& seriousness, std::string_view format, Terminal::ColorList color) {
         std::tm* _now = Clock::GetActualTime();
 
         std::string _hours;

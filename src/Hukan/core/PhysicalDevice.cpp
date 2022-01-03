@@ -38,5 +38,9 @@ namespace hk {
 
             vkPhysicalDevices.clear();
         }
+
+        bool IsDeviceSuitable(PhysicalDevice physicalDevice) {
+            return physicalDevice.GetPhysicalDeviceProps()->geometryShader;
+        }
     };
 };

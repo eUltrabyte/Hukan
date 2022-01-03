@@ -4,6 +4,7 @@ project(Hukan)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DHUKAN_DEBUG")
 
@@ -22,7 +23,7 @@ if(UNIX)
 endif(UNIX)
 
 set(Hukan_SOURCE
-    ../include/stb_image.h
+    ../include/stb_image.hpp
     Hukan/core/Build.hpp
     Hukan/utils/Types.hpp
     Hukan/utils/Clock.hpp
