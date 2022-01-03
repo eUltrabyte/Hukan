@@ -387,17 +387,17 @@ auto main(int argc, char** argv) -> int {
     for(int i = 0; i < queueFamiliesCount; ++i) {
         if(vkFamilyProperties.at(i).queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             graphicsQueueCount = i;
-        }
 
-        VkBool32 surfaceSupport = false;
-        result = vkGetPhysicalDeviceSurfaceSupportKHR(*physicalDevice.GetVkPhysicalDevice(), i, *surface.GetVkSurfaceKHR(), &surfaceSupport);
-        HK_ASSERT_VK(result);
+            VkBool32 surfaceSupport = false;
+            result = vkGetPhysicalDeviceSurfaceSupportKHR(*physicalDevice.GetVkPhysicalDevice(), i, *surface.GetVkSurfaceKHR(), &surfaceSupport);
+            HK_ASSERT_VK(result);
 
-        if(surfaceSupport) {
-            presentQueueCount = i;
-            hk::Logger::Log(hk::LoggerSeriousness::Info, std::string("Surface Is Supported: " + std::to_string(i)));
-        } else {
-            hk::Logger::Log(hk::LoggerSeriousness::Critical, std::string("Surface Is Not Supported: " + std::to_string(i)));
+            if(surfaceSupport) {
+                presentQueueCount = graphicsQueueCount;
+                hk::Logger::Log(hk::LoggerSeriousness::Info, std::string("Surface Is Supported: " + std::to_string(i)));
+            } else {
+                hk::Logger::Log(hk::LoggerSeriousness::Critical, std::string("Surface Is Not Supported: " + std::to_string(i)));
+            }
         }
 
         std::string _format = "Queue Family Number: " + std::to_string(i);
