@@ -325,14 +325,18 @@ auto main(int argc, char** argv) -> int {
 
     hk::Device device(&physicalDevice, &deviceCreateInfo);
 
-    VkSurfaceCapabilitiesKHR surfaceCapabilities;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(*physicalDevice.GetVkPhysicalDevice(), *surface.GetVkSurfaceKHR(), &surfaceCapabilities);
+    // VkSurfaceCapabilitiesKHR surfaceCapabilities;
+    // vkGetPhysicalDeviceSurfaceCapabilitiesKHR(*physicalDevice.GetVkPhysicalDevice(), *surface.GetVkSurfaceKHR(), &surfaceCapabilities);
+    
+    hk::SurfaceCapabilities surfaceCapabilities;
+    hk::GetSurfaceCapabilities(&physicalDevice, &surface, &surfaceCapabilities);
+
     std::vector<std::string> formatSurfaceCapabilities(10);
     formatSurfaceCapabilities.at(0) = "Surface minImageCount: " + std::to_string(surfaceCapabilities.minImageCount);
     formatSurfaceCapabilities.at(1) = "Surface maxImageCount: " + std::to_string(surfaceCapabilities.maxImageCount);
-    formatSurfaceCapabilities.at(2) = "Surface currentExtent: " + std::to_string(surfaceCapabilities.currentExtent.width) + "/" + std::to_string(surfaceCapabilities.currentExtent.height);
-    formatSurfaceCapabilities.at(3) = "Surface minImageExtent: " + std::to_string(surfaceCapabilities.minImageExtent.width) + "/" + std::to_string(surfaceCapabilities.minImageExtent.height);
-    formatSurfaceCapabilities.at(4) = "Surface maxImageExtent: " + std::to_string(surfaceCapabilities.maxImageExtent.width) + "/" + std::to_string(surfaceCapabilities.maxImageExtent.height);
+    formatSurfaceCapabilities.at(2) = "Surface currentExtent: " + std::to_string(surfaceCapabilities.currentExtent.x) + "/" + std::to_string(surfaceCapabilities.currentExtent.y);
+    formatSurfaceCapabilities.at(3) = "Surface minImageExtent: " + std::to_string(surfaceCapabilities.minImageExtent.x) + "/" + std::to_string(surfaceCapabilities.minImageExtent.y);
+    formatSurfaceCapabilities.at(4) = "Surface maxImageExtent: " + std::to_string(surfaceCapabilities.maxImageExtent.x) + "/" + std::to_string(surfaceCapabilities.maxImageExtent.y);
     formatSurfaceCapabilities.at(5) = "Surface maxImageArrayLayers: " + std::to_string(surfaceCapabilities.maxImageArrayLayers);
     formatSurfaceCapabilities.at(6) = "Surface supportedTransforms: " + std::to_string(surfaceCapabilities.supportedTransforms);
     formatSurfaceCapabilities.at(7) = "Surface currentTransform: " + std::to_string(surfaceCapabilities.currentTransform);

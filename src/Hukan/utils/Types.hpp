@@ -4,6 +4,7 @@
 
 namespace hk {
     using Char_t = char;
+    using Uchar_t = unsigned char;
     using Short_t = short;
     using Int_t = int;
     using Uint_t = unsigned int;
