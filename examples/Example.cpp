@@ -55,20 +55,44 @@ namespace hk {
     };
 
     const std::vector<Vertex> vertices = {
-        {{ -1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
-        {{  1.0f, -1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
-        {{  1.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f }},
-        {{ -1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }},
+        {{ -1.0f, -1.0f, -0.5f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
+        {{  1.0f, -1.0f, -0.5f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+        {{  1.0f,  1.0f, -0.5f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f }},
+        {{ -1.0f,  1.0f, -0.5f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }},
+
+        /* {{  1.0f, 1.0f, -1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
+        {{ -1.0f, 1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+        {{ -1.0f, 1.0f,  1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f }},
+        {{  1.0f, 1.0f,  1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }},
 
         {{ -1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
         {{  1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+        {{  1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f }},
+        {{ -1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }}, */
+
+        {{ -1.0f, -1.0f, -1.75f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
+        {{  1.0f, -1.0f, -1.75f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+        {{  1.0f,  1.0f, -1.75f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f }},
+        {{ -1.0f,  1.0f, -1.75f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }},
+
+        /* {{  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
+        {{  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
         {{  1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f }},
-        {{ -1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }}
+        {{  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }},
+
+        {{ -1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
+        {{ -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+        {{ -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 0.0f }},
+        {{ -1.0f, -1.0f, -1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }}, */
     };
 
     const std::vector<Uint_t> indices = {
         0, 1, 2, 2, 3, 0,
-        4, 5, 6, 6, 7, 4
+        4, 5, 6, 6, 7, 4,
+        /* 8, 9, 10, 10, 11, 8,
+        12, 13, 14, 14, 15, 12,
+        16, 17, 18, 18, 19, 16,
+        20, 21, 22, 22, 23, 20, */
     };
 
     VkCommandBuffer HK_API BeginSingleCommandBuffer(Device* pDevice, VkCommandPool* pCommandPool) {
@@ -1196,22 +1220,41 @@ auto main(int argc, char** argv) -> int {
     result = vkCreateSemaphore(*device.GetVkDevice(), &semaphoreCreateInfo, nullptr, &semaphoreRenderingDone);
     HK_ASSERT_VK(result);
 
-    hk::Float_t rotationTime = 0.0f;
-    hk::Clock rotationClock;
+    // hk::Float_t rotationTime = 0.0f;
+    // hk::Clock rotationClock;
+
+    hk::UBO ubo;
+    ubo.model = hk::Identity<hk::Float_t>();
+    // hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f) * 2.0f, hk::Vec3f(0.0f, 0.0f, 1.0f));
+    ubo.view = hk::LookAt(hk::Vec3f(2.0f, 2.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 0.0f), hk::Vec3f(0.0f, 0.0f, 1.0f));
+    // ubo.view = hk::LookAt(hk::Vec3f(0.0f, 0.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 1.0f), hk::Vec3f(0.0f, 1.0f, 0.0f));
+    ubo.projection = hk::Projection<hk::Float_t>(hk::radians(45.0f), (hk::Float_t)(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), 0.1f, 1000.0f);
+    // ubo.projection = hk::Ortho2D<hk::Float_t>(-(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), (window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), -1.0f, 1.0f, -1.0f, 1.0f);
+    hk::Vec3f position = hk::Vec3f(2.0f, 2.0f, 2.0f);
+    hk::Vec3f direction;
+
     while(true) {
         hk::Uint_t imageIndex = 0;
         vkAcquireNextImageKHR(*device.GetVkDevice(), swapchain, std::numeric_limits<hk::Uint64_t>::infinity(), semaphoreImageAvailable, VK_NULL_HANDLE, &imageIndex);
 
-        rotationTime = std::chrono::duration<hk::Float_t, std::chrono::seconds::period>(std::chrono::steady_clock::now() - *rotationClock.GetStartPoint()).count();
+        // rotationTime = std::chrono::duration<hk::Float_t, std::chrono::seconds::period>(std::chrono::steady_clock::now() - *rotationClock.GetStartPoint()).count();
+        hk::Rotate(ubo.model, hk::radians(0.1f), hk::Vec3f(0.0f, 0.0f, 1.0f));
 
-        hk::UBO ubo;
-        ubo.model = hk::Identity<hk::Float_t>();
-        hk::Scale(ubo.model, hk::Vec3f(1.0f, 1.0f, 1.0f));
-        hk::Rotate(ubo.model, rotationTime * hk::radians(90.0f) * 2.0f, hk::Vec3f(0.0f, 0.0f, 1.0f));
-        ubo.view = hk::LookAt(hk::Vec3f(2.0f, 2.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 0.0f), hk::Vec3f(0.0f, 0.0f, 1.0f));
-        // ubo.view = hk::LookAt(hk::Vec3f(0.0f, 0.0f, 2.0f), hk::Vec3f(0.0f, 0.0f, 1.0f), hk::Vec3f(0.0f, 1.0f, 0.0f));
-        ubo.projection = hk::Projection<hk::Float_t>(hk::radians(45.0f), (hk::Float_t)(window.GetWindowCreateInfo()->width / window.GetWindowCreateInfo()->height), 0.1f, 1000.0f);
-        // ubo.projection = hk::Ortho2D<hk::Float_t>(0.0f, window.GetWindowCreateInfo()->width, 0.0f, window.GetWindowCreateInfo()->height, -1.0f, 1.0f);
+        if(GetAsyncKeyState(VK_UP)) {
+            // hk::Rotate(ubo.view, hk::radians(0.05f), hk::Vec3f(0.0f, 0.0f, 1.0f));
+            hk::Translate(ubo.view, hk::Vec3f(0.0f, -0.005f, 0.0f));
+        } else if(GetAsyncKeyState(VK_DOWN)) {
+            // hk::Rotate(ubo.view, -hk::radians(0.05f), hk::Vec3f(0.0f, 0.0f, 1.0f));
+            hk::Translate(ubo.view, hk::Vec3f(0.0f, 0.005f, 0.0f));
+        }
+
+        if(GetAsyncKeyState(VK_LEFT)) {
+            // hk::Rotate(ubo.view, -hk::radians(0.05f), hk::Vec3f(1.0f, 0.0f, 0.0f));
+            hk::Translate(ubo.view, hk::Vec3f(-0.005f, 0.0f, 0.0f));
+        } else if(GetAsyncKeyState(VK_RIGHT)) {
+            // hk::Rotate(ubo.view, hk::radians(0.05f), hk::Vec3f(1.0f, 0.0f, 0.0f));
+            hk::Translate(ubo.view, hk::Vec3f(0.005f, 0.0f, 0.0f));
+        }
 
         hk::AllocateRawData(&device, &uniformBuffer, sizeof(ubo), &ubo);
 

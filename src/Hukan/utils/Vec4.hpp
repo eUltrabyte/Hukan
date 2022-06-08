@@ -115,4 +115,35 @@ namespace hk {
     using Vec4u = Vec4<Uint_t>;
     using Vec4l = Vec4<Long_t>;
     using Vec4d = Vec4<Double_t>;
+
+    template<typename T>
+    constexpr T DotProduct(const Vec4<T>& vec0, const Vec4<T>& vec1) {
+        return vec0.x * vec1.x + vec0.y * vec1.y + vec0.z * vec1.z + vec0.w * vec1.w;
+    }
+
+    template<typename T>
+    constexpr Vec4<T> CrossProduct(const Vec4<T>& vec0, const Vec4<T>& vec1) {
+        Vec4<T> value;
+        value.x = vec0.y * vec1.z - vec0.z * vec1.w;
+        value.y = vec0.z * vec1.x - vec0.x * vec1.y;
+        value.z = vec0.x * vec1.w - vec0.w * vec1.z;
+        value.w = vec0.w * vec1.y - vec0.y * vec1.x;
+        return value;
+    }
+
+    template<typename T>
+    constexpr T Length(const Vec4<T>& vec) {
+        return std::sqrt((vec.x * vec.x) + (vec.y * vec.y) + (vec.z * vec.z) + (vec.w * vec.w));
+    }
+
+    template<typename T>
+    constexpr Vec4<T> Normalize(const Vec4<T>& vec) {
+        T length = Length(vec);
+        Vec4<T> value;
+        value.x = vec.x / length;
+        value.y = vec.y / length;
+        value.z = vec.z / length;
+        value.w = vec.w / length;
+        return value;
+    }
 };

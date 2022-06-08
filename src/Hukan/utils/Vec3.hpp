@@ -44,6 +44,18 @@ namespace hk {
             return Vec3<T>(x + vec.x, y + vec.y, z + vec.z);
         }
 
+        Vec3<T> operator-(const Vec3<T>& vec) HK_NOEXCEPT {
+            return Vec3<T>(x - vec.x, y - vec.y, z - vec.z);
+        }
+
+        Vec3<T> operator*(const Vec3<T>& vec) HK_NOEXCEPT {
+            return Vec3<T>(x * vec.x, y * vec.y, z * vec.z);
+        }
+
+        Vec3<T> operator/(const Vec3<T>& vec) HK_NOEXCEPT {
+            return Vec3<T>(x / vec.x, y / vec.y, z / vec.z);
+        }
+
         Vec3<T> operator+=(const T& value) HK_NOEXCEPT {
             return Vec3<T>(x += value, y += value, z += value);
         }
@@ -90,11 +102,11 @@ namespace hk {
 
     template<typename T>
     constexpr Vec3<T> CrossProduct(const Vec3<T>& vec0, const Vec3<T>& vec1) {
-        Vec3<T> _result;
-        _result.x = vec0.y * vec1.z - vec0.z * vec1.y;
-        _result.y = vec0.z * vec1.x - vec0.x * vec1.z;
-        _result.z = vec0.x * vec1.y - vec0.y * vec1.x;
-        return _result;
+        Vec3<T> value;
+        value.x = vec0.y * vec1.z - vec0.z * vec1.y;
+        value.y = vec0.z * vec1.x - vec0.x * vec1.z;
+        value.z = vec0.x * vec1.y - vec0.y * vec1.x;
+        return value;
     }
 
     template<typename T>
@@ -104,11 +116,30 @@ namespace hk {
 
     template<typename T>
     constexpr Vec3<T> Normalize(const Vec3<T>& vec) {
-        T _length = Length(vec);
-        Vec3<T> _result;
-        _result.x = vec.x / _length;
-        _result.y = vec.y / _length;
-        _result.z = vec.z / _length;
-        return _result;
+        T length = Length(vec);
+        Vec3<T> value;
+        value.x = vec.x / length;
+        value.y = vec.y / length;
+        value.z = vec.z / length;
+        return value;
+    }
+
+    template<typename T>
+    constexpr Vec3<T> Rotate(const Vec3<T>& point, const Vec3<T>& angle) {
+        Vec3<T> coords = point;
+
+        const Vec2<T> roll = Rotate<T>(Vec2<T>(point.x, point.y), angle.z);
+        coords.x = roll.x;
+        coords.y = roll.y;
+
+        const Vec2<T> pitch = Rotate<T>(Vec2<T>(point.y, point.z), angle.x);
+        coords.y = pitch.x;
+        coords.z = pitch.y;
+
+        const Vec2<T> yaw = Rotate<T>(Vec2<T>(point.x, point.z), angle.y);
+        coords.x = yaw.x;
+        coords.z = yaw.y;
+
+        return coords;
     }
 };
