@@ -47,6 +47,11 @@ namespace hk {
     ::Window* WindowImplPosix::GetWindow() {
         return &mWindow;
     }
+
+    bool WindowImplPosix::GetKeyState(int sign) {
+        // TODO
+        return false;
+    }
 };
 
 #endif

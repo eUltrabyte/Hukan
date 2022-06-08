@@ -97,6 +97,14 @@ namespace hk {
     HWND* WindowImplWin32::GetHWND() {
         return &mHwnd;
     }
+
+    bool WindowImplWin32::GetKeyState(int sign) {
+        if(GetAsyncKeyState(sign)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 };
 
 #endif

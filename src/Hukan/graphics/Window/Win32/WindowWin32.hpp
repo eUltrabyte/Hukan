@@ -20,6 +20,7 @@ namespace hk {
         virtual WindowCreateInfo* GetWindowCreateInfo();
         virtual HINSTANCE* GetHINSTANCE();
         virtual HWND* GetHWND();
+        virtual bool GetKeyState(int sign);
 
     private:
         WindowCreateInfo* mpWindowCreateInfo;

@@ -16,4 +16,8 @@ namespace hk {
     WindowCreateInfo* Window::GetWindowCreateInfo() {
         return mpWindowCreateInfo;
     }
+
+    bool Window::GetKeyState(int sign) {
+        return false;
+    }
 };

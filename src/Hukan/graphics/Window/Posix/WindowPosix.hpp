@@ -21,6 +21,7 @@ namespace hk {
         virtual WindowCreateInfo* GetWindowCreateInfo();
         virtual Display* GetDisplay();
         virtual ::Window* GetWindow();
+        virtual bool GetKeyState(int sign);
 
     private:
         WindowCreateInfo* mpWindowCreateInfo;

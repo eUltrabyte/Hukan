@@ -26,6 +26,7 @@ namespace hk {
         virtual void SetWindowCreateInfo(WindowCreateInfo* pWindowCreateInfo = nullptr);
 
         virtual WindowCreateInfo* GetWindowCreateInfo();
+        virtual bool GetKeyState(int sign);
 
     private:
         WindowCreateInfo* mpWindowCreateInfo;

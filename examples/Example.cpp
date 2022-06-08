@@ -1240,20 +1240,26 @@ auto main(int argc, char** argv) -> int {
         // rotationTime = std::chrono::duration<hk::Float_t, std::chrono::seconds::period>(std::chrono::steady_clock::now() - *rotationClock.GetStartPoint()).count();
         hk::Rotate(ubo.model, hk::radians(0.1f), hk::Vec3f(0.0f, 0.0f, 1.0f));
 
-        if(GetAsyncKeyState(VK_UP)) {
+        if(window.GetKeyState(VK_UP)) {
             // hk::Rotate(ubo.view, hk::radians(0.05f), hk::Vec3f(0.0f, 0.0f, 1.0f));
             hk::Translate(ubo.view, hk::Vec3f(0.0f, -0.005f, 0.0f));
-        } else if(GetAsyncKeyState(VK_DOWN)) {
+        } else if(window.GetKeyState(VK_DOWN)) {
             // hk::Rotate(ubo.view, -hk::radians(0.05f), hk::Vec3f(0.0f, 0.0f, 1.0f));
             hk::Translate(ubo.view, hk::Vec3f(0.0f, 0.005f, 0.0f));
         }
 
-        if(GetAsyncKeyState(VK_LEFT)) {
+        if(window.GetKeyState(VK_LEFT)) {
             // hk::Rotate(ubo.view, -hk::radians(0.05f), hk::Vec3f(1.0f, 0.0f, 0.0f));
             hk::Translate(ubo.view, hk::Vec3f(-0.005f, 0.0f, 0.0f));
-        } else if(GetAsyncKeyState(VK_RIGHT)) {
+        } else if(window.GetKeyState(VK_RIGHT)) {
             // hk::Rotate(ubo.view, hk::radians(0.05f), hk::Vec3f(1.0f, 0.0f, 0.0f));
             hk::Translate(ubo.view, hk::Vec3f(0.005f, 0.0f, 0.0f));
+        }
+
+        if(window.GetKeyState('W')) {
+            hk::Rotate(ubo.model, hk::radians(0.1f), hk::Vec3f(1.0f, 0.0f, 0.0f));
+        } else if(window.GetKeyState('S')) {
+            hk::Rotate(ubo.model, -hk::radians(0.1f), hk::Vec3f(1.0f, 0.0f, 0.0f));
         }
 
         hk::AllocateRawData(&device, &uniformBuffer, sizeof(ubo), &ubo);
